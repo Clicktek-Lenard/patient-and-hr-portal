@@ -64,13 +64,14 @@ function LoginPageInner() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPw, setShowPw]       = useState(false);
 
-  // Lock to the portal specified in the URL
-  const lockedPortal = portalParam === "hr" ? "hr" : portalParam === "patient" ? "patient" : null;
+  // Lock to the portal specified in the URL, or infer from callbackUrl
+  const isHrCallback   = callbackUrl?.startsWith("/hr") ?? false;
+  const lockedPortal   = portalParam === "hr" ? "hr" : portalParam === "patient" ? "patient" : null;
 
   useEffect(() => {
-    if (portalParam === "hr") setTab("hr");
+    if (portalParam === "hr" || isHrCallback) setTab("hr");
     else setTab("patient");
-  }, [portalParam]);
+  }, [portalParam, isHrCallback]);
 
   const patientForm = useForm<PatientInput>({
     resolver: zodResolver(patientLoginSchema),
@@ -188,7 +189,7 @@ function LoginPageInner() {
           </p>
 
           {/* Tab switcher — only shown when no portal is pre-selected */}
-          {!lockedPortal && (
+          {!lockedPortal && !isHrCallback && (
             <div style={{
               display: "flex", gap: 6, padding: 5,
               background: "#f3f4f6", borderRadius: 14, marginBottom: 28,

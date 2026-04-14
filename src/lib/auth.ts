@@ -63,21 +63,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             throw new Error("Invalid Patient ID or date of birth");
           }
 
-          const cmsPatient = await cmsPrisma.cmsPatient.findUnique({
-            where: { code: patientCode },
-            select: { dob: true },
-          });
+          // Try CMS DB first; fall back to portal DB dob field
+          let refDob: Date | null = null;
+          try {
+            const cmsPatient = await cmsPrisma.cmsPatient.findUnique({
+              where: { code: patientCode },
+              select: { dob: true },
+            });
+            if (cmsPatient) refDob = new Date(cmsPatient.dob);
+          } catch {
+            // CMS DB unavailable — fall through to portal dob
+          }
 
-          if (!cmsPatient) {
-            throw new Error("Invalid Patient ID or date of birth");
+          if (!refDob) {
+            // Fall back to dob stored in portal_users
+            if (!user.dob) throw new Error("Invalid Patient ID or date of birth");
+            refDob = new Date(user.dob);
           }
 
           const inputDob   = new Date(dob);
-          const cmsDob     = new Date(cmsPatient.dob);
           const dobMatches =
-            inputDob.getFullYear() === cmsDob.getFullYear() &&
-            inputDob.getMonth()    === cmsDob.getMonth() &&
-            inputDob.getDate()     === cmsDob.getDate();
+            inputDob.getFullYear() === refDob.getFullYear() &&
+            inputDob.getMonth()    === refDob.getMonth() &&
+            inputDob.getDate()     === refDob.getDate();
 
           if (!dobMatches) {
             throw new Error("Invalid Patient ID or date of birth");
