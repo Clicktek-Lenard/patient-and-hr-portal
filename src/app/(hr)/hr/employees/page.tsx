@@ -213,7 +213,7 @@ export default function HrEmployeesPage() {
                 patients.map((p) => {
                   const initials = ((p.firstName?.[0] ?? "") + (p.lastName?.[0] ?? "")).toUpperCase() || "?";
                   const age = getAge(p.dob);
-                  const href = p.code ? `/hr/employees/${p.code}` : null;
+                  const href = p.code ? `/hr/employees/${encodeURIComponent(p.code)}` : null;
                   return (
                     <tr
                       key={String(p.id)}

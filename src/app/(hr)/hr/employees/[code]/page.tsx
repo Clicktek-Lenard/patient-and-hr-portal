@@ -101,11 +101,12 @@ function InfoRow({ label, value, icon: Icon }: { label: string; value: string | 
 }
 
 export default function EmployeeDetailPage({ params }: { params: Promise<{ code: string }> }) {
-  const { code } = use(params);
+  const { code: rawCode } = use(params);
+  const code = decodeURIComponent(rawCode);
 
   const { data, isLoading, isError } = useQuery<DetailResponse>({
     queryKey: ["hr-employee", code],
-    queryFn: () => fetch(`/api/hr/employees/${code}`).then((r) => {
+    queryFn: () => fetch(`/api/hr/employees/${encodeURIComponent(code)}`).then((r) => {
       if (!r.ok) throw new Error("Not found");
       return r.json();
     }),

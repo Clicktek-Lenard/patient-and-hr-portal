@@ -11,7 +11,8 @@ export async function GET(
   const role = (session.user as { role?: string }).role;
   if (role !== "HR" && role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { code } = await params;
+  const { code: rawCode } = await params;
+  const code = decodeURIComponent(rawCode);
 
   const patient = await cmsPrisma.cmsPatient.findUnique({
     where: { code },
