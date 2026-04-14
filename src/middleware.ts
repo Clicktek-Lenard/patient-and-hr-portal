@@ -1,40 +1,28 @@
-import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-const publicRoutes = [
-  "/login",
-  "/register",
-  "/verify-otp",
-  "/forgot-password",
-  "/reset-password",
-];
+const publicRoutes = ["/login", "/register", "/verify-otp", "/forgot-password", "/reset-password"];
+const hrRoutes     = ["/hr"];
 
-const authRoutes = [
-  "/login",
-  "/register",
-  "/verify-otp",
-  "/forgot-password",
-  "/reset-password",
-];
-
-const hrRoutes = ["/hr"];
-
-export default auth((req: NextRequest & { auth: { user?: { id?: string; role?: string } } | null }) => {
+export default async function middleware(req: NextRequest) {
   const { nextUrl } = req;
-  const isLoggedIn = !!req.auth?.user?.id;
-  const userRole = req.auth?.user?.role ?? "PATIENT";
+  const path = nextUrl.pathname;
 
-  const isPublicRoute = publicRoutes.some((route) => nextUrl.pathname.startsWith(route));
-  const isAuthRoute   = authRoutes.some((route)   => nextUrl.pathname.startsWith(route));
-  const isHrRoute     = hrRoutes.some((route)     => nextUrl.pathname.startsWith(route));
-  const isApiRoute    = nextUrl.pathname.startsWith("/api");
-  const isRootRoute   = nextUrl.pathname === "/";
+  const isPublicRoute = publicRoutes.some((r) => path.startsWith(r));
+  const isHrRoute     = hrRoutes.some((r) => path.startsWith(r));
+  const isApiRoute    = path.startsWith("/api");
+  const isRootRoute   = path === "/";
 
-  // Allow API routes to handle their own auth
+  // Always allow API routes and static assets
   if (isApiRoute) return NextResponse.next();
 
-  // Root route: show landing page for guests, redirect logged-in users to their portal
+  // Read JWT token — lightweight, no DB call
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const isLoggedIn = !!token?.sub;
+  const userRole   = (token?.role as string) ?? "PATIENT";
+
+  // Root: guests see landing, logged-in users go to their portal
   if (isRootRoute) {
     if (isLoggedIn) {
       return userRole === "HR" || userRole === "ADMIN"
@@ -44,19 +32,19 @@ export default auth((req: NextRequest & { auth: { user?: { id?: string; role?: s
     return NextResponse.next();
   }
 
-  // Logged-in users on auth pages → redirect to their portal
-  if (isAuthRoute && isLoggedIn) {
+  // Logged-in users on login/register → redirect to portal
+  if (isPublicRoute && isLoggedIn) {
     return userRole === "HR" || userRole === "ADMIN"
       ? NextResponse.redirect(new URL("/hr/dashboard", nextUrl))
       : NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
 
-  // HR routes: require login + HR/ADMIN role
+  // HR routes: must be logged in + HR/ADMIN role
   if (isHrRoute) {
     if (!isLoggedIn) {
-      const loginUrl = new URL("/login", nextUrl);
-      loginUrl.searchParams.set("callbackUrl", nextUrl.pathname + nextUrl.search);
-      return NextResponse.redirect(loginUrl);
+      const url = new URL("/login", nextUrl);
+      url.searchParams.set("callbackUrl", path + nextUrl.search);
+      return NextResponse.redirect(url);
     }
     if (userRole !== "HR" && userRole !== "ADMIN") {
       return NextResponse.redirect(new URL("/dashboard", nextUrl));
@@ -64,16 +52,15 @@ export default auth((req: NextRequest & { auth: { user?: { id?: string; role?: s
     return NextResponse.next();
   }
 
-  // Portal routes: require login
+  // All other protected routes: require login
   if (!isPublicRoute && !isLoggedIn) {
-    const loginUrl = new URL("/login", nextUrl);
-    const callbackUrl = nextUrl.pathname + nextUrl.search;
-    if (callbackUrl !== "/") loginUrl.searchParams.set("callbackUrl", callbackUrl);
-    return NextResponse.redirect(loginUrl);
+    const url = new URL("/login", nextUrl);
+    if (path !== "/") url.searchParams.set("callbackUrl", path + nextUrl.search);
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [
