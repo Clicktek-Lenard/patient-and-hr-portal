@@ -31,6 +31,8 @@ function formatCurrency(n: number): string {
 }
 
 async function generateResultPdf(queue: {
+  id: string;
+  idPatient: string;
   code: string | null;
   dateTime: Date;
   qFullName: string | null;
