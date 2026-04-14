@@ -47,7 +47,7 @@ async function generateResultPdf(queue: {
   inputBy: string | null;
   notes: string | null;
   patient: {
-    code: string;
+    code: string | null;
     fullName: string | null;
   };
   transactions: {
