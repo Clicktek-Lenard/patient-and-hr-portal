@@ -27,6 +27,9 @@ Thumbs.db
 # vercel
 .vercel
 
+# prisma generated clients
+src/generated/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
