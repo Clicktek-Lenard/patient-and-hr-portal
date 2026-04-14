@@ -195,7 +195,7 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
             fontSize: "0.65rem", color: "rgba(255,255,255,0.25)",
             fontStyle: "italic", letterSpacing: "0.04em", textAlign: "center",
           }}>
-            "Your Health is Our Commitment"
+            &ldquo;Your Health is Our Commitment&rdquo;
           </p>
         </div>
 
