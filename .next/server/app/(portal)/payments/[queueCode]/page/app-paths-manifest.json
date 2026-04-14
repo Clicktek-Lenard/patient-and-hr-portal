@@ -1,3 +1,0 @@
-{
-  "/(portal)/payments/[queueCode]/page": "app/(portal)/payments/[queueCode]/page.js"
-}
