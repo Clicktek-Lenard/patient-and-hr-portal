@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn, getSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Loader2, ArrowRight, ShieldCheck,
@@ -101,11 +101,13 @@ function LoginPageInner() {
       }
       if (result?.ok) {
         toast.success("Welcome back!");
-        const session     = await getSession();
-        const role        = (session?.user as { role?: string })?.role;
-        const destination = callbackUrl ?? (role === "HR" || role === "ADMIN" ? "/hr/dashboard" : "/dashboard");
-        // Use hard navigation so the session cookie is included in the next request,
-        // preventing middleware from bouncing back to /login on Vercel.
+        // Determine destination without calling getSession() — it may be null
+        // on Vercel right after signIn() before the cookie is flushed.
+        // callbackUrl already carries the right destination when coming from middleware.
+        // Otherwise fall back based on which form was submitted.
+        const destination = callbackUrl
+          ?? (loginType === "hr" ? "/hr/dashboard" : "/dashboard");
+        // Hard navigation ensures the session cookie is sent with the next request.
         window.location.href = destination;
       }
     } catch {
