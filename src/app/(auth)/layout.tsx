@@ -191,7 +191,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="mb-12">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/nwdi-logo.png" alt="NEW WORLD DIAGNOSTICS" style={{ height: 36, width: "auto", display: "block" }} />
-            <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}>"Your Health is Our Commitment"</p>
+            <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}>&ldquo;Your Health is Our Commitment&rdquo;</p>
           </div>
 
           {/* Hero copy */}
@@ -275,7 +275,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         <footer className="relative z-10 px-6 py-5 text-center" style={{ borderTop: "1px solid #e2e8f0" }}>
           <p className="text-sm font-bold tracking-wide" style={{ color: "#1006A0" }}>NEW WORLD DIAGNOSTICS, INC.</p>
-          <p className="text-xs mt-0.5" style={{ color: "#E00500", fontStyle: "italic" }}>"Your Health is Our Commitment"</p>
+          <p className="text-xs mt-0.5" style={{ color: "#E00500", fontStyle: "italic" }}>&ldquo;Your Health is Our Commitment&rdquo;</p>
           <p className="text-xs mt-1" style={{ color: "#6b7280" }}>
             &copy; {new Date().getFullYear()} · All rights reserved.
           </p>
