@@ -103,8 +103,9 @@ function LoginPageInner() {
         const session     = await getSession();
         const role        = (session?.user as { role?: string })?.role;
         const destination = callbackUrl ?? (role === "HR" || role === "ADMIN" ? "/hr/dashboard" : "/dashboard");
-        router.push(destination);
-        router.refresh();
+        // Use hard navigation so the session cookie is included in the next request,
+        // preventing middleware from bouncing back to /login on Vercel.
+        window.location.href = destination;
       }
     } catch {
       toast.error("An unexpected error occurred. Please try again.");
