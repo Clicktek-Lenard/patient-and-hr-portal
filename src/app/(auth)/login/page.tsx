@@ -57,8 +57,9 @@ function RateLimitNotice({ children }: { children: React.ReactNode }) {
 function LoginPageInner() {
   const router       = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl  = searchParams.get("callbackUrl");
-  const portalParam  = searchParams.get("portal");
+  const rawCallbackUrl = searchParams.get("callbackUrl");
+  const callbackUrl    = rawCallbackUrl ? decodeURIComponent(rawCallbackUrl) : null;
+  const portalParam    = searchParams.get("portal");
 
   const [tab, setTab]             = useState<"patient" | "hr">("patient");
   const [isLoading, setIsLoading] = useState(false);
