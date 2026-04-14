@@ -4,7 +4,11 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["pdfkit"],
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000"],
+      allowedOrigins: [
+        "localhost:3000",
+        process.env.VERCEL_URL ?? "",
+        process.env.NEXT_PUBLIC_APP_URL ?? "",
+      ].filter(Boolean),
     },
   },
   images: {
@@ -33,7 +37,7 @@ const nextConfig: NextConfig = {
           "style-src 'self' 'unsafe-inline'",
           "img-src 'self' data: https://*.amazonaws.com",
           "font-src 'self' data:",
-          "connect-src 'self'",
+          "connect-src 'self' https://*.vercel.app",
           "frame-ancestors 'none'",
           "base-uri 'self'",
           "form-action 'self'",
