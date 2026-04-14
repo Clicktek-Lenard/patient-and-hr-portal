@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { TrendingUp, Loader2, AlertTriangle, Info } from "lucide-react";
+import { TrendingUp, AlertTriangle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type DataPoint = { date: string; value: number; flag: string | null; unit: string; normalRange: string };

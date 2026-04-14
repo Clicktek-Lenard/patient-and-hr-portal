@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 type Slot = { id: string; date: string; time: string; packageType: string; available: number; total: number };
 type Appointment = { id: string; appointmentDate: string; packageType: string; branch: string; status: string; notes: string | null };
 
-const PACKAGES = ["Annual PE", "CBC Panel", "Lipid Panel", "Urinalysis", "General Check-up", "X-Ray"];
 const BRANCHES = ["Main Branch", "Makati Branch", "Pasig Branch", "Quezon City Branch", "Mandaluyong Branch"];
 
 function formatDate(d: string) {

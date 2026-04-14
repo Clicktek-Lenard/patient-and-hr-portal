@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
   LayoutDashboard, Users, BarChart2, X, ChevronRight,
-  ShieldCheck, ShieldAlert, Heart, CalendarClock, Settings, ClipboardList,
+  ShieldAlert, Heart, CalendarClock, Settings, ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getInitials } from "@/lib/utils";

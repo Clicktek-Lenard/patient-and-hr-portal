@@ -218,7 +218,7 @@ function NotificationCard({
 export default function NotificationsPage() {
   const queryClient = useQueryClient();
   const { notifications, unreadCount, isLoading, markAsRead } = useNotifications();
-  const { markAllAsRead, markAsRead: storeMarkRead, notifications: storeNotifs, setNotifications } = useNotificationStore();
+  const { markAllAsRead, notifications: storeNotifs, setNotifications } = useNotificationStore();
   const [openId, setOpenId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "unread" | "read">("all");
 

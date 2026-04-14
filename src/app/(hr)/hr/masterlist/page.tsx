@@ -116,8 +116,10 @@ export default function MasterlistPage() {
         let dob = "";
         const rawDob = row[idxDob];
         if (typeof rawDob === "number") {
-          const { utils } = await import("xlsx");
-          dob = utils.SSF.format("MM/DD/YYYY", rawDob);
+          // Convert Excel serial date to JS Date
+          const xlsxModule = await import("xlsx");
+          const date = xlsxModule.SSF.parse_date_code(rawDob);
+          dob = `${String(date.m).padStart(2,"0")}/${String(date.d).padStart(2,"0")}/${date.y}`;
         } else if (rawDob) {
           dob = String(rawDob);
         }

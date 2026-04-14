@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Heart, TrendingUp, Users, Loader2, Activity } from "lucide-react";
+import { Heart, TrendingUp, Users, Activity } from "lucide-react";
 
 type WellnessData = {
   months: string[];
@@ -16,13 +16,11 @@ function LineChart({
   labels,
   series,
   target,
-  colors,
 }: {
   title: string;
   labels: string[];
   series: { name: string; data: number[]; color: string }[];
   target?: number;
-  colors: string[];
 }) {
   if (!labels.length || !series[0]?.data.length) return null;
 
@@ -116,9 +114,8 @@ export default function WellnessPage() {
 
   const d = data?.data;
 
-  const latestPE       = d?.peCompliance[d.peCompliance.length - 1] ?? 0;
-  const latestHyper    = d?.hypertension[d.hypertension.length - 1] ?? 0;
-  const latestPreHyper = d?.preHypertension[d.preHypertension.length - 1] ?? 0;
+  const latestPE    = d?.peCompliance[d.peCompliance.length - 1] ?? 0;
+  const latestHyper = d?.hypertension[d.hypertension.length - 1] ?? 0;
 
   return (
     <div className="space-y-6">
@@ -190,7 +187,6 @@ export default function WellnessPage() {
             labels={d.months}
             series={[{ name: "PE Compliance", data: d.peCompliance, color: "#1006A0" }]}
             target={95}
-            colors={["#1006A0"]}
           />
           <LineChart
             title="Blood Pressure Trends (%)"
@@ -199,7 +195,6 @@ export default function WellnessPage() {
               { name: "Hypertension (≥140/90)",    data: d.hypertension,    color: "#ef4444" },
               { name: "Pre-Hypertension (120–139)", data: d.preHypertension, color: "#f97316" },
             ]}
-            colors={["#ef4444", "#f97316"]}
           />
         </div>
       )}
