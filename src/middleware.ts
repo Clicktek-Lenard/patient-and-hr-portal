@@ -17,12 +17,13 @@ export default async function middleware(req: NextRequest) {
   // Always allow API routes and static assets
   if (isApiRoute) return NextResponse.next();
 
-  // Read JWT token — lightweight, no DB call.
-  // On Vercel (HTTPS) NextAuth sets __Secure-next-auth.session-token;
-  // pass cookieName explicitly so getToken finds it in both environments.
-  const isSecure  = req.headers.get("x-forwarded-proto") === "https" || nextUrl.protocol === "https:";
-  const cookieName = isSecure ? "__Secure-next-auth.session-token" : "next-auth.session-token";
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET, cookieName });
+  // NextAuth v5 uses "authjs.session-token" on HTTP and
+  // "__Secure-authjs.session-token" on HTTPS. Pass secureCookie so
+  // getToken() picks the right cookie name on Vercel automatically.
+  const secureCookie = req.headers.get("x-forwarded-proto") === "https"
+    || nextUrl.protocol === "https:";
+
+  const token      = await getToken({ req, secret: process.env.AUTH_SECRET, secureCookie });
   const isLoggedIn = !!token?.sub;
   const userRole   = (token?.role as string) ?? "PATIENT";
 
