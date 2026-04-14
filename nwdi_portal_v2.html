@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NWDI Patient & HR Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Source+Sans+3:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ====== NWDI COLOR SYSTEM ====== */
+:root {
+  --nwdi-navy:    #1A2B4A;
+  --nwdi-navy2:   #243459;
+  --nwdi-red:     #C0392B;
+  --nwdi-red2:    #E74C3C;
+  --nwdi-gold:    #D4A017;
+  --nwdi-gold2:   #F0B429;
+  --bg:           #F4F6FA;
+  --bg2:          #EAEEf5;
+  --white:        #FFFFFF;
+  --text:         #1A2B4A;
+  --text2:        #4A5568;
+  --muted:        #8A9AB5;
+  --border:       #D8DFF0;
+  --border2:      #C5CFE5;
+  --card:         #FFFFFF;
+  --shadow:       0 2px 12px rgba(26,43,74,0.08);
+  --shadow-lg:    0 8px 32px rgba(26,43,74,0.12);
+  --green:        #1A7A4A;
+  --green-bg:     #E8F5EE;
+  --green-border: #A3D9B8;
+  --warn:         #B45309;
+  --warn-bg:      #FEF3C7;
+  --warn-border:  #FCD34D;
+  --danger:       #C0392B;
+  --danger-bg:    #FEE8E6;
+  --danger-border:#F5B8B2;
+  --radius:       12px;
+  --radius-sm:    8px;
+  --transition:   all 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+}
+
+/* ====== SCREENS ====== */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+#screen-landing { display: flex; min-height: 100vh; flex-direction: column; }
+
+/* ====== LANDING / LOGIN CHOOSER ====== */
+.landing-header {
+  background: var(--nwdi-navy);
+  padding: 18px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand-logo {
+  width: 46px; height: 46px; border-radius: 10px; overflow: hidden;
+  background: white; display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 16px; color: var(--nwdi-navy); font-weight: 700;
+}
+.brand-text { color: white; }
+.brand-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; line-height: 1.2; }
+.brand-tagline { font-size: 0.72rem; color: rgba(255,255,255,0.55); letter-spacing: 0.04em; }
+.landing-nav-links { display: flex; gap: 24px; }
+.landing-nav-links a {
+  color: rgba(255,255,255,0.7); font-size: 0.85rem; text-decoration: none;
+  transition: var(--transition);
+}
+.landing-nav-links a:hover { color: white; }
+
+.landing-hero {
+  flex: 1;
+  background: linear-gradient(150deg, var(--nwdi-navy) 0%, var(--nwdi-navy2) 55%, #1e3a6e 100%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 48px; position: relative; overflow: hidden;
+}
+.landing-hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 70% at 80% 50%, rgba(192,57,43,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(212,160,23,0.08) 0%, transparent 60%);
+}
+.landing-hero::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.03;
+  background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.landing-content { position: relative; z-index: 1; text-align: center; max-width: 700px; }
+.landing-iso {
+  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 24px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px; padding: 6px 16px; font-size: 0.78rem; color: rgba(255,255,255,0.7);
+}
+.landing-iso span { color: var(--nwdi-gold2); font-weight: 600; }
+.landing-h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem; line-height: 1.15; color: white; margin-bottom: 14px;
+}
+.landing-h1 em { color: var(--nwdi-gold2); font-style: italic; }
+.landing-sub { font-size: 1rem; color: rgba(255,255,255,0.65); margin-bottom: 48px; line-height: 1.7; }
+
+.portal-cards { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+.portal-card {
+  background: var(--white); border-radius: 20px; padding: 36px 32px;
+  width: 280px; cursor: pointer; transition: var(--transition);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.25); text-align: center;
+  border: 2px solid transparent;
+}
+.portal-card:hover { transform: translateY(-6px); box-shadow: 0 24px 64px rgba(0,0,0,0.35); border-color: var(--nwdi-gold); }
+.portal-icon {
+  width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 18px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+}
+.portal-icon-patient { background: linear-gradient(135deg, #EBF4FF, #DBEAFE); }
+.portal-icon-hr { background: linear-gradient(135deg, #FFF5E6, #FDEBD0); }
+.portal-card-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--nwdi-navy); margin-bottom: 8px; }
+.portal-card-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
+.portal-card-btn {
+  display: block; width: 100%; padding: 11px; border-radius: 10px; border: none;
+  font-family: 'Source Sans 3', sans-serif; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; transition: var(--transition);
+}
+.btn-patient { background: var(--nwdi-navy); color: white; }
+.btn-patient:hover { background: var(--nwdi-navy2); }
+.btn-hr { background: var(--nwdi-red); color: white; }
+.btn-hr:hover { background: var(--nwdi-red2); }
+
+/* ====== LOGIN PAGE ====== */
+.login-wrap {
+  flex: 1; display: flex; align-items: stretch;
+}
+.login-left {
+  flex: 1; background: linear-gradient(150deg, var(--nwdi-navy) 0%, var(--nwdi-navy2) 100%);
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  padding: 64px 56px; position: relative; overflow: hidden;
+}
+.login-left::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 60% 60% at 80% 80%, rgba(192,57,43,0.15) 0%, transparent 60%);
+}
+.login-left-content { position: relative; z-index: 1; }
+.login-left h2 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: white; margin-bottom: 16px; line-height: 1.2; }
+.login-left h2 em { color: var(--nwdi-gold2); font-style: italic; }
+.login-left p { color: rgba(255,255,255,0.6); line-height: 1.7; max-width: 360px; font-size: 0.92rem; }
+.login-features { margin-top: 36px; display: flex; flex-direction: column; gap: 14px; }
+.login-feature { display: flex; align-items: center; gap: 12px; }
+.login-feature-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.login-feature-text { font-size: 0.85rem; color: rgba(255,255,255,0.75); }
+
+.login-right {
+  width: 460px; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 48px 48px;
+}
+.login-form-box { width: 100%; max-width: 360px; }
+.login-form-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; }
+.login-form-logo-icon {
+  width: 38px; height: 38px; background: var(--nwdi-navy); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 14px; color: white;
+}
+.login-form-logo-text { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--nwdi-navy); }
+.login-form-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--text); margin-bottom: 6px; }
+.login-form-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 28px; }
+.login-portal-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 600; margin-bottom: 24px;
+}
+.badge-patient { background: #EBF4FF; color: var(--nwdi-navy); border: 1px solid #BFDBFE; }
+.badge-hr { background: var(--danger-bg); color: var(--nwdi-red); border: 1px solid var(--danger-border); }
+.form-group { margin-bottom: 16px; }
+.form-label { font-size: 0.8rem; font-weight: 600; color: var(--text2); display: block; margin-bottom: 6px; }
+.form-input {
+  width: 100%; padding: 11px 14px; border-radius: var(--radius-sm);
+  background: var(--white); border: 1.5px solid var(--border);
+  color: var(--text); font-family: 'Source Sans 3', sans-serif; font-size: 0.9rem;
+  outline: none; transition: var(--transition);
+}
+.form-input:focus { border-color: var(--nwdi-navy); box-shadow: 0 0 0 3px rgba(26,43,74,0.08); }
+.form-hint { font-size: 0.74rem; color: var(--muted); margin-top: 4px; }
+.btn-login-submit {
+  width: 100%; padding: 13px; border-radius: var(--radius-sm); border: none;
+  font-family: 'Source Sans 3', sans-serif; font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; transition: var(--transition); margin-top: 6px;
+  letter-spacing: 0.02em;
+}
+.btn-login-patient { background: var(--nwdi-navy); color: white; }
+.btn-login-patient:hover { background: var(--nwdi-navy2); box-shadow: 0 6px 20px rgba(26,43,74,0.3); transform: translateY(-1px); }
+.btn-login-hr { background: var(--nwdi-red); color: white; }
+.btn-login-hr:hover { background: var(--nwdi-red2); box-shadow: 0 6px 20px rgba(192,57,43,0.3); transform: translateY(-1px); }
+.login-divider { text-align: center; font-size: 0.78rem; color: var(--muted); margin: 16px 0; }
+.btn-back {
+  width: 100%; padding: 11px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: transparent;
+  font-family: 'Source Sans 3', sans-serif; font-size: 0.85rem; color: var(--text2);
+  cursor: pointer; transition: var(--transition);
+}
+.btn-back:hover { border-color: var(--nwdi-navy); color: var(--nwdi-navy); }
+
+/* ====== MAIN APP LAYOUT ====== */
+.app-layout { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px; flex-shrink: 0;
+  background: var(--nwdi-navy);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.sidebar-brand {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-logo { display: flex; align-items: center; gap: 10px; }
+.sidebar-logo-icon {
+  width: 36px; height: 36px; background: white; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 13px; color: var(--nwdi-navy); font-weight: 700;
+}
+.sidebar-logo-text { color: white; }
+.sidebar-logo-name { font-family: 'Playfair Display', serif; font-size: 0.85rem; line-height: 1.2; }
+.sidebar-logo-tagline { font-size: 0.62rem; color: rgba(255,255,255,0.45); }
+
+.sidebar-user {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; gap: 10px;
+}
+.sidebar-user-avatar {
+  width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; color: white;
+}
+.sidebar-user-info { overflow: hidden; }
+.sidebar-user-name { font-size: 0.82rem; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-user-role { font-size: 0.7rem; color: rgba(255,255,255,0.5); }
+
+.sidebar-nav { flex: 1; padding: 12px 0; }
+.sidebar-section { padding: 12px 20px 6px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 20px; cursor: pointer; transition: var(--transition);
+  font-size: 0.86rem; color: rgba(255,255,255,0.65);
+  border-left: 3px solid transparent; margin: 1px 0;
+  user-select: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: white; }
+.nav-item.active { background: rgba(255,255,255,0.1); color: white; border-left-color: var(--nwdi-gold2); }
+.nav-item-icon { font-size: 1rem; width: 20px; text-align: center; }
+.nav-badge {
+  margin-left: auto; background: var(--nwdi-red); color: white;
+  border-radius: 10px; font-size: 0.65rem; font-weight: 700; padding: 1px 7px;
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.btn-logout {
+  width: 100%; padding: 8px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15); background: transparent;
+  color: rgba(255,255,255,0.6); font-family: 'Source Sans 3', sans-serif; font-size: 0.82rem;
+  cursor: pointer; transition: var(--transition);
+}
+.btn-logout:hover { background: rgba(192,57,43,0.2); border-color: var(--nwdi-red); color: white; }
+
+/* MAIN CONTENT */
+.main-content { flex: 1; overflow-x: hidden; }
+
+/* TOP BAR */
+.topbar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 0 32px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--text); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-btn {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; cursor: pointer; transition: var(--transition); position: relative;
+}
+.topbar-btn:hover { border-color: var(--nwdi-navy); background: var(--bg2); }
+.notif-dot {
+  position: absolute; top: 4px; right: 4px; width: 7px; height: 7px;
+  background: var(--nwdi-red); border-radius: 50%; border: 2px solid white;
+}
+.topbar-user { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.topbar-avatar {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; color: white;
+}
+.topbar-uname { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.lang-toggle {
+  display: flex; gap: 2px; background: var(--bg2); border-radius: 6px; padding: 2px;
+}
+.lang-btn {
+  padding: 4px 10px; border-radius: 5px; border: none; cursor: pointer;
+  font-family: 'Source Sans 3', sans-serif; font-size: 0.75rem; font-weight: 600;
+  color: var(--muted); background: transparent; transition: var(--transition);
+}
+.lang-btn.active { background: var(--white); color: var(--nwdi-navy); box-shadow: var(--shadow); }
+
+/* PAGE CONTENT */
+.page { display: none; padding: 28px 32px; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+/* COMPONENTS */
+.section-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px; margin-top: 28px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.section-label:first-child { margin-top: 0; }
+
+.card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+.card-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--text); }
+.card-body { padding: 20px; }
+
+/* STATS GRID */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 4px; }
+.stat-card {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  transition: var(--transition); cursor: default;
+}
+.stat-card:hover { border-color: var(--nwdi-navy); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+.stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.stat-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.stat-val { font-family: 'Playfair Display', serif; font-size: 1.9rem; line-height: 1; color: var(--text); margin-bottom: 3px; }
+.stat-label { font-size: 0.78rem; color: var(--muted); }
+.stat-delta { font-size: 0.74rem; font-weight: 600; margin-top: 6px; }
+.delta-up { color: var(--green); }
+.delta-down { color: var(--danger); }
+
+/* TAGS */
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 2px 9px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.tag-normal { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.tag-low    { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+.tag-high   { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+.tag-navy   { background: #EBF4FF; color: var(--nwdi-navy); border: 1px solid #BFDBFE; }
+
+/* BUTTONS */
+.btn {
+  padding: 8px 16px; border-radius: var(--radius-sm); border: none;
+  font-family: 'Source Sans 3', sans-serif; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-navy { background: var(--nwdi-navy); color: white; }
+.btn-navy:hover { background: var(--nwdi-navy2); }
+.btn-red { background: var(--nwdi-red); color: white; }
+.btn-red:hover { background: var(--nwdi-red2); }
+.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text2); }
+.btn-outline:hover { border-color: var(--nwdi-navy); color: var(--nwdi-navy); }
+.btn-ghost { background: transparent; border: none; color: var(--muted); }
+.btn-ghost:hover { color: var(--nwdi-navy); }
+
+/* RESULT ROWS */
+.result-table { width: 100%; border-collapse: collapse; }
+.result-table th {
+  text-align: left; font-size: 0.72rem; font-weight: 700; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase; padding: 0 0 10px;
+  border-bottom: 1.5px solid var(--border);
+}
+.result-table td {
+  padding: 10px 0; font-size: 0.88rem; border-bottom: 1px solid rgba(26,43,74,0.05);
+}
+.result-table tr:last-child td { border-bottom: none; }
+.val-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* CHART */
+.chart-wrap { position: relative; background: var(--white); border-radius: var(--radius); border: 1.5px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+.chart-head { padding: 16px 20px 0; display: flex; justify-content: space-between; align-items: flex-start; }
+.chart-title-txt { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--text); }
+.chart-subtitle { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+.chart-legend { display: flex; gap: 16px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text2); }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+.chart-tabs { display: flex; gap: 4px; background: var(--bg2); border-radius: 6px; padding: 3px; }
+.chart-tab {
+  padding: 4px 12px; border-radius: 4px; border: none; cursor: pointer;
+  font-family: 'Source Sans 3', sans-serif; font-size: 0.75rem; font-weight: 600;
+  color: var(--muted); background: transparent; transition: var(--transition);
+}
+.chart-tab.active { background: var(--white); color: var(--nwdi-navy); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.chart-svg-area { padding: 12px 20px 16px; }
+
+/* AI INSIGHT */
+.ai-banner {
+  background: linear-gradient(135deg, #EBF4FF, #F0F7FF);
+  border: 1.5px solid #BFDBFE; border-radius: var(--radius);
+  padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start;
+  margin-bottom: 24px;
+}
+.ai-icon {
+  width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0;
+  background: var(--nwdi-navy); display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.ai-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--nwdi-navy); margin-bottom: 4px; }
+.ai-text { font-size: 0.88rem; line-height: 1.65; color: var(--text2); }
+
+/* HEALTH CARD */
+.health-card {
+  background: linear-gradient(135deg, var(--nwdi-navy) 0%, var(--nwdi-navy2) 70%, #1e3a6e 100%);
+  border-radius: 18px; padding: 24px 28px; position: relative; overflow: hidden;
+  box-shadow: 0 12px 40px rgba(26,43,74,0.3);
+}
+.health-card::before {
+  content: ''; position: absolute; width: 160px; height: 160px; border-radius: 50%;
+  background: rgba(212,160,23,0.1); top: -50px; right: -30px; pointer-events: none;
+}
+.health-card::after {
+  content: ''; position: absolute; width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(192,57,43,0.1); bottom: -20px; left: 30px; pointer-events: none;
+}
+.hc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.hc-brand { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+.hc-qr {
+  width: 44px; height: 44px; background: white; border-radius: 6px;
+  display: grid; grid-template-columns: repeat(5,1fr); gap: 2px; padding: 5px;
+}
+.hc-qr span { background: var(--nwdi-navy); border-radius: 1px; }
+.hc-qr span:nth-child(even) { background: transparent; }
+.hc-id { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
+.hc-name { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: white; margin-bottom: 2px; }
+.hc-dob { font-size: 0.78rem; color: rgba(255,255,255,0.55); }
+.hc-status {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+  background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.35);
+  color: #86EFAC; padding: 3px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+}
+.hc-status::before { content: ''; width: 5px; height: 5px; background: #86EFAC; border-radius: 50%; }
+
+/* APPOINTMENT */
+.appt-slot {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); margin-bottom: 8px;
+  cursor: pointer; transition: var(--transition); background: var(--white);
+}
+.appt-slot:hover:not(.full) { border-color: var(--nwdi-navy); background: var(--bg); }
+.appt-slot.full { opacity: 0.5; cursor: not-allowed; }
+.appt-slot.selected { border-color: var(--nwdi-navy); background: #EBF4FF; }
+.appt-time { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 500; color: var(--text); }
+.appt-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.appt-slots-avail { font-size: 0.75rem; font-weight: 600; color: var(--green); }
+
+/* SHARE BANNER */
+.share-banner {
+  background: var(--warn-bg); border: 1.5px solid var(--warn-border);
+  border-radius: var(--radius); padding: 14px 18px;
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+}
+
+/* AUDIT */
+.audit-item {
+  display: flex; gap: 12px; padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.audit-item:last-child { border-bottom: none; }
+.audit-dot-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.audit-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.audit-line { width: 2px; flex: 1; background: var(--border); margin-top: 4px; }
+.audit-body { flex: 1; }
+.audit-action { font-size: 0.86rem; color: var(--text); line-height: 1.5; }
+.audit-meta { font-size: 0.73rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 3px; }
+
+/* HR TABLES */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  text-align: left; font-size: 0.7rem; font-weight: 700; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase; padding: 0 12px 10px 0;
+  border-bottom: 1.5px solid var(--border);
+}
+.data-table td {
+  padding: 10px 12px 10px 0; font-size: 0.85rem; border-bottom: 1px solid rgba(26,43,74,0.05);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.emp-av {
+  width: 28px; height: 28px; border-radius: 6px;
+  background: var(--nwdi-navy); color: white;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 700; margin-right: 8px; vertical-align: middle;
+}
+
+.pill {
+  padding: 2px 9px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+}
+.pill-ok      { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.pill-overdue { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+.pill-pending { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+
+/* DISEASE BAR */
+.disease-row { margin-bottom: 12px; }
+.disease-top { display: flex; justify-content: space-between; font-size: 0.84rem; margin-bottom: 5px; }
+.disease-name { color: var(--text2); }
+.disease-pct { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text); }
+.disease-bar { height: 6px; background: var(--bg2); border-radius: 4px; overflow: hidden; }
+.disease-fill { height: 100%; border-radius: 4px; }
+
+/* DEPT CHIPS */
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip {
+  padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+  background: var(--white); border: 1.5px solid var(--border);
+  cursor: pointer; transition: var(--transition); color: var(--text2);
+}
+.chip.active { background: var(--nwdi-navy); border-color: var(--nwdi-navy); color: white; }
+.chip:hover:not(.active) { border-color: var(--nwdi-navy); color: var(--nwdi-navy); }
+
+/* BULK ACTIONS */
+.bulk-btn {
+  display: flex; align-items: center; gap: 14px; padding: 13px 16px; width: 100%;
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition);
+  font-family: 'Source Sans 3', sans-serif; margin-bottom: 8px;
+  text-align: left; color: var(--text);
+}
+.bulk-btn:hover { border-color: var(--nwdi-navy); background: var(--bg); }
+.bulk-icon { font-size: 1.2rem; }
+.bulk-title { font-size: 0.86rem; font-weight: 600; }
+.bulk-sub { font-size: 0.74rem; color: var(--muted); }
+
+/* WELLNESS RING */
+.ring-wrap { display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
+
+/* GRIDS */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* KPI */
+.kpi-card {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 20px 20px 16px; box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+.kpi-card:hover { border-color: var(--nwdi-navy); box-shadow: var(--shadow-lg); }
+.kpi-val { font-family: 'Playfair Display', serif; font-size: 2.2rem; line-height: 1; margin-bottom: 4px; }
+.kpi-label { font-size: 0.78rem; color: var(--muted); }
+.kpi-delta { font-size: 0.75rem; font-weight: 600; margin-top: 8px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+/* PROTO TAG */
+.proto-tag {
+  position: fixed; bottom: 14px; right: 16px; z-index: 999;
+  background: var(--nwdi-navy); color: rgba(255,255,255,0.6);
+  border-radius: 6px; padding: 4px 12px; font-size: 0.68rem;
+}
+</style>
+</head>
+<body>
+
+<!-- ============================= LANDING ============================= -->
+<div id="screen-landing" class="screen active" style="display:flex;flex-direction:column;">
+  <div class="landing-header">
+    <div class="brand">
+      <div class="brand-logo">NW</div>
+      <div class="brand-text">
+        <div class="brand-name">New World Diagnostic Inc.</div>
+        <div class="brand-tagline">Your Health Is Our Commitment</div>
+      </div>
+    </div>
+    <div class="landing-nav-links">
+      <a href="#">Services</a>
+      <a href="#">Packages</a>
+      <a href="#">Our Clinics</a>
+      <a href="#">Contact Us</a>
+    </div>
+    <a href="https://www.nwdi.com.ph" target="_blank" style="font-size:0.78rem;color:rgba(255,255,255,0.5);text-decoration:none;">nwdi.com.ph ↗</a>
+  </div>
+  <div class="landing-hero">
+    <div class="landing-content">
+      <div class="landing-iso">🏅 <span>ISO Certified</span> &nbsp;·&nbsp; CAP Accredited Laboratory</div>
+      <div class="landing-h1">
+        Your Health,<br><em>Accessible Online</em>
+      </div>
+      <p class="landing-sub">Securely access your lab results, track your health trends, and manage your appointments — anytime, anywhere.</p>
+      <div class="portal-cards">
+        <div class="portal-card" onclick="goLogin('patient')">
+          <div class="portal-icon portal-icon-patient">🧬</div>
+          <div class="portal-card-title">Patient Portal</div>
+          <div class="portal-card-desc">View your lab results, track health trends, book appointments, and share results with your doctor.</div>
+          <button class="portal-card-btn btn-patient">Enter Patient Portal →</button>
+        </div>
+        <div class="portal-card" onclick="goLogin('hr')">
+          <div class="portal-icon portal-icon-hr">🏢</div>
+          <div class="portal-card-title">Corporate HR Portal</div>
+          <div class="portal-card-desc">Manage employee health records, compliance tracking, and workforce wellness reports.</div>
+          <button class="portal-card-btn btn-hr">Enter HR Portal →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= PATIENT LOGIN ============================= -->
+<div id="screen-patient-login" class="screen" style="display:none;flex-direction:column;">
+  <div class="landing-header">
+    <div class="brand">
+      <div class="brand-logo">NW</div>
+      <div class="brand-text">
+        <div class="brand-name">New World Diagnostic Inc.</div>
+        <div class="brand-tagline">Your Health Is Our Commitment</div>
+      </div>
+    </div>
+  </div>
+  <div class="login-wrap">
+    <div class="login-left">
+      <div class="login-left-content">
+        <div class="landing-iso" style="margin-bottom:20px;">🧬 <span>Patient Portal</span></div>
+        <h2>Your Results,<br><em>Your Way</em></h2>
+        <p>Access your complete health history, download results, and track your wellness journey over time.</p>
+        <div class="login-features">
+          <div class="login-feature">
+            <div class="login-feature-icon">📊</div>
+            <div class="login-feature-text">Health trend charts across all your visits</div>
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-icon">🤖</div>
+            <div class="login-feature-text">AI-powered plain-language result explanations</div>
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-icon">🔗</div>
+            <div class="login-feature-text">Secure result sharing with your physician</div>
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-icon">📅</div>
+            <div class="login-feature-text">Online appointment booking</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="login-right">
+      <div class="login-form-box">
+        <div class="login-form-logo">
+          <div class="login-form-logo-icon">NW</div>
+          <div class="login-form-logo-text">New World Diagnostic Inc.</div>
+        </div>
+        <div class="login-portal-badge badge-patient">🧬 Patient Portal</div>
+        <div class="login-form-title">Welcome Back</div>
+        <div class="login-form-sub">Enter your Patient ID and Date of Birth to access your health records.</div>
+        <div class="form-group">
+          <label class="form-label">Patient ID</label>
+          <input class="form-input" placeholder="e.g. NW-2024-00847" value="NW-2024-00847">
+          <div class="form-hint">Found on your NWDI receipt or health card</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          <input class="form-input" placeholder="MM/DD/YYYY" value="03/14/1985">
+          <div class="form-hint">Used as your secure password</div>
+        </div>
+        <button class="btn-login-submit btn-login-patient" onclick="goPortal('patient')">Access My Health Records →</button>
+        <div class="login-divider">— or —</div>
+        <button class="btn-back" onclick="goLanding()">← Back to Portal Selection</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= HR LOGIN ============================= -->
+<div id="screen-hr-login" class="screen" style="display:none;flex-direction:column;">
+  <div class="landing-header">
+    <div class="brand">
+      <div class="brand-logo">NW</div>
+      <div class="brand-text">
+        <div class="brand-name">New World Diagnostic Inc.</div>
+        <div class="brand-tagline">Your Health Is Our Commitment</div>
+      </div>
+    </div>
+  </div>
+  <div class="login-wrap">
+    <div class="login-left" style="background:linear-gradient(150deg,#6B1A1A 0%,#8B2323 100%);">
+      <div class="login-left-content">
+        <div class="landing-iso" style="margin-bottom:20px;background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);">🏢 <span style="color:var(--nwdi-gold2)">HR Portal</span></div>
+        <h2>Workforce Health,<br><em>Under Control</em></h2>
+        <p>Manage employee medical records, compliance, and generate health reports for your organization.</p>
+        <div class="login-features">
+          <div class="login-feature">
+            <div class="login-feature-icon">📋</div>
+            <div class="login-feature-text">Annual PE compliance tracking by department</div>
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-icon">📊</div>
+            <div class="login-feature-text">Workforce wellness dashboard and trends</div>
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-icon">📦</div>
+            <div class="login-feature-text">Bulk result downloads and PDF/Excel exports</div>
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-icon">🔔</div>
+            <div class="login-feature-text">Automated overdue reminders via SMS/email</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="login-right">
+      <div class="login-form-box">
+        <div class="login-form-logo">
+          <div class="login-form-logo-icon" style="background:var(--nwdi-red);">NW</div>
+          <div class="login-form-logo-text">New World Diagnostic Inc.</div>
+        </div>
+        <div class="login-portal-badge badge-hr">🏢 Corporate HR Portal</div>
+        <div class="login-form-title">Corporate Login</div>
+        <div class="login-form-sub">Access is restricted to authorized corporate account contacts.</div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" placeholder="hr@company.com" value="hr.manager@acmecorp.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" placeholder="••••••••" value="password123">
+          <div class="form-hint">Default: your registered mobile number. OTP sent on first login.</div>
+        </div>
+        <button class="btn-login-submit btn-login-hr" onclick="goPortal('hr')">Access HR Dashboard →</button>
+        <div class="login-divider">— or —</div>
+        <button class="btn-back" onclick="goLanding()">← Back to Portal Selection</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= PATIENT PORTAL APP ============================= -->
+<div id="screen-patient-app" class="screen" style="display:none;">
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon">NW</div>
+          <div class="sidebar-logo-text">
+            <div class="sidebar-logo-name">New World Diagnostic</div>
+            <div class="sidebar-logo-tagline">Patient Portal</div>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" style="background:var(--nwdi-navy2);">JD</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Juan Dela Cruz</div>
+          <div class="sidebar-user-role">NW-2024-00847</div>
+        </div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="sidebar-section">Main</div>
+        <div class="nav-item active" onclick="showPage('p-dashboard', this)">
+          <span class="nav-item-icon">🏠</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="showPage('p-results', this)">
+          <span class="nav-item-icon">🧪</span> My Results
+          <span class="nav-badge">3</span>
+        </div>
+        <div class="nav-item" onclick="showPage('p-trends', this)">
+          <span class="nav-item-icon">📊</span> Health Trends
+        </div>
+        <div class="nav-item" onclick="showPage('p-appointments', this)">
+          <span class="nav-item-icon">📅</span> Appointments
+        </div>
+        <div class="sidebar-section">Tools</div>
+        <div class="nav-item" onclick="showPage('p-share', this)">
+          <span class="nav-item-icon">🔗</span> Share Results
+        </div>
+        <div class="nav-item" onclick="showPage('p-audit', this)">
+          <span class="nav-item-icon">🔒</span> Access History
+        </div>
+        <div class="sidebar-section">Account</div>
+        <div class="nav-item" onclick="showPage('p-profile', this)">
+          <span class="nav-item-icon">👤</span> My Profile
+        </div>
+        <div class="nav-item" onclick="showPage('p-healthcard', this)">
+          <span class="nav-item-icon">💳</span> Digital Health Card
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="goLanding()">⬅ Sign Out</button>
+      </div>
+    </div>
+    <!-- MAIN -->
+    <div class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="page-title" id="patient-page-title">Dashboard</div>
+        </div>
+        <div class="topbar-right">
+          <div class="lang-toggle">
+            <button class="lang-btn active">EN</button>
+            <button class="lang-btn" onclick="toggleLang(this)">FIL</button>
+          </div>
+          <button class="topbar-btn" title="Notifications">
+            🔔<div class="notif-dot"></div>
+          </button>
+          <div class="topbar-user">
+            <div class="topbar-avatar" style="background:var(--nwdi-navy);">JD</div>
+            <div class="topbar-uname">Juan D.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DASHBOARD PAGE -->
+      <div id="p-dashboard" class="page active">
+        <div class="ai-banner">
+          <div class="ai-icon">🤖</div>
+          <div>
+            <div class="ai-label">AI Health Insight — Updated Mar 18, 2026</div>
+            <div class="ai-text">Your hemoglobin is at <strong>11.8 g/dL</strong>, slightly below the normal range — this may indicate mild anemia. Your cholesterol and blood glucose remain healthy. Consider increasing iron-rich foods and consulting your physician. <strong>No urgent concerns detected.</strong></div>
+          </div>
+        </div>
+        <div class="section-label">Overview</div>
+        <div class="stats-grid" style="margin-bottom:24px;">
+          <div class="stat-card">
+            <div class="stat-top">
+              <div>
+                <div class="stat-val">12</div>
+                <div class="stat-label">Results on File</div>
+              </div>
+              <div class="stat-icon" style="background:#EBF4FF;">🧪</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div>
+                <div class="stat-val" style="color:var(--warn)">3</div>
+                <div class="stat-label">Abnormal Values</div>
+              </div>
+              <div class="stat-icon" style="background:var(--warn-bg);">⚠️</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div>
+                <div class="stat-val">Apr 13</div>
+                <div class="stat-label">Next Appointment</div>
+              </div>
+              <div class="stat-icon" style="background:var(--green-bg);">📅</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div>
+                <div class="stat-val">2</div>
+                <div class="stat-label">Shared Records</div>
+              </div>
+              <div class="stat-icon" style="background:#FFF5E6;">🔗</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">Recent Results</div>
+        <div class="two-col" style="margin-bottom:24px;">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Complete Blood Count (CBC)</div>
+                <div style="font-size:0.76rem;color:var(--muted);margin-top:2px;">March 18, 2026 · Makati Branch</div>
+              </div>
+              <span class="tag tag-low">1 Abnormal</span>
+            </div>
+            <div class="card-body">
+              <table class="result-table">
+                <tr><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr>
+                <tr>
+                  <td>Hemoglobin</td>
+                  <td class="val-mono">11.8 g/dL</td>
+                  <td style="font-size:0.78rem;color:var(--muted);">12–16</td>
+                  <td><span class="tag tag-low">Low</span></td>
+                </tr>
+                <tr>
+                  <td>WBC Count</td>
+                  <td class="val-mono">6.2 ×10³/µL</td>
+                  <td style="font-size:0.78rem;color:var(--muted);">4.5–11</td>
+                  <td><span class="tag tag-normal">Normal</span></td>
+                </tr>
+                <tr>
+                  <td>Platelet Count</td>
+                  <td class="val-mono">245 ×10³/µL</td>
+                  <td style="font-size:0.78rem;color:var(--muted);">150–400</td>
+                  <td><span class="tag tag-normal">Normal</span></td>
+                </tr>
+              </table>
+              <div style="display:flex;gap:8px;margin-top:14px;">
+                <button class="btn btn-navy">⬇ Download</button>
+                <button class="btn btn-outline">🔗 Share</button>
+                <button class="btn btn-outline" onclick="showPage('p-trends',null)">📊 Trend</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Lipid Panel</div>
+                <div style="font-size:0.76rem;color:var(--muted);margin-top:2px;">February 5, 2026 · Pasig Branch</div>
+              </div>
+              <span class="tag tag-normal">All Normal</span>
+            </div>
+            <div class="card-body">
+              <table class="result-table">
+                <tr><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr>
+                <tr>
+                  <td>Total Cholesterol</td>
+                  <td class="val-mono">182 mg/dL</td>
+                  <td style="font-size:0.78rem;color:var(--muted);">&lt;200</td>
+                  <td><span class="tag tag-normal">Normal</span></td>
+                </tr>
+                <tr>
+                  <td>LDL</td>
+                  <td class="val-mono">98 mg/dL</td>
+                  <td style="font-size:0.78rem;color:var(--muted);">&lt;130</td>
+                  <td><span class="tag tag-normal">Normal</span></td>
+                </tr>
+                <tr>
+                  <td>HDL</td>
+                  <td class="val-mono">52 mg/dL</td>
+                  <td style="font-size:0.78rem;color:var(--muted);">&gt;40</td>
+                  <td><span class="tag tag-normal">Normal</span></td>
+                </tr>
+              </table>
+              <div style="display:flex;gap:8px;margin-top:14px;">
+                <button class="btn btn-navy">⬇ Download</button>
+                <button class="btn btn-outline">🔗 Share</button>
+                <button class="btn btn-outline" onclick="showPage('p-trends',null)">📊 Trend</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">Quick Actions</div>
+        <div class="three-col">
+          <button class="bulk-btn" onclick="showPage('p-appointments',null)">
+            <span class="bulk-icon">📅</span>
+            <div><div class="bulk-title">Book Appointment</div><div class="bulk-sub">Schedule your next visit</div></div>
+          </button>
+          <button class="bulk-btn" onclick="showPage('p-share',null)">
+            <span class="bulk-icon">🔗</span>
+            <div><div class="bulk-title">Share Results</div><div class="bulk-sub">Send to your physician</div></div>
+          </button>
+          <button class="bulk-btn" onclick="showPage('p-healthcard',null)">
+            <span class="bulk-icon">💳</span>
+            <div><div class="bulk-title">View Health Card</div><div class="bulk-sub">Digital ID with QR</div></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- MY RESULTS PAGE -->
+      <div id="p-results" class="page">
+        <div class="section-label">All Lab Results</div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="card-title">Complete Blood Count (CBC)</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="tag tag-low">1 Abnormal</span>
+              <button class="btn btn-navy">⬇ Download</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">March 18, 2026 · Makati Branch · Verified by: Lab Technologist M. Santos</div>
+            <table class="result-table">
+              <tr><th>Parameter</th><th>Result</th><th>Reference Range</th><th>Unit</th><th>Status</th></tr>
+              <tr><td>Hemoglobin</td><td class="val-mono">11.8</td><td class="val-mono" style="color:var(--muted)">12.0–16.0</td><td style="color:var(--muted);font-size:0.8rem">g/dL</td><td><span class="tag tag-low">Low</span></td></tr>
+              <tr><td>Hematocrit</td><td class="val-mono">35.4</td><td class="val-mono" style="color:var(--muted)">36.0–46.0</td><td style="color:var(--muted);font-size:0.8rem">%</td><td><span class="tag tag-low">Low</span></td></tr>
+              <tr><td>WBC Count</td><td class="val-mono">6.2</td><td class="val-mono" style="color:var(--muted)">4.5–11.0</td><td style="color:var(--muted);font-size:0.8rem">×10³/µL</td><td><span class="tag tag-normal">Normal</span></td></tr>
+              <tr><td>RBC Count</td><td class="val-mono">4.1</td><td class="val-mono" style="color:var(--muted)">3.8–5.2</td><td style="color:var(--muted);font-size:0.8rem">×10⁶/µL</td><td><span class="tag tag-normal">Normal</span></td></tr>
+              <tr><td>Platelet Count</td><td class="val-mono">245</td><td class="val-mono" style="color:var(--muted)">150–400</td><td style="color:var(--muted);font-size:0.8rem">×10³/µL</td><td><span class="tag tag-normal">Normal</span></td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="card-title">Lipid Panel</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="tag tag-normal">All Normal</span>
+              <button class="btn btn-navy">⬇ Download</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">February 5, 2026 · Pasig Branch</div>
+            <table class="result-table">
+              <tr><th>Parameter</th><th>Result</th><th>Reference Range</th><th>Unit</th><th>Status</th></tr>
+              <tr><td>Total Cholesterol</td><td class="val-mono">182</td><td class="val-mono" style="color:var(--muted)">&lt;200</td><td style="color:var(--muted);font-size:0.8rem">mg/dL</td><td><span class="tag tag-normal">Normal</span></td></tr>
+              <tr><td>LDL Cholesterol</td><td class="val-mono">98</td><td class="val-mono" style="color:var(--muted)">&lt;130</td><td style="color:var(--muted);font-size:0.8rem">mg/dL</td><td><span class="tag tag-normal">Normal</span></td></tr>
+              <tr><td>HDL Cholesterol</td><td class="val-mono">52</td><td class="val-mono" style="color:var(--muted)">&gt;40</td><td style="color:var(--muted);font-size:0.8rem">mg/dL</td><td><span class="tag tag-normal">Normal</span></td></tr>
+              <tr><td>Triglycerides</td><td class="val-mono">128</td><td class="val-mono" style="color:var(--muted)">&lt;150</td><td style="color:var(--muted);font-size:0.8rem">mg/dL</td><td><span class="tag tag-normal">Normal</span></td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Blood Chemistry (FBS & Creatinine)</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="tag tag-normal">All Normal</span>
+              <button class="btn btn-navy">⬇ Download</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">January 10, 2026 · Makati Branch</div>
+            <table class="result-table">
+              <tr><th>Parameter</th><th>Result</th><th>Reference Range</th><th>Unit</th><th>Status</th></tr>
+              <tr><td>Fasting Blood Sugar</td><td class="val-mono">95</td><td class="val-mono" style="color:var(--muted)">70–100</td><td style="color:var(--muted);font-size:0.8rem">mg/dL</td><td><span class="tag tag-normal">Normal</span></td></tr>
+              <tr><td>Creatinine</td><td class="val-mono">0.9</td><td class="val-mono" style="color:var(--muted)">0.6–1.2</td><td style="color:var(--muted);font-size:0.8rem">mg/dL</td><td><span class="tag tag-normal">Normal</span></td></tr>
+              <tr><td>Uric Acid</td><td class="val-mono">6.1</td><td class="val-mono" style="color:var(--muted)">3.5–7.0</td><td style="color:var(--muted);font-size:0.8rem">mg/dL</td><td><span class="tag tag-normal">Normal</span></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- HEALTH TRENDS PAGE -->
+      <div id="p-trends" class="page">
+        <div class="section-label">Cumulative Health Trends — 12 Months</div>
+
+        <!-- HEMOGLOBIN CHART -->
+        <div class="chart-wrap" style="margin-bottom:20px;">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title-txt">Hemoglobin (g/dL)</div>
+              <div class="chart-subtitle">CBC results over time · Normal range: 12.0–16.0 g/dL</div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#1A2B4A;"></div>Hemoglobin</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#A3D9B8;border-radius:2px;width:14px;height:6px;"></div>Normal Range</div>
+            </div>
+          </div>
+          <div class="chart-svg-area">
+            <svg viewBox="0 0 700 160" style="width:100%;height:160px;" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="hbGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#1A2B4A" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#1A2B4A" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Normal range band -->
+              <rect x="0" y="20" width="700" height="60" fill="#E8F5EE" rx="0"/>
+              <text x="4" y="16" font-size="9" fill="#1A7A4A" font-family="JetBrains Mono">16.0</text>
+              <text x="4" y="84" font-size="9" fill="#1A7A4A" font-family="JetBrains Mono">12.0</text>
+              <!-- Data: Apr May Jun Jul Aug Sep Oct Nov Dec Jan Feb Mar -->
+              <!-- Values mapped: 16=top(20), 12=80, so range=60px for 4units. each unit=15px -->
+              <!-- 12.5→72.5 12.8→67 13.0→64 12.6→71 12.3→75.5 11.9→81.5 12.0→80 11.8→83 11.9→81.5 12.1→78.5 12.0→80 11.8→83 -->
+              <path d="M30,72 L90,67 L150,64 L210,71 L270,75 L330,81 L390,80 L450,83 L510,81 L570,78 L630,80 L690,83 L690,155 L30,155 Z"
+                fill="url(#hbGrad)"/>
+              <polyline points="30,72 90,67 150,64 210,71 270,75 330,81 390,80 450,83 510,81 570,78 630,80 690,83"
+                fill="none" stroke="#1A2B4A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+              <!-- Dots -->
+              <circle cx="30" cy="72" r="4" fill="white" stroke="#1A2B4A" stroke-width="2"/>
+              <circle cx="90" cy="67" r="4" fill="white" stroke="#1A2B4A" stroke-width="2"/>
+              <circle cx="150" cy="64" r="4" fill="white" stroke="#1A2B4A" stroke-width="2"/>
+              <circle cx="210" cy="71" r="4" fill="white" stroke="#1A2B4A" stroke-width="2"/>
+              <circle cx="270" cy="75" r="4" fill="white" stroke="#1A2B4A" stroke-width="2"/>
+              <circle cx="330" cy="81" r="4" fill="#C0392B" stroke="white" stroke-width="2"/>
+              <circle cx="390" cy="80" r="4" fill="#C0392B" stroke="white" stroke-width="2"/>
+              <circle cx="450" cy="83" r="4" fill="#C0392B" stroke="white" stroke-width="2"/>
+              <circle cx="510" cy="81" r="4" fill="#C0392B" stroke="white" stroke-width="2"/>
+              <circle cx="570" cy="78" r="4" fill="white" stroke="#1A2B4A" stroke-width="2"/>
+              <circle cx="630" cy="80" r="4" fill="#C0392B" stroke="white" stroke-width="2"/>
+              <circle cx="690" cy="83" r="4" fill="#C0392B" stroke="white" stroke-width="2"/>
+              <!-- Month labels -->
+              <text x="24" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Apr</text>
+              <text x="90" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">May</text>
+              <text x="150" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Jun</text>
+              <text x="210" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Jul</text>
+              <text x="270" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Aug</text>
+              <text x="330" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Sep</text>
+              <text x="390" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Oct</text>
+              <text x="450" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Nov</text>
+              <text x="510" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Dec</text>
+              <text x="570" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Jan</text>
+              <text x="630" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Feb</text>
+              <text x="690" y="152" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Mar</text>
+            </svg>
+          </div>
+          <div style="padding:0 20px 14px;font-size:0.76rem;color:var(--warn);font-weight:600;">⚠ 6 readings below normal range — consider consulting your physician.</div>
+        </div>
+
+        <!-- CHOLESTEROL CHART -->
+        <div class="chart-wrap" style="margin-bottom:20px;">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title-txt">Total Cholesterol (mg/dL)</div>
+              <div class="chart-subtitle">Lipid panel results · Target: &lt;200 mg/dL</div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#C0392B;"></div>Cholesterol</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#D4A017;"></div>LDL</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#1A7A4A;"></div>HDL</div>
+            </div>
+          </div>
+          <div class="chart-svg-area">
+            <svg viewBox="0 0 700 160" style="width:100%;height:160px;" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="cholGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#C0392B" stop-opacity="0.1"/>
+                  <stop offset="100%" stop-color="#C0392B" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Grid -->
+              <line x1="0" y1="40" x2="700" y2="40" stroke="#EAEEf5" stroke-width="1"/>
+              <line x1="0" y1="80" x2="700" y2="80" stroke="#EAEEf5" stroke-width="1"/>
+              <line x1="0" y1="120" x2="700" y2="120" stroke="#EAEEf5" stroke-width="1"/>
+              <!-- Y labels: 220=top 140=bottom, range=80, scale: (val-140)/80*120 -->
+              <text x="2" y="14" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono">220</text>
+              <text x="2" y="84" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono">180</text>
+              <text x="2" y="124" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono">160</text>
+              <!-- Total Cholesterol line: 195,198,190,185,200,210,205,192,188,183,182,182 -->
+              <!-- (val-140)/80*120 -->
+              <path d="M30,82 L150,87 L270,75 L390,82 L510,70 L630,79 L690,79 L690,145 L30,145 Z" fill="url(#cholGrad)"/>
+              <polyline points="30,82 90,84 150,87 210,75 270,75 330,67 390,82 450,90 510,72 570,64 630,79 690,79"
+                fill="none" stroke="#C0392B" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+              <!-- LDL line: ~105,108,100,98,112,118,110,102,100,98,98,98 -->
+              <polyline points="30,109 90,107 150,110 210,114 270,102 330,92 390,110 450,116 510,105 570,99 630,101 690,101"
+                fill="none" stroke="#D4A017" stroke-width="2" stroke-dasharray="5,3" stroke-linejoin="round"/>
+              <!-- HDL line: 48,49,50,52,50,51,52,50,51,52,52,52 -->
+              <polyline points="30,132 90,130 150,129 210,126 270,129 330,128 390,126 450,129 510,128 570,126 630,126 690,126"
+                fill="none" stroke="#1A7A4A" stroke-width="2" stroke-linejoin="round"/>
+              <!-- Month labels -->
+              <text x="24" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Apr</text>
+              <text x="150" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Jun</text>
+              <text x="270" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Aug</text>
+              <text x="390" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Oct</text>
+              <text x="510" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Dec</text>
+              <text x="630" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Feb</text>
+              <text x="690" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Mar</text>
+            </svg>
+          </div>
+          <div style="padding:0 20px 14px;font-size:0.76rem;color:var(--green);font-weight:600;">✓ Cholesterol trending downward — good progress. Keep it up!</div>
+        </div>
+
+        <!-- BLOOD SUGAR CHART -->
+        <div class="chart-wrap">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title-txt">Fasting Blood Sugar (mg/dL)</div>
+              <div class="chart-subtitle">Blood chemistry results · Normal: 70–100 mg/dL</div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#D4A017;"></div>FBS</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#A3D9B8;border-radius:2px;width:14px;height:6px;"></div>Normal Range</div>
+            </div>
+          </div>
+          <div class="chart-svg-area">
+            <svg viewBox="0 0 700 160" style="width:100%;height:160px;" preserveAspectRatio="none">
+              <!-- Normal range band: 70-100 = (val-60)/80*140; 70→17.5 100→87.5 -->
+              <rect x="0" y="17" width="700" height="70" fill="#FEF3C7" rx="0" opacity="0.5"/>
+              <text x="4" y="14" font-size="9" fill="#B45309" font-family="JetBrains Mono">100</text>
+              <text x="4" y="90" font-size="9" fill="#B45309" font-family="JetBrains Mono">70</text>
+              <!-- FBS values: 88,90,92,86,95,98,100,97,96,93,95,95 mapped (val-60)/80*140 -->
+              <defs>
+                <linearGradient id="fbsGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#D4A017" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#D4A017" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M30,49 L90,52 L150,56 L210,45 L270,61 L330,66 L390,70 L450,64 L510,63 L570,57 L630,61 L690,61 L690,150 L30,150 Z"
+                fill="url(#fbsGrad)"/>
+              <polyline points="30,49 90,52 150,56 210,45 270,61 330,66 390,70 450,64 510,63 570,57 630,61 690,61"
+                fill="none" stroke="#D4A017" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+              <circle cx="390" cy="70" r="5" fill="white" stroke="#D4A017" stroke-width="2"/>
+              <text x="395" y="66" font-size="9" fill="#B45309" font-family="JetBrains Mono">100</text>
+              <text x="24" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Apr</text>
+              <text x="150" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Jun</text>
+              <text x="270" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Aug</text>
+              <text x="390" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Oct</text>
+              <text x="510" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Dec</text>
+              <text x="630" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Feb</text>
+              <text x="690" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Mar</text>
+            </svg>
+          </div>
+          <div style="padding:0 20px 14px;font-size:0.76rem;color:var(--text2);">Blood sugar peaked at 100 mg/dL in October — currently stable at 95 mg/dL. Monitor diet.</div>
+        </div>
+      </div>
+
+      <!-- APPOINTMENTS PAGE -->
+      <div id="p-appointments" class="page">
+        <div class="section-label">Book an Appointment</div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Available Slots — Makati Branch</div></div>
+            <div class="card-body">
+              <div class="appt-slot" onclick="selectSlot(this)">
+                <div><div class="appt-time">Apr 13, 2026 · 8:00 AM</div><div class="appt-sub">CBC + Urinalysis Package</div></div>
+                <span class="appt-slots-avail">3 slots</span>
+              </div>
+              <div class="appt-slot" onclick="selectSlot(this)">
+                <div><div class="appt-time">Apr 13, 2026 · 10:30 AM</div><div class="appt-sub">Walk-in / General Availment</div></div>
+                <span class="appt-slots-avail">5 slots</span>
+              </div>
+              <div class="appt-slot full">
+                <div><div class="appt-time">Apr 14, 2026 · 9:00 AM</div><div class="appt-sub">Annual PE Package</div></div>
+                <span style="font-size:0.75rem;color:var(--danger);font-weight:600;">Full</span>
+              </div>
+              <div class="appt-slot" onclick="selectSlot(this)">
+                <div><div class="appt-time">Apr 15, 2026 · 7:30 AM</div><div class="appt-sub">Annual PE Package</div></div>
+                <span class="appt-slots-avail">2 slots</span>
+              </div>
+              <div class="appt-slot" onclick="selectSlot(this)">
+                <div><div class="appt-time">Apr 16, 2026 · 2:00 PM</div><div class="appt-sub">Lipid Panel + FBS</div></div>
+                <span class="appt-slots-avail">4 slots</span>
+              </div>
+              <button class="btn btn-navy" style="width:100%;margin-top:12px;padding:11px;justify-content:center;">Confirm Appointment →</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Upcoming Appointments</div></div>
+            <div class="card-body">
+              <div style="border-radius:10px;background:var(--bg);border:1.5px solid var(--nwdi-navy);padding:16px;margin-bottom:12px;">
+                <div style="font-size:0.7rem;font-weight:700;color:var(--nwdi-navy);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Confirmed</div>
+                <div style="font-weight:600;margin-bottom:4px;">Apr 13, 2026 · 8:00 AM</div>
+                <div style="font-size:0.82rem;color:var(--text2);">CBC + Urinalysis · Makati Branch</div>
+                <div style="margin-top:10px;display:flex;gap:8px;">
+                  <button class="btn btn-outline" style="font-size:0.76rem;padding:5px 12px;">Reschedule</button>
+                  <button class="btn btn-ghost" style="font-size:0.76rem;padding:5px 12px;color:var(--danger);">Cancel</button>
+                </div>
+              </div>
+              <div style="text-align:center;padding:24px;color:var(--muted);font-size:0.85rem;">No other upcoming appointments</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHARE RESULTS PAGE -->
+      <div id="p-share" class="page">
+        <div class="section-label">Share Results Securely</div>
+        <div class="ai-banner" style="background:var(--warn-bg);border-color:var(--warn-border);">
+          <div class="ai-icon" style="background:var(--nwdi-gold);">🔗</div>
+          <div>
+            <div class="ai-label" style="color:var(--warn);">Secure Share Links</div>
+            <div class="ai-text">Generate encrypted, time-limited links to share your results with physicians or employers. No login required for recipients. Links expire automatically after 7 days.</div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Generate Share Link</div></div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Select Result</label>
+                <select class="form-input">
+                  <option>CBC — March 18, 2026</option>
+                  <option>Lipid Panel — February 5, 2026</option>
+                  <option>Blood Chemistry — January 10, 2026</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Recipient (optional)</label>
+                <input class="form-input" placeholder="e.g. Dr. Santos, Company HR">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Link Expiry</label>
+                <select class="form-input">
+                  <option>7 days</option>
+                  <option>24 hours</option>
+                  <option>30 days</option>
+                </select>
+              </div>
+              <button class="btn btn-navy" style="width:100%;padding:11px;justify-content:center;">Generate Secure Link</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Active Share Links</div></div>
+            <div class="card-body">
+              <div style="padding:12px;border-radius:10px;border:1.5px solid var(--border);margin-bottom:10px;">
+                <div style="font-weight:600;font-size:0.86rem;margin-bottom:4px;">Lipid Panel — Feb 5, 2026</div>
+                <div style="font-size:0.76rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:8px;">nwdi.com.ph/share/a8f2c...  · Shared with Dr. Santos</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:0.72rem;color:var(--green);">Expires Apr 5, 2026</span>
+                  <button class="btn btn-outline" style="font-size:0.74rem;padding:4px 10px;color:var(--danger);border-color:var(--danger-border);">Revoke</button>
+                </div>
+              </div>
+              <div style="text-align:center;padding:20px;color:var(--muted);font-size:0.85rem;">No other active links</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUDIT PAGE -->
+      <div id="p-audit" class="page">
+        <div class="section-label">Access History & Audit Trail</div>
+        <div class="card">
+          <div class="card-body">
+            <div class="audit-item">
+              <div class="audit-dot-wrap"><div class="audit-dot" style="background:var(--nwdi-navy);"></div><div class="audit-line"></div></div>
+              <div class="audit-body">
+                <div class="audit-action">You viewed <strong>CBC Results (March 18, 2026)</strong></div>
+                <div class="audit-meta">2026-04-01 09:14:22 · IP 112.198.xx.xx · Patient Portal</div>
+              </div>
+            </div>
+            <div class="audit-item">
+              <div class="audit-dot-wrap"><div class="audit-dot" style="background:var(--nwdi-gold);"></div><div class="audit-line"></div></div>
+              <div class="audit-body">
+                <div class="audit-action">Share link generated for <strong>Lipid Panel</strong> — shared with Dr. Santos</div>
+                <div class="audit-meta">2026-03-28 14:02:05 · Share link active</div>
+              </div>
+            </div>
+            <div class="audit-item">
+              <div class="audit-dot-wrap"><div class="audit-dot" style="background:var(--green);"></div><div class="audit-line"></div></div>
+              <div class="audit-body">
+                <div class="audit-action">Lab results released — <strong>CBC verified by Lab Technologist M. Santos</strong></div>
+                <div class="audit-meta">2026-03-18 11:44:00 · System auto-release</div>
+              </div>
+            </div>
+            <div class="audit-item">
+              <div class="audit-dot-wrap"><div class="audit-dot" style="background:var(--muted);"></div></div>
+              <div class="audit-body">
+                <div class="audit-action">You downloaded <strong>Blood Chemistry (January 10, 2026)</strong></div>
+                <div class="audit-meta">2026-02-20 08:30:11 · Downloaded PDF</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFILE PAGE -->
+      <div id="p-profile" class="page">
+        <div class="section-label">My Profile</div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Personal Information</div><button class="btn btn-outline">Edit</button></div>
+            <div class="card-body">
+              <table class="result-table">
+                <tr><td style="color:var(--muted);width:40%">Full Name</td><td><strong>Juan Dela Cruz</strong></td></tr>
+                <tr><td style="color:var(--muted)">Patient ID</td><td class="val-mono">NW-2024-00847</td></tr>
+                <tr><td style="color:var(--muted)">Date of Birth</td><td>March 14, 1985</td></tr>
+                <tr><td style="color:var(--muted)">Home Branch</td><td>Makati</td></tr>
+                <tr><td style="color:var(--muted)">Email</td><td>juan.delacruz@email.com</td></tr>
+                <tr><td style="color:var(--muted)">Mobile</td><td>+63 917 xxx xxxx</td></tr>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Notification Preferences</div></div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div><div style="font-weight:600;font-size:0.86rem;">Results Ready Alert</div><div style="font-size:0.76rem;color:var(--muted);">SMS + Email when results are released</div></div>
+                  <div style="width:40px;height:22px;background:var(--nwdi-navy);border-radius:11px;position:relative;cursor:pointer;"><div style="width:16px;height:16px;background:white;border-radius:50%;position:absolute;top:3px;right:3px;"></div></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div><div style="font-weight:600;font-size:0.86rem;">Appointment Reminders</div><div style="font-size:0.76rem;color:var(--muted);">24 hours before your appointment</div></div>
+                  <div style="width:40px;height:22px;background:var(--nwdi-navy);border-radius:11px;position:relative;cursor:pointer;"><div style="width:16px;height:16px;background:white;border-radius:50%;position:absolute;top:3px;right:3px;"></div></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div><div style="font-weight:600;font-size:0.86rem;">Abnormal Value Alerts</div><div style="font-size:0.76rem;color:var(--muted);">Urgent flag for critical results</div></div>
+                  <div style="width:40px;height:22px;background:var(--nwdi-navy);border-radius:11px;position:relative;cursor:pointer;"><div style="width:16px;height:16px;background:white;border-radius:50%;position:absolute;top:3px;right:3px;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HEALTH CARD PAGE -->
+      <div id="p-healthcard" class="page">
+        <div class="section-label">Digital Health Card</div>
+        <div style="max-width:420px;">
+          <div class="health-card">
+            <div class="hc-top">
+              <div>
+                <div class="hc-brand">New World Diagnostic Inc.</div>
+              </div>
+              <div class="hc-qr">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <div class="hc-id">NW-2024-00847</div>
+            <div class="hc-name">Juan Dela Cruz</div>
+            <div class="hc-dob">DOB: March 14, 1985 · Makati Branch</div>
+            <div class="hc-status">Active Patient</div>
+          </div>
+          <div style="margin-top:16px;font-size:0.82rem;color:var(--muted);line-height:1.6;">
+            Present this QR code at any NWDI branch for fast check-in and result access. <br>Your card is updated automatically with each visit.
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px;">
+            <button class="btn btn-navy">⬇ Save Card (PDF)</button>
+            <button class="btn btn-outline">📤 Share Card</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /app-layout -->
+</div><!-- /patient app -->
+
+<!-- ============================= HR PORTAL APP ============================= -->
+<div id="screen-hr-app" class="screen" style="display:none;">
+  <div class="app-layout">
+    <div class="sidebar" style="background:#6B1A1A;">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon" style="background:white;color:#6B1A1A;">NW</div>
+          <div class="sidebar-logo-text">
+            <div class="sidebar-logo-name">New World Diagnostic</div>
+            <div class="sidebar-logo-tagline">Corporate HR Portal</div>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" style="background:rgba(255,255,255,0.15);">AR</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Ana Reyes</div>
+          <div class="sidebar-user-role">Acme Corporation · HR Manager</div>
+        </div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="sidebar-section">Main</div>
+        <div class="nav-item active" onclick="showHRPage('hr-dashboard', this)">
+          <span class="nav-item-icon">🏠</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="showHRPage('hr-employees', this)">
+          <span class="nav-item-icon">👥</span> Employees
+        </div>
+        <div class="nav-item" onclick="showHRPage('hr-compliance', this)">
+          <span class="nav-item-icon">📋</span> PE Compliance
+          <span class="nav-badge">32</span>
+        </div>
+        <div class="nav-item" onclick="showHRPage('hr-trends', this)">
+          <span class="nav-item-icon">📊</span> Wellness Trends
+        </div>
+        <div class="sidebar-section">Reports</div>
+        <div class="nav-item" onclick="showHRPage('hr-reports', this)">
+          <span class="nav-item-icon">📄</span> Reports & Exports
+        </div>
+        <div class="nav-item" onclick="showHRPage('hr-schedule', this)">
+          <span class="nav-item-icon">📅</span> Bulk Scheduling
+        </div>
+        <div class="sidebar-section">Admin</div>
+        <div class="nav-item" onclick="showHRPage('hr-audit', this)">
+          <span class="nav-item-icon">🔒</span> Audit Trail
+        </div>
+        <div class="nav-item" onclick="showHRPage('hr-settings', this)">
+          <span class="nav-item-icon">⚙️</span> Account Settings
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="goLanding()" style="border-color:rgba(255,255,255,0.15);">⬅ Sign Out</button>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="page-title" id="hr-page-title">HR Dashboard</div>
+        </div>
+        <div class="topbar-right">
+          <div class="lang-toggle">
+            <button class="lang-btn active">EN</button>
+            <button class="lang-btn" onclick="toggleLang(this)">FIL</button>
+          </div>
+          <button class="topbar-btn">🔔<div class="notif-dot"></div></button>
+          <div class="topbar-user">
+            <div class="topbar-avatar" style="background:#8B2323;">AR</div>
+            <div class="topbar-uname">Ana R.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HR DASHBOARD -->
+      <div id="hr-dashboard" class="page active">
+        <div class="section-label">Overview — Acme Corporation</div>
+        <div class="stats-grid" style="margin-bottom:24px;">
+          <div class="stat-card">
+            <div class="stat-top">
+              <div><div class="stat-val">248</div><div class="stat-label">Employees with Results</div></div>
+              <div class="stat-icon" style="background:#EBF4FF;">👥</div>
+            </div>
+            <div class="stat-delta delta-up">↑ 14 this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div><div class="stat-val" style="color:var(--danger)">32</div><div class="stat-label">Overdue Annual PE</div></div>
+              <div class="stat-icon" style="background:var(--danger-bg);">⚠️</div>
+            </div>
+            <div class="stat-delta delta-down">↓ 5 from last month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div><div class="stat-val">89%</div><div class="stat-label">PE Compliance Rate</div></div>
+              <div class="stat-icon" style="background:var(--green-bg);">✅</div>
+            </div>
+            <div class="stat-delta delta-up">↑ 3% from Q1</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div><div class="stat-val">74</div><div class="stat-label">Wellness Score /100</div></div>
+              <div class="stat-icon" style="background:#FFF5E6;">💚</div>
+            </div>
+            <div class="stat-delta delta-up">↑ 6 pts YOY</div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Top 5 Workforce Conditions</div><button class="btn btn-outline">Full Report</button></div>
+            <div class="card-body">
+              <div class="disease-row"><div class="disease-top"><span class="disease-name">Hypertension</span><span class="disease-pct">34%</span></div><div class="disease-bar"><div class="disease-fill" style="width:34%;background:linear-gradient(90deg,#C0392B,#E74C3C);"></div></div></div>
+              <div class="disease-row"><div class="disease-top"><span class="disease-name">Dyslipidemia</span><span class="disease-pct">28%</span></div><div class="disease-bar"><div class="disease-fill" style="width:28%;background:linear-gradient(90deg,#D4A017,#F0B429);"></div></div></div>
+              <div class="disease-row"><div class="disease-top"><span class="disease-name">Anemia</span><span class="disease-pct">21%</span></div><div class="disease-bar"><div class="disease-fill" style="width:21%;background:linear-gradient(90deg,#1A2B4A,#243459);"></div></div></div>
+              <div class="disease-row"><div class="disease-top"><span class="disease-name">Pre-Diabetes</span><span class="disease-pct">15%</span></div><div class="disease-bar"><div class="disease-fill" style="width:15%;background:linear-gradient(90deg,#7C3AED,#A78BFA);"></div></div></div>
+              <div class="disease-row"><div class="disease-top"><span class="disease-name">UTI</span><span class="disease-pct">11%</span></div><div class="disease-bar"><div class="disease-fill" style="width:11%;background:linear-gradient(90deg,#1A7A4A,#34D399);"></div></div></div>
+              <div style="margin-top:14px;font-size:0.76rem;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;">📊 Gender: 58% Male · 42% Female &nbsp;·&nbsp; Avg Age: 34.2 yrs</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">PE Compliance by Department</div></div>
+            <div class="card-body">
+              <div class="chip-row">
+                <div class="chip active">All</div>
+                <div class="chip">Operations</div>
+                <div class="chip">Finance</div>
+                <div class="chip">IT</div>
+                <div class="chip">Sales</div>
+              </div>
+              <table class="data-table">
+                <tr><th>Employee</th><th>Dept</th><th>Last PE</th><th>Status</th></tr>
+                <tr><td><span class="emp-av">MA</span>Maria A.</td><td style="color:var(--muted);font-size:0.8rem;">Operations</td><td class="val-mono" style="font-size:0.78rem;">Jan 2025</td><td><span class="pill pill-overdue">Overdue</span></td></tr>
+                <tr><td><span class="emp-av">RB</span>Roberto B.</td><td style="color:var(--muted);font-size:0.8rem;">IT</td><td class="val-mono" style="font-size:0.78rem;">Mar 2026</td><td><span class="pill pill-ok">Complete</span></td></tr>
+                <tr><td><span class="emp-av">SC</span>Susan C.</td><td style="color:var(--muted);font-size:0.8rem;">Finance</td><td class="val-mono" style="font-size:0.78rem;">—</td><td><span class="pill pill-pending">Scheduled</span></td></tr>
+                <tr><td><span class="emp-av">JL</span>Jose L.</td><td style="color:var(--muted);font-size:0.8rem;">Sales</td><td class="val-mono" style="font-size:0.78rem;">Oct 2024</td><td><span class="pill pill-overdue">Overdue</span></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">Quick Actions</div>
+        <div class="three-col">
+          <button class="bulk-btn" onclick="showHRPage('hr-schedule',null)"><span class="bulk-icon">📅</span><div><div class="bulk-title">Bulk Schedule PE</div><div class="bulk-sub">Upload employee list</div></div></button>
+          <button class="bulk-btn" onclick="showHRPage('hr-reports',null)"><span class="bulk-icon">📦</span><div><div class="bulk-title">Download All Results (ZIP)</div><div class="bulk-sub">By department or date range</div></div></button>
+          <button class="bulk-btn" onclick="showHRPage('hr-reports',null)"><span class="bulk-icon">📊</span><div><div class="bulk-title">Export Wellness Report</div><div class="bulk-sub">PDF / Excel</div></div></button>
+        </div>
+      </div>
+
+      <!-- HR EMPLOYEES -->
+      <div id="hr-employees" class="page">
+        <div class="section-label">Employee Health Records</div>
+        <div class="chip-row">
+          <div class="chip active">All Departments</div>
+          <div class="chip">Operations</div>
+          <div class="chip">Finance</div>
+          <div class="chip">IT</div>
+          <div class="chip">HR</div>
+          <div class="chip">Sales</div>
+          <div class="chip">Logistics</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">248 Employees</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-outline">⬇ Download All (ZIP)</button>
+              <button class="btn btn-navy">+ Add Employee</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <table class="data-table">
+              <tr><th>Employee</th><th>Department</th><th>Latest Result</th><th>Abnormal</th><th>PE Status</th><th>Action</th></tr>
+              <tr><td><span class="emp-av">MA</span>Maria A.</td><td style="font-size:0.8rem;color:var(--muted)">Operations</td><td style="font-size:0.8rem;">Mar 2026</td><td><span class="tag tag-low">2</span></td><td><span class="pill pill-overdue">Overdue</span></td><td><button class="btn btn-outline" style="font-size:0.74rem;padding:4px 10px;">View</button></td></tr>
+              <tr><td><span class="emp-av">RB</span>Roberto B.</td><td style="font-size:0.8rem;color:var(--muted)">IT</td><td style="font-size:0.8rem;">Mar 2026</td><td><span class="tag tag-normal">0</span></td><td><span class="pill pill-ok">Complete</span></td><td><button class="btn btn-outline" style="font-size:0.74rem;padding:4px 10px;">View</button></td></tr>
+              <tr><td><span class="emp-av">SC</span>Susan C.</td><td style="font-size:0.8rem;color:var(--muted)">Finance</td><td style="font-size:0.8rem;">—</td><td>—</td><td><span class="pill pill-pending">Scheduled</span></td><td><button class="btn btn-outline" style="font-size:0.74rem;padding:4px 10px;">View</button></td></tr>
+              <tr><td><span class="emp-av">JL</span>Jose L.</td><td style="font-size:0.8rem;color:var(--muted)">Sales</td><td style="font-size:0.8rem;">Oct 2024</td><td><span class="tag tag-high">1</span></td><td><span class="pill pill-overdue">Overdue</span></td><td><button class="btn btn-outline" style="font-size:0.74rem;padding:4px 10px;">View</button></td></tr>
+              <tr><td><span class="emp-av">PD</span>Paolo D.</td><td style="font-size:0.8rem;color:var(--muted)">Logistics</td><td style="font-size:0.8rem;">Feb 2026</td><td><span class="tag tag-normal">0</span></td><td><span class="pill pill-ok">Complete</span></td><td><button class="btn btn-outline" style="font-size:0.74rem;padding:4px 10px;">View</button></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- HR COMPLIANCE -->
+      <div id="hr-compliance" class="page">
+        <div class="section-label">Annual PE Compliance Tracker</div>
+        <div class="ai-banner" style="background:var(--danger-bg);border-color:var(--danger-border);">
+          <div class="ai-icon" style="background:var(--nwdi-red);">⚠️</div>
+          <div>
+            <div class="ai-label" style="color:var(--danger);">32 Employees Overdue</div>
+            <div class="ai-text">The following employees have not completed their Annual Physical Examination. Regulatory compliance may be at risk. Send automated reminders or schedule bulk PE appointments.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Overdue Employees</div>
+            <button class="btn btn-red">📨 Send Reminders to All</button>
+          </div>
+          <div class="card-body">
+            <table class="data-table">
+              <tr><th>Employee</th><th>Department</th><th>Last PE</th><th>Days Overdue</th><th>Action</th></tr>
+              <tr><td><span class="emp-av">MA</span>Maria A.</td><td style="font-size:0.8rem;color:var(--muted)">Operations</td><td class="val-mono" style="font-size:0.78rem;">Jan 2025</td><td style="color:var(--danger);font-weight:600;">457 days</td><td><button class="btn btn-outline" style="font-size:0.74rem;padding:4px 10px;">Schedule</button></td></tr>
+              <tr><td><span class="emp-av">JL</span>Jose L.</td><td style="font-size:0.8rem;color:var(--muted)">Sales</td><td class="val-mono" style="font-size:0.78rem;">Oct 2024</td><td style="color:var(--danger);font-weight:600;">188 days</td><td><button class="btn btn-outline" style="font-size:0.74rem;padding:4px 10px;">Schedule</button></td></tr>
+              <tr><td><span class="emp-av">TM</span>Tina M.</td><td style="font-size:0.8rem;color:var(--muted)">HR</td><td class="val-mono" style="font-size:0.78rem;">Aug 2024</td><td style="color:var(--danger);font-weight:600;">242 days</td><td><button class="btn btn-outline" style="font-size:0.74rem;padding:4px 10px;">Schedule</button></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- HR WELLNESS TRENDS -->
+      <div id="hr-trends" class="page">
+        <div class="section-label">Workforce Wellness Trends — 12 Months</div>
+        <!-- COMPLIANCE TREND -->
+        <div class="chart-wrap" style="margin-bottom:20px;">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title-txt">Annual PE Compliance Rate (%)</div>
+              <div class="chart-subtitle">Monthly compliance rate across all departments · Target: 95%</div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#1A2B4A;"></div>Compliance %</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#C0392B;width:20px;height:3px;border-radius:0;margin-top:3px;"></div>Target 95%</div>
+            </div>
+          </div>
+          <div class="chart-svg-area">
+            <svg viewBox="0 0 700 160" style="width:100%;height:160px;" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="compGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#1A2B4A" stop-opacity="0.2"/>
+                  <stop offset="100%" stop-color="#1A2B4A" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- 95% target line at y=20 (mapped: 100%=10, 60%=150, range=140 for 40%) -->
+              <line x1="0" y1="20" x2="700" y2="20" stroke="#C0392B" stroke-width="1.5" stroke-dasharray="6,4"/>
+              <text x="4" y="17" font-size="9" fill="#C0392B" font-family="JetBrains Mono">95%</text>
+              <!-- Values: 72,74,76,80,82,84,85,86,86,87,88,89 → (val-60)/40*140 -->
+              <!-- 72→42 74→49 76→56 80→70 82→77 84→84 85→87.5 86→91 86→91 87→94.5 88→98 89→101.5 -->
+              <path d="M30,42 L90,49 L150,56 L210,70 L270,77 L330,84 L390,88 L450,91 L510,91 L570,95 L630,98 L690,102 L690,150 L30,150 Z"
+                fill="url(#compGrad)"/>
+              <polyline points="30,42 90,49 150,56 210,70 270,77 330,84 390,88 450,91 510,91 570,95 630,98 690,102"
+                fill="none" stroke="#1A2B4A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+              <text x="24" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Apr</text>
+              <text x="150" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Jun</text>
+              <text x="270" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Aug</text>
+              <text x="390" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Oct</text>
+              <text x="510" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Dec</text>
+              <text x="630" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Feb</text>
+              <text x="690" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Mar</text>
+            </svg>
+          </div>
+          <div style="padding:0 20px 14px;font-size:0.76rem;color:var(--green);font-weight:600;">✓ Compliance improving month-over-month. Target 95% expected by Q3 2026.</div>
+        </div>
+
+        <!-- HYPERTENSION TREND -->
+        <div class="chart-wrap" style="margin-bottom:20px;">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title-txt">Workforce Hypertension Rate (%)</div>
+              <div class="chart-subtitle">Employees flagged with elevated blood pressure across visits</div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#C0392B;"></div>Hypertension %</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#D4A017;"></div>Pre-Hypertension %</div>
+            </div>
+          </div>
+          <div class="chart-svg-area">
+            <svg viewBox="0 0 700 160" style="width:100%;height:160px;" preserveAspectRatio="none">
+              <line x1="0" y1="40" x2="700" y2="40" stroke="#EAEEf5" stroke-width="1"/>
+              <line x1="0" y1="80" x2="700" y2="80" stroke="#EAEEf5" stroke-width="1"/>
+              <line x1="0" y1="120" x2="700" y2="120" stroke="#EAEEf5" stroke-width="1"/>
+              <!-- Hypertension: 38,37,36,36,35,34,34,33,34,34,34,34 (val/50*150) -->
+              <polyline points="30,114 90,111 150,108 210,108 270,105 330,102 390,102 450,99 510,102 570,102 630,102 690,102"
+                fill="none" stroke="#C0392B" stroke-width="2.5" stroke-linejoin="round"/>
+              <!-- Pre-Hypertension: 22,21,22,20,21,20,19,19,18,18,18,18 -->
+              <polyline points="30,66 90,63 150,66 210,60 270,63 330,60 390,57 450,57 510,54 570,54 630,54 690,54"
+                fill="none" stroke="#D4A017" stroke-width="2" stroke-dasharray="5,3" stroke-linejoin="round"/>
+              <text x="24" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Apr</text>
+              <text x="150" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Jun</text>
+              <text x="390" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Oct</text>
+              <text x="630" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Feb</text>
+              <text x="690" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Mar</text>
+            </svg>
+          </div>
+          <div style="padding:0 20px 14px;font-size:0.76rem;color:var(--green);font-weight:600;">✓ Hypertension rate gradually declining — wellness programs showing effect.</div>
+        </div>
+
+        <!-- WELLNESS SCORE TREND -->
+        <div class="chart-wrap">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title-txt">Overall Workforce Wellness Score</div>
+              <div class="chart-subtitle">Composite score based on compliance, abnormal flags, and disease prevalence</div>
+            </div>
+          </div>
+          <div class="chart-svg-area">
+            <svg viewBox="0 0 700 160" style="width:100%;height:160px;" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="wellGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#1A7A4A" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#1A7A4A" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Score: 62,63,64,65,66,67,68,69,70,71,72,74 (val-55)/25*140 -->
+              <path d="M30,112 L90,106 L150,101 L210,95 L270,89 L330,84 L390,78 L450,73 L510,67 L570,62 L630,56 L690,45 L690,150 L30,150 Z"
+                fill="url(#wellGrad)"/>
+              <polyline points="30,112 90,106 150,101 210,95 270,89 330,84 390,78 450,73 510,67 570,62 630,56 690,45"
+                fill="none" stroke="#1A7A4A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+              <circle cx="690" cy="45" r="5" fill="white" stroke="#1A7A4A" stroke-width="2"/>
+              <text x="680" y="40" font-size="10" fill="#1A7A4A" font-family="JetBrains Mono" text-anchor="end">74</text>
+              <text x="24" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Apr</text>
+              <text x="270" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Aug</text>
+              <text x="510" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Dec</text>
+              <text x="690" y="155" font-size="9" fill="#8A9AB5" font-family="JetBrains Mono" text-anchor="middle">Mar</text>
+            </svg>
+          </div>
+          <div style="padding:0 20px 14px;font-size:0.76rem;color:var(--green);font-weight:600;">✓ Wellness score up +12 points year-over-year. Target: 80 by end of 2026.</div>
+        </div>
+      </div>
+
+      <!-- HR REPORTS -->
+      <div id="hr-reports" class="page">
+        <div class="section-label">Reports & Exports</div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Generate Report</div></div>
+            <div class="card-body">
+              <div class="form-group"><label class="form-label">Report Type</label>
+                <select class="form-input">
+                  <option>Summary Report (All Departments)</option>
+                  <option>Demographic Report</option>
+                  <option>PE Compliance Report</option>
+                  <option>Top Conditions Report</option>
+                  <option>Wellness Trend Report</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Department</label>
+                <select class="form-input"><option>All Departments</option><option>Operations</option><option>Finance</option><option>IT</option></select>
+              </div>
+              <div class="form-group"><label class="form-label">Date Range</label>
+                <div style="display:flex;gap:8px;">
+                  <input class="form-input" placeholder="From" value="Jan 1, 2026">
+                  <input class="form-input" placeholder="To" value="Apr 6, 2026">
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:4px;">
+                <button class="btn btn-navy" style="flex:1;justify-content:center;">📄 Export PDF</button>
+                <button class="btn btn-outline" style="flex:1;justify-content:center;">📊 Export Excel</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Bulk Download Results</div></div>
+            <div class="card-body">
+              <div class="form-group"><label class="form-label">Department</label>
+                <select class="form-input"><option>All Departments</option><option>Operations</option><option>IT</option></select>
+              </div>
+              <div class="form-group"><label class="form-label">Result Period</label>
+                <select class="form-input"><option>Q1 2026</option><option>Q4 2025</option><option>Full Year 2025</option></select>
+              </div>
+              <div style="padding:14px;background:var(--bg);border-radius:10px;border:1.5px solid var(--border);margin-bottom:14px;font-size:0.84rem;">
+                <div style="font-weight:600;margin-bottom:4px;">Q1 2026 Package</div>
+                <div style="color:var(--muted);">128 employees · 384 result files · ~42MB estimated</div>
+              </div>
+              <button class="btn btn-navy" style="width:100%;justify-content:center;">📦 Download ZIP Package</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HR BULK SCHEDULE -->
+      <div id="hr-schedule" class="page">
+        <div class="section-label">Bulk PE Scheduling</div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Upload Employee List</div></div>
+            <div class="card-body">
+              <div style="border:2px dashed var(--border);border-radius:10px;padding:32px;text-align:center;margin-bottom:16px;cursor:pointer;transition:var(--transition);" onmouseenter="this.style.borderColor='var(--nwdi-navy)'" onmouseleave="this.style.borderColor='var(--border)'">
+                <div style="font-size:2rem;margin-bottom:8px;">📤</div>
+                <div style="font-weight:600;margin-bottom:4px;">Drop Excel file here</div>
+                <div style="font-size:0.78rem;color:var(--muted);">Or click to browse · .xlsx, .csv accepted</div>
+              </div>
+              <div class="form-group"><label class="form-label">Preferred NWDI Branch</label>
+                <select class="form-input"><option>Makati</option><option>Pasig</option><option>Quezon City</option><option>Mandaluyong</option></select>
+              </div>
+              <div class="form-group"><label class="form-label">Preferred Date Range</label>
+                <div style="display:flex;gap:8px;">
+                  <input class="form-input" value="Apr 15, 2026">
+                  <input class="form-input" value="Apr 30, 2026">
+                </div>
+              </div>
+              <button class="btn btn-red" style="width:100%;justify-content:center;">Book Bulk Appointments →</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Upcoming Scheduled PEs</div></div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div class="appt-slot"><div><div class="appt-time">Apr 15 · Makati Branch</div><div class="appt-sub">12 employees · Full PE Package</div></div><span class="pill pill-pending">Confirmed</span></div>
+                <div class="appt-slot"><div><div class="appt-time">Apr 22 · Pasig Branch</div><div class="appt-sub">8 employees · CBC + Urinalysis</div></div><span class="pill pill-pending">Confirmed</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HR AUDIT -->
+      <div id="hr-audit" class="page">
+        <div class="section-label">Access Audit Trail</div>
+        <div class="card">
+          <div class="card-body">
+            <div class="audit-item">
+              <div class="audit-dot-wrap"><div class="audit-dot" style="background:#1A2B4A;"></div><div class="audit-line"></div></div>
+              <div class="audit-body">
+                <div class="audit-action"><strong>Ana Reyes</strong> viewed results of 12 employees (Operations dept.)</div>
+                <div class="audit-meta">2026-04-06 08:32:11 · OTP verified · IP 120.29.xx.xx</div>
+              </div>
+            </div>
+            <div class="audit-item">
+              <div class="audit-dot-wrap"><div class="audit-dot" style="background:#D4A017;"></div><div class="audit-line"></div></div>
+              <div class="audit-body">
+                <div class="audit-action">Bulk ZIP download — <strong>Q1 2026 Results Package</strong> (47 employees)</div>
+                <div class="audit-meta">2026-04-01 13:10:44 · Authorized download</div>
+              </div>
+            </div>
+            <div class="audit-item">
+              <div class="audit-dot-wrap"><div class="audit-dot" style="background:#1A7A4A;"></div><div class="audit-line"></div></div>
+              <div class="audit-body">
+                <div class="audit-action">Reminder emails sent to <strong>32 overdue employees</strong></div>
+                <div class="audit-meta">2026-03-25 09:00:00 · System batch action</div>
+              </div>
+            </div>
+            <div class="audit-item">
+              <div class="audit-dot-wrap"><div class="audit-dot" style="background:var(--muted);"></div></div>
+              <div class="audit-body">
+                <div class="audit-action">PE Compliance Report exported as PDF</div>
+                <div class="audit-meta">2026-03-01 10:15:33 · Q4 2025 report</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HR SETTINGS -->
+      <div id="hr-settings" class="page">
+        <div class="section-label">Account Settings</div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Company Profile</div><button class="btn btn-outline">Edit</button></div>
+            <div class="card-body">
+              <table class="result-table">
+                <tr><td style="color:var(--muted);width:40%">Company</td><td><strong>Acme Corporation</strong></td></tr>
+                <tr><td style="color:var(--muted)">Contact Person</td><td>Ana Reyes</td></tr>
+                <tr><td style="color:var(--muted)">Email</td><td>hr.manager@acmecorp.com</td></tr>
+                <tr><td style="color:var(--muted)">Mobile (OTP)</td><td>+63 917 xxx xxxx</td></tr>
+                <tr><td style="color:var(--muted)">Account Type</td><td><span class="tag tag-navy">Corporate</span></td></tr>
+                <tr><td style="color:var(--muted)">NWDI Branch</td><td>Makati (Primary)</td></tr>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Notification Settings</div></div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div><div style="font-weight:600;font-size:0.86rem;">Overdue PE Alerts</div><div style="font-size:0.76rem;color:var(--muted);">Monthly automated reminders</div></div>
+                  <div style="width:40px;height:22px;background:var(--nwdi-red);border-radius:11px;position:relative;cursor:pointer;"><div style="width:16px;height:16px;background:white;border-radius:50%;position:absolute;top:3px;right:3px;"></div></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div><div style="font-weight:600;font-size:0.86rem;">New Results Available</div><div style="font-size:0.76rem;color:var(--muted);">Alert when employee results are released</div></div>
+                  <div style="width:40px;height:22px;background:var(--nwdi-red);border-radius:11px;position:relative;cursor:pointer;"><div style="width:16px;height:16px;background:white;border-radius:50%;position:absolute;top:3px;right:3px;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="proto-tag">UI Prototype · NWDI 2026 · nwdi.com.ph</div>
+
+<script>
+// Screen routing
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
+  const el = document.getElementById(id);
+  el.style.display = 'flex';
+  el.classList.add('active');
+}
+function goLogin(type) { showScreen(type + '-login' === 'patient-login' ? 'screen-patient-login' : 'screen-hr-login'); }
+function goLanding() { showScreen('screen-landing'); }
+
+document.getElementById('screen-landing').style.display = 'flex';
+
+// Login buttons
+function goPortal(type) {
+  if (type === 'patient') {
+    showScreen('screen-patient-app');
+    document.getElementById('patient-page-title').textContent = 'Dashboard';
+  } else {
+    showScreen('screen-hr-app');
+    document.getElementById('hr-page-title').textContent = 'HR Dashboard';
+  }
+}
+
+// Patient pages
+function showPage(pageId, navEl) {
+  document.querySelectorAll('#screen-patient-app .page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  if (navEl) {
+    document.querySelectorAll('#screen-patient-app .nav-item').forEach(n => n.classList.remove('active'));
+    navEl.classList.add('active');
+  }
+  const titles = {
+    'p-dashboard':'Dashboard','p-results':'My Results','p-trends':'Health Trends',
+    'p-appointments':'Appointments','p-share':'Share Results','p-audit':'Access History',
+    'p-profile':'My Profile','p-healthcard':'Digital Health Card'
+  };
+  document.getElementById('patient-page-title').textContent = titles[pageId] || pageId;
+}
+
+// HR pages
+function showHRPage(pageId, navEl) {
+  document.querySelectorAll('#screen-hr-app .page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  if (navEl) {
+    document.querySelectorAll('#screen-hr-app .nav-item').forEach(n => n.classList.remove('active'));
+    navEl.classList.add('active');
+  }
+  const titles = {
+    'hr-dashboard':'HR Dashboard','hr-employees':'Employees','hr-compliance':'PE Compliance',
+    'hr-trends':'Wellness Trends','hr-reports':'Reports & Exports','hr-schedule':'Bulk Scheduling',
+    'hr-audit':'Audit Trail','hr-settings':'Account Settings'
+  };
+  document.getElementById('hr-page-title').textContent = titles[pageId] || pageId;
+}
+
+// Dept chips
+document.querySelectorAll('.chip-row').forEach(row => {
+  row.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      row.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+});
+
+// Slot select
+function selectSlot(el) {
+  if (el.classList.contains('full')) return;
+  el.closest('.card-body').querySelectorAll('.appt-slot').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// Lang toggle
+function toggleLang(el) {
+  el.closest('.lang-toggle').querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Landing portal cards — also link buttons
+document.querySelectorAll('.portal-card-btn').forEach((btn, i) => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    goLogin(i === 0 ? 'patient' : 'hr');
+  });
+});
+
+// Show correct login screen
+function goLogin(type) {
+  showScreen('screen-' + type + '-login');
+}
+</script>
+</body>
+</html>

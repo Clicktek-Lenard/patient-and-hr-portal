@@ -1,0 +1,119 @@
+generator cms {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/cms-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CMS_DATABASE_URL")
+}
+
+// ============================================================
+// CMS v2 tables — READ-ONLY
+// Mapped to the actual tables present in the local cms_v2 DB.
+// ============================================================
+
+model CmsPatient {
+  id          BigInt    @id @map("id")
+  code        String?   @unique @map("code") @db.VarChar(30)
+  fullName    String?   @map("fullname") @db.VarChar(200)
+  lastName    String?   @map("lastname") @db.VarChar(80)
+  firstName   String?   @map("firstname") @db.VarChar(150)
+  middleName  String?   @map("middlename") @db.VarChar(80)
+  gender      String?   @map("gender") @db.VarChar(10)
+  dob         DateTime  @map("dob") @db.Date
+  email       String?   @map("email") @db.VarChar(5000)
+  mobile      String?   @map("moblie") @db.VarChar(255)
+  contactNo   String?   @map("contactno") @db.VarChar(80)
+  fullAddress String?   @map("fulladdress") @db.VarChar(500)
+  isActive    Int       @map("isactive")
+  pictureLink String?   @map("picturelink") @db.VarChar(100)
+  lastVisit   DateTime? @map("lastvisit") @db.Date
+
+  queues CmsQueue[]
+
+  @@map("patient")
+}
+
+model CmsQueue {
+  id           BigInt    @id @default(autoincrement()) @map("id")
+  idbu         String?   @map("idbu") @db.VarChar(10)
+  code         String?   @map("code") @db.VarChar(20)
+  date         DateTime  @map("Date") @db.Date
+  dateTime     DateTime  @map("datetime") @db.Timestamp(6)
+  idPatient    BigInt    @map("idpatient")
+  qFullName    String?   @map("qfullname") @db.VarChar(200)
+  qFirstName   String?   @map("qfirstname") @db.VarChar(150)
+  qLastName    String?   @map("qlastname") @db.VarChar(80)
+  qGender      String?   @map("qgender") @db.VarChar(10)
+  qDob         DateTime? @map("qdob") @db.Date
+  agePatient   Int?      @map("agepatient")
+  status       Int       @map("status") @db.SmallInt
+  accessionNo  String?   @map("accessionno") @db.VarChar(50)
+  patientType  String?   @map("patienttype") @db.VarChar(80)
+  inputBy      String?   @map("inputby") @db.VarChar(30)
+  notes        String?   @map("notes")
+  cancelReason String?   @map("cancelreason") @db.VarChar(2000)
+
+  patient      CmsPatient       @relation(fields: [idPatient], references: [id])
+  transactions CmsTransaction[]
+
+  @@map("queue")
+}
+
+model CmsTransaction {
+  id                   BigInt   @id @default(autoincrement()) @map("id")
+  idQueue              BigInt   @map("idqueue")
+  date                 DateTime @map("Date") @db.Date
+  nameDoctor           String?  @map("namedoctor") @db.VarChar(200)
+  nameCompany          String?  @map("namecompany") @db.VarChar(500)
+  transactionType      String?  @map("transactiontype") @db.VarChar(150)
+  codeItemPrice        String?  @map("codeitemprice") @db.VarChar(30)
+  descriptionItemPrice String?  @map("descriptionitemprice") @db.VarChar(500)
+  amountItemPrice      Decimal? @map("amountitemprice") @db.Decimal(10, 2)
+  groupItemMaster      String?  @map("groupitemmaster") @db.VarChar(50)
+  status               Int      @map("status") @db.SmallInt
+
+  queue CmsQueue @relation(fields: [idQueue], references: [id])
+
+  @@map("transactions")
+}
+
+// vitalsign uses Int for queue_id (not BigInt) in this local db
+model CmsVitalSign {
+  id              Int      @id @default(autoincrement())
+  queueId         Int      @unique @map("queue_id")
+  patientId       String?  @map("patient_id") @db.VarChar(50)
+  chiefComplaint  String?  @map("chief_complaint")
+  pcpDoctor       String?  @map("pcp_doctor") @db.VarChar(200)
+  bpSystolic      Int?     @map("bp_systolic")
+  bpDiastolic     Int?     @map("bp_diastolic")
+  heartRate       Int?     @map("heart_rate")
+  temperature     Float?   @map("temperature")
+  respiratoryRate Int?     @map("respiratory_rate")
+  weightKg        Float?   @map("weight_kg")
+  heightCm        Float?   @map("height_cm")
+  bmi             Float?   @map("bmi")
+  recordedBy      Int?     @map("recorded_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("vitalsign")
+}
+
+model CmsCompany {
+  id          Int     @id @map("id")
+  code        String? @map("code") @db.VarChar(50)
+  name        String? @map("name") @db.VarChar(500)
+  shortName   String? @map("shortname") @db.VarChar(80)
+  group       String? @map("group") @db.VarChar(80)
+  billingType String? @map("billingtype") @db.VarChar(80)
+  address     String? @map("address") @db.VarChar(500)
+  email       String? @map("email") @db.VarChar(300)
+  status      String? @map("status") @db.VarChar(10)
+  startDate   DateTime? @map("startdate") @db.Date
+  endDate     DateTime? @map("enddate") @db.Date
+  empId       String? @map("empid") @db.VarChar(15)
+
+  @@map("company")
+}

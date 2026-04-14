@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NWDI HR Portal — Feature List</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #0ea5e9;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #f1f5f9;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px 24px 80px;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; }
+
+    /* Header */
+    .page-header {
+      background: linear-gradient(135deg, #0c1a2e 0%, #0a2540 40%, #0c2a4a 100%);
+      border-radius: 20px;
+      padding: 40px 40px 36px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(14,165,233,0.12) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .page-header::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 30% 40%, rgba(14,165,233,0.08) 0%, transparent 70%);
+    }
+    .header-inner { position: relative; z-index: 1; }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 16px;
+    }
+    .badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 6px #22c55e;
+    }
+    .hr-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(14,165,233,0.2);
+      border: 1px solid rgba(14,165,233,0.4);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    .page-header h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .page-header h1 span {
+      background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .page-header p { color: rgba(255,255,255,0.5); font-size: 14px; }
+
+    .header-meta { display: flex; gap: 24px; margin-top: 24px; flex-wrap: wrap; }
+    .meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .meta-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.35); font-weight: 600; }
+    .meta-value { font-size: 22px; font-weight: 800; color: #fff; }
+
+    /* Access notice */
+    .access-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: rgba(14,165,233,0.06);
+      border: 1px solid rgba(14,165,233,0.2);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+    }
+    .access-notice-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .access-notice-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .access-notice-text strong { color: var(--text); }
+
+    /* Summary cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+    .summary-card .num { font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 4px; }
+    .summary-card .lbl { font-size: 11px; color: var(--muted); font-weight: 500; }
+
+    /* Section */
+    .section { margin-bottom: 32px; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-icon {
+      width: 32px; height: 32px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .section-title { font-size: 16px; font-weight: 700; color: var(--text); flex: 1; }
+    .section-count {
+      font-size: 11px; font-weight: 700;
+      background: var(--accent);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 2px 10px;
+    }
+
+    /* Table */
+    .feature-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .feature-table thead tr { background: var(--accent); }
+    .feature-table thead th {
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .feature-table thead th:first-child { width: 44px; text-align: center; }
+    .feature-table thead th:nth-child(2) { width: 210px; }
+    .feature-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    .feature-table tbody tr:last-child { border-bottom: none; }
+    .feature-table tbody tr:hover { background: #f8fafc; }
+    .feature-table td { padding: 12px 16px; font-size: 13px; vertical-align: top; }
+    .feature-table td:first-child {
+      text-align: center; font-size: 11px; font-weight: 700;
+      color: var(--muted);
+      background: var(--accent);
+      border-right: 1px solid var(--border);
+    }
+
+    .feature-name { font-weight: 700; color: var(--text); display: block; margin-bottom: 2px; }
+    .feature-route {
+      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 10px; color: var(--primary);
+      background: rgba(14,165,233,0.08);
+      border: 1px solid rgba(14,165,233,0.2);
+      border-radius: 5px; padding: 1px 6px;
+      display: inline-block; margin-top: 3px;
+    }
+    .feature-desc { color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+    /* Scope tag */
+    .scope-tag {
+      display: inline-flex; align-items: center;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border-radius: 4px; padding: 2px 6px;
+      margin-left: 6px; vertical-align: middle;
+    }
+    .scope-all    { background: rgba(14,165,233,0.1);  color: #0284c7; border: 1px solid rgba(14,165,233,0.25); }
+    .scope-hr     { background: rgba(139,92,246,0.1);  color: #7c3aed; border: 1px solid rgba(139,92,246,0.25); }
+
+    /* Icon colors */
+    .icon-blue   { background: rgba(14,165,233,0.1); }
+    .icon-green  { background: rgba(34,197,94,0.1); }
+    .icon-amber  { background: rgba(245,158,11,0.1); }
+    .icon-purple { background: rgba(139,92,246,0.1); }
+    .icon-red    { background: rgba(239,68,68,0.1); }
+    .icon-indigo { background: rgba(99,102,241,0.1); }
+    .icon-teal   { background: rgba(20,184,166,0.1); }
+    .icon-pink   { background: rgba(236,72,153,0.1); }
+    .icon-gray   { background: rgba(100,116,139,0.1); }
+
+    /* Comparison table */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin-bottom: 36px;
+    }
+    .compare-table th {
+      padding: 10px 16px;
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .compare-table th:first-child { background: var(--accent); width: 200px; }
+    .compare-table th.patient-col { background: rgba(34,197,94,0.08); color: #15803d; }
+    .compare-table th.hr-col { background: rgba(14,165,233,0.08); color: #0284c7; }
+    .compare-table td {
+      padding: 10px 16px; font-size: 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table td:first-child { font-weight: 600; background: var(--accent); color: var(--text); }
+    .compare-table td.patient-col { background: rgba(34,197,94,0.04); }
+    .compare-table td.hr-col { background: rgba(14,165,233,0.04); }
+    .check { color: #22c55e; font-size: 16px; }
+    .cross { color: #cbd5e1; font-size: 14px; }
+    .partial { color: #f59e0b; font-size: 13px; font-weight: 700; }
+
+    /* Footer */
+    .page-footer {
+      margin-top: 48px; padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .page-footer p { font-size: 12px; color: var(--muted); }
+    .footer-logo { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--text); }
+    .footer-logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
+
+    @media print {
+      body { padding: 20px; background: #fff; }
+      .feature-table tbody tr:hover { background: transparent; }
+    }
+    @media (max-width: 640px) {
+      .page-header { padding: 24px 20px; }
+      .page-header h1 { font-size: 22px; }
+      .feature-table thead th:nth-child(2) { width: auto; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-inner">
+      <div class="header-badge">
+        <span class="badge-dot"></span>
+        NWDI Health Services
+      </div>
+      <h1>HR Portal <span>Feature Documentation</span></h1>
+      <p>Complete list of HR staff features — all employee &amp; patient records access &nbsp;·&nbsp; For QA / Business Analysis</p>
+      <div class="header-meta">
+        <div class="meta-item">
+          <span class="meta-label">Total Features</span>
+          <span class="meta-value">26</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Pages / Routes</span>
+          <span class="meta-value">8</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Sections</span>
+          <span class="meta-value">7</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Access Level</span>
+          <span class="meta-value" style="font-size:14px;padding-top:4px;">HR / Admin</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Generated</span>
+          <span class="meta-value" style="font-size:14px;padding-top:4px;">2026-04-01</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Access notice -->
+  <div class="access-notice">
+    <div class="access-notice-icon">🛡️</div>
+    <div class="access-notice-text">
+      <strong>HR Portal Access Only.</strong> All features below are exclusively available to accounts with <strong>role = HR</strong> or <strong>role = ADMIN</strong>. HR staff log in at <code style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:1px 6px;font-size:11px;">/hr/login</code> and are redirected to <code style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:1px 6px;font-size:11px;">/hr/dashboard</code>. Patients attempting to access <code style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:1px 6px;font-size:11px;">/hr/*</code> are automatically redirected to their own portal.
+    </div>
+  </div>
+
+  <!-- Patient vs HR comparison -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-indigo">⚖️</div>
+      <span class="section-title">Patient Portal vs HR Portal — Key Differences</span>
+    </div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Capability</th>
+          <th class="patient-col">👤 Patient Portal</th>
+          <th class="hr-col">🛡️ HR Portal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>View own records only</td>
+          <td class="patient-col"><span class="check">✔</span> Own records only</td>
+          <td class="hr-col"><span class="cross">—</span></td>
+        </tr>
+        <tr>
+          <td>View ALL patients/employees</td>
+          <td class="patient-col"><span class="cross">—</span></td>
+          <td class="hr-col"><span class="check">✔</span> All records</td>
+        </tr>
+        <tr>
+          <td>Search patients by name / code</td>
+          <td class="patient-col"><span class="cross">—</span></td>
+          <td class="hr-col"><span class="check">✔</span> Full search</td>
+        </tr>
+        <tr>
+          <td>View visit history</td>
+          <td class="patient-col"><span class="check">✔</span> Own visits</td>
+          <td class="hr-col"><span class="check">✔</span> All visits, all patients</td>
+        </tr>
+        <tr>
+          <td>View lab results</td>
+          <td class="patient-col"><span class="check">✔</span> Own results</td>
+          <td class="hr-col"><span class="check">✔</span> All results, all patients</td>
+        </tr>
+        <tr>
+          <td>View vital signs</td>
+          <td class="patient-col"><span class="check">✔</span> Own vitals</td>
+          <td class="hr-col"><span class="check">✔</span> All vitals, all patients</td>
+        </tr>
+        <tr>
+          <td>View payment records</td>
+          <td class="patient-col"><span class="check">✔</span> Own payments</td>
+          <td class="hr-col"><span class="check">✔</span> All payments, all patients</td>
+        </tr>
+        <tr>
+          <td>Download PDF results</td>
+          <td class="patient-col"><span class="check">✔</span></td>
+          <td class="hr-col"><span class="cross">—</span> View only</td>
+        </tr>
+        <tr>
+          <td>Queue real-time alert</td>
+          <td class="patient-col"><span class="check">✔</span></td>
+          <td class="hr-col"><span class="cross">—</span> Not applicable</td>
+        </tr>
+        <tr>
+          <td>Notifications</td>
+          <td class="patient-col"><span class="check">✔</span></td>
+          <td class="hr-col"><span class="cross">—</span> Not applicable</td>
+        </tr>
+        <tr>
+          <td>Login URL</td>
+          <td class="patient-col">/login</td>
+          <td class="hr-col">/hr/login</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="num">2</div>
+      <div class="lbl">Auth Features</div>
+    </div>
+    <div class="summary-card">
+      <div class="num">5</div>
+      <div class="lbl">Dashboard Features</div>
+    </div>
+    <div class="summary-card">
+      <div class="num">5</div>
+      <div class="lbl">Employee Features</div>
+    </div>
+    <div class="summary-card">
+      <div class="num">3</div>
+      <div class="lbl">Visits Features</div>
+    </div>
+    <div class="summary-card">
+      <div class="num">3</div>
+      <div class="lbl">Results Features</div>
+    </div>
+    <div class="summary-card">
+      <div class="num">3</div>
+      <div class="lbl">Vitals Features</div>
+    </div>
+    <div class="summary-card">
+      <div class="num">4</div>
+      <div class="lbl">Payments Features</div>
+    </div>
+  </div>
+
+  <!-- 1. Authentication -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔐</div>
+      <span class="section-title">Authentication</span>
+      <span class="section-count">2 features</span>
+    </div>
+    <table class="feature-table">
+      <thead><tr><th>#</th><th>Feature</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>
+            <span class="feature-name">HR Login <span class="scope-tag scope-hr">HR Only</span></span>
+            <span class="feature-route">/hr/login</span>
+          </td>
+          <td class="feature-desc">Dedicated HR staff login page with NWDI branding. Staff sign in using their registered email and password. On success, automatically redirected to <code>/hr/dashboard</code>. Patients who attempt to log in here are redirected to the patient portal.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>
+            <span class="feature-name">Role-Based Redirect <span class="scope-tag scope-hr">HR Only</span></span>
+            <span class="feature-route">Middleware</span>
+          </td>
+          <td class="feature-desc">Middleware enforces role separation. HR/Admin accounts are always routed to <code>/hr/dashboard</code> after login. Patient accounts cannot access any <code>/hr/*</code> route and are redirected to their own dashboard. All HR routes require authenticated HR/Admin role.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 2. Dashboard -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-indigo">🏥</div>
+      <span class="section-title">HR Dashboard</span>
+      <span class="section-count">5 features</span>
+    </div>
+    <table class="feature-table">
+      <thead><tr><th>#</th><th>Feature</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>3</td>
+          <td>
+            <span class="feature-name">Hospital Stats Overview</span>
+            <span class="feature-route">/hr/dashboard</span>
+          </td>
+          <td class="feature-desc">4 stat cards showing hospital-wide totals: <strong>Total Active Patients</strong> (all registered), <strong>Today's Visits</strong> (since midnight), <strong>Total Visits</strong> (all time), and <strong>Pending Results</strong> (awaiting release).</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>
+            <span class="feature-name">Recent Visits Feed</span>
+            <span class="feature-route">/hr/dashboard</span>
+          </td>
+          <td class="feature-desc">Live feed of the last 5 hospital visits across all patients. Shows patient name, queue code, patient type, station, visit status badge, and date. Links to the full visits list.</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>
+            <span class="feature-name">Top Patients by Visit Count</span>
+            <span class="feature-route">/hr/dashboard</span>
+          </td>
+          <td class="feature-desc">Ranked list of the top 5 patients with the most visits hospital-wide. Shows patient name, patient code, and total visit count. Clicking a patient navigates to their full detail page.</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>
+            <span class="feature-name">Welcome Banner</span>
+            <span class="feature-route">/hr/dashboard</span>
+          </td>
+          <td class="feature-desc">Time-based greeting with the HR staff member's name. Identifies the user as HR staff.</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>
+            <span class="feature-name">Quick Navigation Links</span>
+            <span class="feature-route">/hr/dashboard</span>
+          </td>
+          <td class="feature-desc">4 quick-access cards linking directly to: Browse Employees, View All Visits, Lab Results, and Payments — for fast navigation from the dashboard.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3. Employees -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-teal">👥</div>
+      <span class="section-title">Employees / Patient Records</span>
+      <span class="section-count">5 features</span>
+    </div>
+    <table class="feature-table">
+      <thead><tr><th>#</th><th>Feature</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>8</td>
+          <td>
+            <span class="feature-name">All Employees List <span class="scope-tag scope-all">All Records</span></span>
+            <span class="feature-route">/hr/employees</span>
+          </td>
+          <td class="feature-desc">Paginated table of <strong>every registered patient/employee</strong> in the hospital system. Shows 20 per page. Displays: full name, patient code, gender, age, contact, active status, and last visit date.</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>
+            <span class="feature-name">Employee Search</span>
+            <span class="feature-route">/hr/employees</span>
+          </td>
+          <td class="feature-desc">Search across all patients by: full name, first name, last name, patient code, email, or mobile number. Results update with debounce as the user types.</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>
+            <span class="feature-name">Filter by Gender &amp; Status</span>
+            <span class="feature-route">/hr/employees</span>
+          </td>
+          <td class="feature-desc">Pill-button filters to narrow the list by: Gender (All / Male / Female) and Account Status (All / Active / Inactive). Filters can be combined and cleared with one click.</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>
+            <span class="feature-name">Employee / Patient Detail</span>
+            <span class="feature-route">/hr/employees/[code]</span>
+          </td>
+          <td class="feature-desc">Full profile page for any individual patient. Shows: personal info (name, DOB, gender, email, mobile, address), latest vital signs snapshot, complete visit history, all lab/imaging results, and full payment history — all in one view.</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>
+            <span class="feature-name">Latest Vitals Snapshot</span>
+            <span class="feature-route">/hr/employees/[code]</span>
+          </td>
+          <td class="feature-desc">On the employee detail page, displays the most recent recorded vitals: Blood Pressure, Heart Rate, Temperature, Weight, Height, BMI, and Chief Complaint — pulled from their latest visit with vital signs recorded.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4. All Visits -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-green">📋</div>
+      <span class="section-title">All Visits</span>
+      <span class="section-count">3 features</span>
+    </div>
+    <table class="feature-table">
+      <thead><tr><th>#</th><th>Feature</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>13</td>
+          <td>
+            <span class="feature-name">Hospital-Wide Visit List <span class="scope-tag scope-all">All Records</span></span>
+            <span class="feature-route">/hr/visits</span>
+          </td>
+          <td class="feature-desc">Paginated table of <strong>all visits across every patient</strong> in the hospital. Shows 25 per page. Displays: patient name, queue code, patient type, station, date/time, and visit status.</td>
+        </tr>
+        <tr>
+          <td>14</td>
+          <td>
+            <span class="feature-name">Visit Search</span>
+            <span class="feature-route">/hr/visits</span>
+          </td>
+          <td class="feature-desc">Search all visits by patient name (full, first, or last) or queue code. Debounced live search.</td>
+        </tr>
+        <tr>
+          <td>15</td>
+          <td>
+            <span class="feature-name">Filter by Visit Status</span>
+            <span class="feature-route">/hr/visits</span>
+          </td>
+          <td class="feature-desc">Filter visits by status: All, Waiting, In Progress, Done, or Cancelled. Pill-style buttons with one-click clear.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5. Lab Results -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🧪</div>
+      <span class="section-title">Lab Results</span>
+      <span class="section-count">3 features</span>
+    </div>
+    <table class="feature-table">
+      <thead><tr><th>#</th><th>Feature</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>16</td>
+          <td>
+            <span class="feature-name">All Lab Results List <span class="scope-tag scope-all">All Records</span></span>
+            <span class="feature-route">/hr/results</span>
+          </td>
+          <td class="feature-desc">Paginated table of <strong>all lab and imaging accessions across all patients</strong>. Shows 25 per page. Displays: test description, accession number, item group, type, date, and release status.</td>
+        </tr>
+        <tr>
+          <td>17</td>
+          <td>
+            <span class="feature-name">Result Search</span>
+            <span class="feature-route">/hr/results</span>
+          </td>
+          <td class="feature-desc">Search across all results by: test description, accession number, item group, or queue code.</td>
+        </tr>
+        <tr>
+          <td>18</td>
+          <td>
+            <span class="feature-name">Filter by Release Status</span>
+            <span class="feature-route">/hr/results</span>
+          </td>
+          <td class="feature-desc">Filter results by online release status: All, Released, or Pending. Color-coded status badges (green = Released, amber = Pending).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 6. Vitals -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-red">❤️</div>
+      <span class="section-title">Vital Signs</span>
+      <span class="section-count">3 features</span>
+    </div>
+    <table class="feature-table">
+      <thead><tr><th>#</th><th>Feature</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>19</td>
+          <td>
+            <span class="feature-name">All Vitals List <span class="scope-tag scope-all">All Records</span></span>
+            <span class="feature-route">/hr/vitals</span>
+          </td>
+          <td class="feature-desc">Card-based view of <strong>all recorded vital sign entries across all patients</strong>, ordered by most recent. Shows 25 per page.</td>
+        </tr>
+        <tr>
+          <td>20</td>
+          <td>
+            <span class="feature-name">Per-Patient Vitals Card</span>
+            <span class="feature-route">/hr/vitals</span>
+          </td>
+          <td class="feature-desc">Each vital record is displayed as a card showing: patient name, queue code, date, Blood Pressure, Heart Rate, Temperature, Weight, and Chief Complaint.</td>
+        </tr>
+        <tr>
+          <td>21</td>
+          <td>
+            <span class="feature-name">Vitals on Employee Detail</span>
+            <span class="feature-route">/hr/employees/[code]</span>
+          </td>
+          <td class="feature-desc">Within each patient's detail page, the most recent vitals are shown as a snapshot panel — Blood Pressure, Heart Rate, Temperature, Weight, Height, BMI, and Chief Complaint with the attending doctor's name.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 7. Payments -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-amber">💳</div>
+      <span class="section-title">Payments</span>
+      <span class="section-count">4 features</span>
+    </div>
+    <table class="feature-table">
+      <thead><tr><th>#</th><th>Feature</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>22</td>
+          <td>
+            <span class="feature-name">All Payments List <span class="scope-tag scope-all">All Records</span></span>
+            <span class="feature-route">/hr/payments</span>
+          </td>
+          <td class="feature-desc">Paginated table of <strong>all payment transactions across all patients</strong>. Shows 25 per page. Displays: patient name, OR number, payment type, coverage type, amount, discount, date, and status.</td>
+        </tr>
+        <tr>
+          <td>23</td>
+          <td>
+            <span class="feature-name">Payment Search</span>
+            <span class="feature-route">/hr/payments</span>
+          </td>
+          <td class="feature-desc">Search all payments by OR number or cashier name.</td>
+        </tr>
+        <tr>
+          <td>24</td>
+          <td>
+            <span class="feature-name">Filter by Payment Type</span>
+            <span class="feature-route">/hr/payments</span>
+          </td>
+          <td class="feature-desc">Filter payments by method: All, Cash, GCash, Maya, Card, HMO, or PhilHealth. Pill-style buttons.</td>
+        </tr>
+        <tr>
+          <td>25</td>
+          <td>
+            <span class="feature-name">Page Total Amount</span>
+            <span class="feature-route">/hr/payments</span>
+          </td>
+          <td class="feature-desc">A running total of all payment amounts on the current page is displayed at the top right, giving HR a quick financial snapshot for the visible results.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- UX -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-gray">⚡</div>
+      <span class="section-title">Navigation &amp; UX</span>
+      <span class="section-count">1 feature</span>
+    </div>
+    <table class="feature-table">
+      <thead><tr><th>#</th><th>Feature</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>26</td>
+          <td>
+            <span class="feature-name">HR Sidebar &amp; Header</span>
+            <span class="feature-route">Global — HR Portal</span>
+          </td>
+          <td class="feature-desc">Dedicated HR layout with collapsible sidebar (7 nav items: Dashboard, Employees, All Visits, Lab Results, Vitals, Payments). Header shows "HR ACCESS" badge, breadcrumb, theme toggle, and staff user menu with sign out. Fully responsive with mobile overlay sidebar.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="page-footer">
+    <div class="footer-logo">
+      <span class="footer-logo-dot"></span>
+      NWDI Health Services — HR Portal
+    </div>
+    <p>Generated 2026-04-01 &nbsp;·&nbsp; 26 Features &nbsp;·&nbsp; HR / Admin Access Only &nbsp;·&nbsp; For QA / BA Use</p>
+  </div>
+
+</div>
+</body>
+</html>

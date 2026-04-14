@@ -1,0 +1,10 @@
+var R=require("../../../chunks/[turbopack]_runtime.js")("server/app/api/share-links/route.js")
+R.c("server/chunks/node_modules_next_69168473._.js")
+R.c("server/chunks/97170_@auth_core_24f87d1e._.js")
+R.c("server/chunks/node_modules_jose_dist_webapi_ab03e039._.js")
+R.c("server/chunks/node_modules__prisma_cms-client_bf398170._.js")
+R.c("server/chunks/node_modules_0f77ad03._.js")
+R.c("server/chunks/[root-of-the-server]__6c4e270a._.js")
+R.m("[project]/.next-internal/server/app/api/share-links/route/actions.js [app-rsc] (server actions loader, ecmascript)")
+R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/src/app/api/share-links/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)")
+module.exports=R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/src/app/api/share-links/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports

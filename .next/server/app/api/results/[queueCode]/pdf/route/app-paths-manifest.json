@@ -1,0 +1,3 @@
+{
+  "/api/results/[queueCode]/pdf/route": "app/api/results/[queueCode]/pdf/route.js"
+}

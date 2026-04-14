@@ -1,0 +1,3 @@
+{
+  "/(portal)/results/[queueCode]/page": "app/(portal)/results/[queueCode]/page.js"
+}
