@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   Loader2, ArrowRight, ShieldCheck,
   User, Calendar, ArrowLeft, Mail, Lock,
@@ -55,7 +55,6 @@ function RateLimitNotice({ children }: { children: React.ReactNode }) {
 }
 
 function LoginPageInner() {
-  const router       = useRouter();
   const searchParams = useSearchParams();
   const rawCallbackUrl = searchParams.get("callbackUrl");
   const callbackUrl    = rawCallbackUrl ? decodeURIComponent(rawCallbackUrl) : null;
@@ -133,7 +132,7 @@ function LoginPageInner() {
 
       {/* Back link */}
       <button
-        onClick={() => router.push("/")}
+        onClick={() => { window.location.href = "/"; }}
         style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           marginBottom: 32, background: "none", border: "none",
