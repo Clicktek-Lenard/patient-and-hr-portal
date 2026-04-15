@@ -575,6 +575,31 @@ export default function LandingPage() {
         </div>
       </footer>
 
+      {/* ── Scroll to top button ── */}
+      <button
+        onClick={()=>window.scrollTo({ top:0, behavior:"smooth" })}
+        aria-label="Scroll to top"
+        style={{
+          position:"fixed", bottom:28, right:24, zIndex:300,
+          width:42, height:42, borderRadius:"50%",
+          background: NAVY,
+          border:`1.5px solid rgba(255,255,255,0.12)`,
+          boxShadow:"0 4px 18px rgba(0,0,0,0.25)",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          cursor:"pointer",
+          opacity: scrolled ? 1 : 0,
+          pointerEvents: scrolled ? "auto" : "none",
+          transform: scrolled ? "translateY(0)" : "translateY(12px)",
+          transition:"opacity 0.3s ease, transform 0.3s ease",
+        }}
+        onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.background=BLUE;}}
+        onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background=NAVY;}}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M8 12V4M8 4L4 8M8 4l4 4" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
       <style>{`
         @keyframes bounce {
           0%,100%{transform:translateY(0)}
