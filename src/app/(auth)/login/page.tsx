@@ -172,12 +172,13 @@ function LoginPageInner() {
             background: isHr ? "#fff0f0" : "#eef2ff",
             borderRadius: 20, padding: "5px 12px", marginBottom: 20,
           }}>
-            {isHr
-              ? <ShieldCheck style={{ width: 13, height: 13, color: NWD_RED }} />
-              : <User        style={{ width: 13, height: 13, color: NWD_BLUE }} />
-            }
-            <span style={{ fontSize: 11, fontWeight: 700, color: isHr ? NWD_RED : NWD_BLUE, letterSpacing: "0.04em" }}>
-              {isHr ? "HR Staff Portal" : "Patient Portal"}
+            <span style={{
+              width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
+              background: isHr ? NWD_RED : "#22c55e",
+              boxShadow: isHr ? "0 0 6px rgba(224,5,0,0.6)" : "0 0 6px rgba(34,197,94,0.6)",
+            }} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: isHr ? NWD_RED : NWD_BLUE, letterSpacing: "0.08em" }}>
+              {isHr ? "HR PORTAL" : "PATIENT PORTAL"}
             </span>
           </div>
 

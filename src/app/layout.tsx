@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, Source_Sans_3, JetBrains_Mono } from "next/font/google";
+import { Inter, Playfair_Display, Source_Sans_3, JetBrains_Mono, Outfit, Syne } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "sonner";
@@ -12,7 +12,7 @@ const inter = Inter({
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["600", "700"],
+  weight: ["600", "700", "800"],
   style: ["normal", "italic"],
   variable: "--font-playfair",
 });
@@ -27,6 +27,18 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--font-mono",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-outfit",
+});
+
+const syne = Syne({
+  subsets: ["latin"],
+  weight: ["700", "800"],
+  variable: "--font-syne",
 });
 
 export const metadata: Metadata = {
@@ -51,7 +63,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${playfair.variable} ${sourceSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${playfair.variable} ${sourceSans.variable} ${jetbrainsMono.variable} ${outfit.variable} ${syne.variable} font-sans antialiased`}>
         <Providers session={session}>
           {children}
           <Toaster
