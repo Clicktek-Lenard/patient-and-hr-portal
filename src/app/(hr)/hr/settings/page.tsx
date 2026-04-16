@@ -25,7 +25,7 @@ export default function HrSettingsPage() {
     overdue_pe: true, new_results: true, compliance_drop: false, bulk_complete: true,
   });
 
-  const [companyName,  setCompanyName]  = useState("NWDI Corporation");
+  const [companyName,  setCompanyName]  = useState("NWD Corporation");
   const [contactPerson, setContactPerson] = useState(`${firstName} ${lastName}`.trim() || "HR Administrator");
   const [primaryBranch, setPrimaryBranch] = useState("Main Branch");
   const [editingCompany, setEditingCompany] = useState(false);
@@ -129,7 +129,7 @@ export default function HrSettingsPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Primary NWDI Branch</label>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Primary NWD Branch</label>
             {editingCompany ? (
               <select
                 value={primaryBranch}

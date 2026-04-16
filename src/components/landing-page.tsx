@@ -407,7 +407,7 @@ export default function LandingPage() {
 
           {/* right — copy */}
           <div style={{ flex:1 }}>
-            <span style={{ display:"inline-block",fontFamily:BODY,fontSize:"0.68rem",fontWeight:700,color:BLUE,letterSpacing:"0.12em",textTransform:"uppercase",background:"#eef2ff",borderRadius:8,padding:"4px 14px",marginBottom:16 }}>Why Choose NWDI</span>
+            <span style={{ display:"inline-block",fontFamily:BODY,fontSize:"0.68rem",fontWeight:700,color:BLUE,letterSpacing:"0.12em",textTransform:"uppercase",background:"#eef2ff",borderRadius:8,padding:"4px 14px",marginBottom:16 }}>Why Choose NWD</span>
             <h2 style={{ fontFamily:DISPLAY,fontSize:mobile?"1.4rem":"1.9rem",fontWeight:700,color:"#0a0720",lineHeight:1.2,margin:"0 0 14px",letterSpacing:"-0.015em" }}>
               Trusted by thousands.<br/><span style={{ color:BLUE }}>Built for you.</span>
             </h2>

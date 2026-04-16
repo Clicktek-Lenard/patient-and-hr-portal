@@ -71,7 +71,7 @@ export default function ReceiptPage({ params }: PageProps) {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            NWDI Health Services
+            NWD Health Services
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Patient Portal Receipt

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   User, Key, Phone, Loader2, Check, Shield,
   BadgeCheck, Fingerprint,
-  Eye, EyeOff, Bell,
+  Eye, EyeOff, Bell, Camera, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -25,6 +25,9 @@ import {
 import { formatDate, getInitials } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type { UserProfile } from "@/types";
+import { useAvatar } from "@/hooks/use-avatar";
+
+const AVATAR_STORAGE_KEY = (userId: string) => `nwd_avatar_${userId}`;
 
 async function fetchProfile(): Promise<UserProfile> {
   const res = await fetch("/api/profile");
@@ -113,16 +116,64 @@ function FieldRow({ label, value, mono }: { label: string; value: string; mono?:
 }
 
 export default function ProfilePage() {
-  useSession();
+  const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew]         = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const avatarUrl = useAvatar();
+  const [localAvatarUrl, setLocalAvatarUrl] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Use localAvatarUrl as optimistic update, fall back to hook value
+  const displayAvatarUrl = localAvatarUrl ?? avatarUrl;
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile"],
     queryFn: fetchProfile,
   });
+
+  const handleAvatarChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5 MB");
+      return;
+    }
+    setAvatarUploading(true);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      if (session?.user?.id) {
+        localStorage.setItem(AVATAR_STORAGE_KEY(session.user.id), dataUrl);
+      }
+      setLocalAvatarUrl(dataUrl);
+      setAvatarUploading(false);
+      window.dispatchEvent(new Event("nwd-avatar-changed"));
+      toast.success("Photo updated");
+    };
+    reader.onerror = () => {
+      setAvatarUploading(false);
+      toast.error("Failed to read image");
+    };
+    reader.readAsDataURL(file);
+    // Reset input so same file can be re-selected
+    e.target.value = "";
+  }, [session?.user?.id]);
+
+  const handleRemoveAvatar = useCallback(() => {
+    if (session?.user?.id) {
+      localStorage.removeItem(AVATAR_STORAGE_KEY(session.user.id));
+    }
+    setLocalAvatarUrl(null);
+    window.dispatchEvent(new Event("nwd-avatar-changed"));
+    toast.success("Photo removed");
+  }, [session?.user?.id]);
 
   const profileForm = useForm<UpdateProfileInput>({
     resolver: zodResolver(updateProfileSchema),
@@ -213,19 +264,76 @@ export default function ProfilePage() {
         <div className="h-20 w-full" style={{ background: "var(--gradient-hero)" }} />
         <div className="px-6 pb-5">
           <div className="-mt-10 flex items-end justify-between gap-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl border-4 border-card shadow-(--shadow-md) shrink-0" style={{ background: "var(--gradient-primary)" }}>
-              {isLoading
-                ? <div className="skeleton-shimmer h-full w-full rounded-xl" />
-                : <span className="text-2xl font-bold text-white">{initials}</span>
-              }
+            {/* Avatar with upload overlay */}
+            <div className="relative shrink-0 group">
+              <div
+                className="flex h-20 w-20 items-center justify-center rounded-2xl border-4 border-card shadow-(--shadow-md) overflow-hidden"
+                style={{ background: displayAvatarUrl ? undefined : "var(--gradient-primary)" }}
+              >
+                {isLoading ? (
+                  <div className="skeleton-shimmer h-full w-full rounded-xl" />
+                ) : displayAvatarUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={displayAvatarUrl} alt="Profile photo" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-2xl font-bold text-white">{initials}</span>
+                )}
+              </div>
+              {/* Camera overlay — appears on hover */}
+              {!isLoading && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={avatarUploading}
+                  className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border-4 border-card"
+                  title="Change photo"
+                >
+                  {avatarUploading
+                    ? <Loader2 className="h-5 w-5 text-white animate-spin" />
+                    : <Camera className="h-5 w-5 text-white" />
+                  }
+                  <span className="text-[9px] text-white font-semibold mt-1 leading-none">
+                    {avatarUploading ? "Uploading…" : "Change"}
+                  </span>
+                </button>
+              )}
+              {/* Remove button — shown only when photo is set */}
+              {displayAvatarUrl && !isLoading && (
+                <button
+                  type="button"
+                  onClick={handleRemoveAvatar}
+                  className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive border-2 border-card text-white shadow opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Remove photo"
+                >
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              )}
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
             </div>
-            <div className="pb-1">
+
+            <div className="pb-1 flex flex-col items-end gap-1.5">
               {profile?.isVerified && (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-(--color-success-border) bg-(--color-success-bg) px-3 py-1 text-xs font-semibold text-(--color-success)">
                   <BadgeCheck className="h-3.5 w-3.5" />
                   Verified Account
                 </span>
               )}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={avatarUploading || isLoading}
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Camera className="h-3 w-3" />
+                {displayAvatarUrl ? "Change photo" : "Upload photo"}
+              </button>
             </div>
           </div>
           <div className="mt-3">

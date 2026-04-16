@@ -4,6 +4,15 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { cmsPrisma } from "@/lib/prisma-cms";
 
+/** Compare two dates by calendar date only, ignoring time and timezone. */
+function dobMatches(inputDob: Date, refDob: Date): boolean {
+  const fmt = (d: Date) => d.toISOString().slice(0, 10); // "YYYY-MM-DD"
+  // Also compare using UTC parts to guard against TZ shifts
+  const inputStr = `${inputDob.getUTCFullYear()}-${String(inputDob.getUTCMonth() + 1).padStart(2, "0")}-${String(inputDob.getUTCDate()).padStart(2, "0")}`;
+  const refStr   = fmt(refDob);
+  return inputStr === refStr;
+}
+
 // ── In-memory login rate limiter ─────────────────────────────────────────────
 // Keyed by identifier — max 5 attempts per 15 minutes
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
@@ -55,59 +64,138 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           if (!dob) throw new Error("Date of birth is required");
 
-          const user = await prisma.portalUser.findUnique({
+          const inputDob = new Date(dob);
+
+          // ── Fast path: already registered in portal_users ─────────────
+          // No cms_v2 query needed — DOB was already validated on first login
+          const portalUser = await prisma.portalUser.findUnique({
             where: { patientCode },
           });
 
-          if (!user || !user.isActive || user.deletedAt) {
-            throw new Error("Invalid Patient ID or date of birth");
+          if (portalUser) {
+            if (!portalUser.isActive || portalUser.deletedAt) {
+              throw new Error("Invalid Patient ID or date of birth");
+            }
+
+            const refDob = new Date(portalUser.dob);
+
+            if (!dobMatches(inputDob, refDob)) {
+              // DOB mismatch on portal — re-check cms_v2 in case DOB was
+              // corrected there (keeps cms_v2 as ultimate source of truth)
+              let cmsRefDob: Date | null = null;
+              try {
+                const cmsPatient = await cmsPrisma.cmsPatient.findUnique({
+                  where: { code: patientCode },
+                  select: { dob: true },
+                });
+                if (cmsPatient) cmsRefDob = new Date(cmsPatient.dob);
+              } catch { /* cms_v2 unreachable */ }
+
+              if (!cmsRefDob) throw new Error("Invalid Patient ID or date of birth");
+
+              if (!dobMatches(inputDob, cmsRefDob)) throw new Error("Invalid Patient ID or date of birth");
+
+              // DOB was updated in cms_v2 — sync it to portal_users
+              await prisma.portalUser.update({
+                where: { id: portalUser.id },
+                data: { dob: cmsRefDob, lastLoginAt: new Date() },
+              });
+            } else {
+              await prisma.portalUser.update({
+                where: { id: portalUser.id },
+                data: { lastLoginAt: new Date() },
+              });
+            }
+
+            clearLoginAttempts(patientCode.toLowerCase());
+
+            return {
+              id:          portalUser.id,
+              email:       portalUser.email,
+              name:        `${portalUser.firstName} ${portalUser.lastName}`,
+              firstName:   portalUser.firstName,
+              lastName:    portalUser.lastName,
+              mobile:      portalUser.mobile,
+              patientCode: portalUser.patientCode ?? undefined,
+              role:        portalUser.role,
+            };
           }
 
-          // Try CMS DB first; fall back to portal DB dob field
-          let refDob: Date | null = null;
+          // ── Slow path: not yet registered — validate against cms_v2 ───
+          let cmsPatient: {
+            dob: Date; firstName: string | null; lastName: string | null;
+            fullName: string | null; email: string | null; mobile: string | null;
+            isActive: number;
+          } | null = null;
+
           try {
-            const cmsPatient = await cmsPrisma.cmsPatient.findUnique({
+            cmsPatient = await cmsPrisma.cmsPatient.findUnique({
               where: { code: patientCode },
-              select: { dob: true },
+              select: {
+                dob: true, firstName: true, lastName: true,
+                fullName: true, email: true, mobile: true, isActive: true,
+              },
             });
-            if (cmsPatient) refDob = new Date(cmsPatient.dob);
           } catch {
-            // CMS DB unavailable — fall through to portal dob
+            throw new Error("Unable to verify identity. Please try again later.");
           }
 
-          if (!refDob) {
-            // Fall back to dob stored in portal_users
-            if (!user.dob) throw new Error("Invalid Patient ID or date of birth");
-            refDob = new Date(user.dob);
-          }
-
-          const inputDob   = new Date(dob);
-          const dobMatches =
-            inputDob.getFullYear() === refDob.getFullYear() &&
-            inputDob.getMonth()    === refDob.getMonth() &&
-            inputDob.getDate()     === refDob.getDate();
-
-          if (!dobMatches) {
+          if (!cmsPatient) {
             throw new Error("Invalid Patient ID or date of birth");
           }
 
-          // Clear rate limit on success
-          clearLoginAttempts(patientCode.toLowerCase());
+          if (cmsPatient.isActive === 0) {
+            throw new Error("This patient account is inactive");
+          }
 
-          await prisma.portalUser.update({
-            where: { id: user.id },
-            data: { lastLoginAt: new Date() },
+          const refDob = new Date(cmsPatient.dob);
+
+          console.log("[auth] DOB check — input:", inputDob.toISOString(), "cms_v2:", refDob.toISOString());
+
+          if (!dobMatches(inputDob, refDob)) {
+            throw new Error("Invalid Patient ID or date of birth");
+          }
+
+          // ── First login confirmed — register into portal_users ─────────
+          const firstName = cmsPatient.firstName?.trim() || cmsPatient.fullName?.split(" ")[0] || "Patient";
+          const lastName  = cmsPatient.lastName?.trim()  || cmsPatient.fullName?.split(" ").slice(1).join(" ") || patientCode;
+          const email     = cmsPatient.email?.trim()     || `${patientCode.toLowerCase()}@nwd.placeholder`;
+          const mobile    = cmsPatient.mobile?.trim()    || `NOMOBILE-${patientCode}`;
+
+          // Guard against duplicate email/mobile across patients in cms_v2
+          const safeEmail  = await prisma.portalUser.findUnique({ where: { email } })
+            ? `${patientCode.toLowerCase()}@nwd.placeholder`
+            : email;
+          const safeMobile = await prisma.portalUser.findUnique({ where: { mobile } })
+            ? `NOMOBILE-${patientCode}`
+            : mobile;
+
+          const newUser = await prisma.portalUser.create({
+            data: {
+              patientCode,
+              firstName,
+              lastName,
+              email:       safeEmail,
+              mobile:      safeMobile,
+              dob:         refDob,
+              password:    "", // no password — auth is patientCode + DOB
+              isVerified:  true,
+              isActive:    true,
+              lastLoginAt: new Date(),
+            },
           });
 
+          clearLoginAttempts(patientCode.toLowerCase());
+
           return {
-            id:          user.id,
-            email:       user.email,
-            name:        `${user.firstName} ${user.lastName}`,
-            firstName:   user.firstName,
-            lastName:    user.lastName,
-            mobile:      user.mobile,
-            patientCode: user.patientCode ?? undefined,
-            role:        user.role,
+            id:          newUser.id,
+            email:       newUser.email,
+            name:        `${newUser.firstName} ${newUser.lastName}`,
+            firstName:   newUser.firstName,
+            lastName:    newUser.lastName,
+            mobile:      newUser.mobile,
+            patientCode: newUser.patientCode ?? undefined,
+            role:        newUser.role,
           };
         }
 

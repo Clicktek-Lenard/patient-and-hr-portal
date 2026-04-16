@@ -142,7 +142,7 @@ export default function BulkSchedulingPage() {
 
               {/* Branch selector */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Preferred NWDI Branch</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Preferred NWD Branch</label>
                 <select
                   value={branch}
                   onChange={(e) => setBranch(e.target.value)}

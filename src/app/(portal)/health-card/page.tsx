@@ -91,7 +91,7 @@ export default function HealthCardPage() {
 
   function handleShare() {
     if (navigator.share) {
-      navigator.share({ title: "NWDI Health Card", text: `Patient: ${fullName}\nID: ${patientId}` }).catch(() => {});
+      navigator.share({ title: "NWD Health Card", text: `Patient: ${fullName}\nID: ${patientId}` }).catch(() => {});
     } else {
       navigator.clipboard.writeText(`Patient: ${fullName}\nID: ${patientId}`);
       toast.success("Copied to clipboard");
@@ -262,7 +262,7 @@ export default function HealthCardPage() {
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
           </svg>
-          <span style={{ fontSize:9, color:"rgba(255,255,255,0.45)" }}>NWDI Verified Patient</span>
+          <span style={{ fontSize:9, color:"rgba(255,255,255,0.45)" }}>NWD Verified Patient</span>
         </div>
         <span style={{ fontSize:9, color:`${RED}88`, fontFamily:"monospace", fontWeight:600 }}>
           {new Date().getFullYear()} · nwdi.com.ph
@@ -327,7 +327,7 @@ export default function HealthCardPage() {
       {/* Info box */}
       <div style={{ borderRadius:14, border:`1px solid ${BLUE}18`, background:`${BLUE}05`, padding:"14px 16px" }}>
         <p style={{ fontSize:"0.78rem", color:"hsl(var(--muted-foreground))", lineHeight:1.7, margin:0 }}>
-          Present this digital card at any NWDI branch. The QR code on the back contains your Patient ID
+          Present this digital card at any NWD branch. The QR code on the back contains your Patient ID
           and can be scanned by our staff to quickly retrieve your records.
         </p>
       </div>

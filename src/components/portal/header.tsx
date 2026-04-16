@@ -16,6 +16,7 @@ import {
 import { NotificationBell } from "@/components/portal/notification-bell";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { getInitials } from "@/lib/utils";
+import { useAvatar } from "@/hooks/use-avatar";
 
 const PAGE_LABELS: Record<string, string> = {
   dashboard:      "Dashboard",
@@ -47,6 +48,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   const lastName  = session?.user?.lastName  ?? "";
   const email     = session?.user?.email     ?? "";
   const initials  = firstName && lastName ? getInitials(firstName, lastName) : "?";
+  const avatarUrl = useAvatar();
 
   const section = pathname.split("/").filter(Boolean)[0] ?? "dashboard";
   const pageTitle = PAGE_LABELS[section] ?? section;
@@ -110,11 +112,16 @@ export function Header({ onMenuClick }: HeaderProps) {
             >
               <div style={{
                 width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-                background: "#E00500",
+                background: avatarUrl ? undefined : "#E00500",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: "0.75rem", fontWeight: 700, color: "white",
+                overflow: "hidden",
               }}>
-                {initials}
+                {avatarUrl
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  ? <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  : initials
+                }
               </div>
               <span style={{
                 fontSize: "0.85rem", fontWeight: 600, color: "hsl(var(--foreground))",
@@ -142,11 +149,16 @@ export function Header({ onMenuClick }: HeaderProps) {
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{
                   width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-                  background: "#E00500",
+                  background: avatarUrl ? undefined : "#E00500",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: "0.75rem", fontWeight: 700, color: "white",
+                  overflow: "hidden",
                 }}>
-                  {initials}
+                  {avatarUrl
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    ? <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    : initials
+                  }
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <p style={{ fontSize: "0.85rem", fontWeight: 600, color: "hsl(var(--foreground))", lineHeight: 1 }}>
