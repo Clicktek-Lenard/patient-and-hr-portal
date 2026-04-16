@@ -43,11 +43,15 @@ const syne = Syne({
 
 export const metadata: Metadata = {
   title: {
-    default: "Patient Portal",
-    template: "%s | Patient Portal",
+    default: "Patient & HR Portal",
+    template: "%s | Patient & HR Portal",
   },
   description: "Access your medical records, test results, and appointments",
   keywords: ["patient portal", "medical records", "health", "clinic"],
+  icons: {
+    icon: "/ico.png",
+    apple: "/ico.png",
+  },
   robots: {
     index: false,
     follow: false,

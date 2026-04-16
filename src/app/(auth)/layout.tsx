@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { PortalBadge } from "./portal-badge";
 
 export const metadata: Metadata = {
-  title: { default: "Sign In", template: "%s | Patient Portal" },
+  title: { default: "Sign In", template: "%s | Patient & HR Portal" },
+  icons: {
+    icon: "/ico.png",
+    apple: "/ico.png",
+  },
 };
 
 /* ── ECG waveform path shared across uses ── */
