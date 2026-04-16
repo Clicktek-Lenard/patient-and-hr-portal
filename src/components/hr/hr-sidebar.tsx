@@ -79,7 +79,7 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
           width: 240,
           flexShrink: 0,
           backgroundColor: "#08036A",
-          borderRight: "3px solid #E00500",
+          borderRight: "2.5px solid #E00500",
           height: "100vh",
           overflowY: "auto",
         }}
@@ -87,7 +87,7 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
         {/* ── Brand section ── */}
         <div style={{
           padding: "16px 20px",
-          borderBottom: "3px solid #E00500",
+          borderBottom: "2.5px solid #E00500",
           background: "#06024f",
         }}>
           <Link href="/hr/dashboard" style={{ display: "flex", flexDirection: "column", gap: 6, textDecoration: "none" }}>
@@ -163,17 +163,22 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
                     onClick={onClose}
                     style={{
                       display: "flex", alignItems: "center", gap: 10,
-                      padding: "9px 20px",
-                      fontSize: "0.86rem", color: isActive ? "white" : "rgba(255,255,255,0.65)",
-                      borderLeft: `3px solid ${isActive ? "#E00500" : "transparent"}`,
-                      background: isActive ? "rgba(224,5,0,0.15)" : "transparent",
+                      padding: "9px 16px",
+                      margin: isActive ? "2px 0 2px 12px" : "2px 0 2px 0",
+                      borderRadius: isActive ? "10px 0 0 10px" : 0,
+                      borderLeft: isActive ? "4px solid #E00500" : "4px solid transparent",
+                      fontSize: "0.86rem",
+                      color: isActive ? "#ffffff" : "rgba(255,255,255,0.65)",
+                      background: isActive ? "#08036A" : "transparent",
+                      boxShadow: isActive ? "-4px 4px 16px rgba(0,0,0,0.35)" : "none",
                       transition: "all 0.2s",
                       textDecoration: "none",
+                      position: "relative",
                     }}
                     className="hover:bg-white/6 hover:text-white"
                   >
                     <span style={{ width: 20, textAlign: "center", flexShrink: 0 }}>
-                      <Icon style={{ width: 16, height: 16, color: isActive ? "white" : "rgba(255,255,255,0.6)" }} />
+                      <Icon style={{ width: 16, height: 16, color: isActive ? "#ffffff" : "rgba(255,255,255,0.6)" }} />
                     </span>
                     <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {item.label}

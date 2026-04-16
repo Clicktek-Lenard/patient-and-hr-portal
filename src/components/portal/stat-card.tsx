@@ -75,10 +75,11 @@ export function StatCard({
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
         <div style={{ minWidth: 0, flex: 1 }}>
           <p style={{
-            fontFamily: "var(--font-playfair, Georgia, serif)",
+            fontFamily: "var(--font-sans, 'Inter', system-ui, sans-serif)",
             fontSize: "1.9rem", lineHeight: 1,
             color: "hsl(var(--foreground))",
             marginBottom: 3, fontWeight: 700,
+            letterSpacing: "-0.02em",
           }}>
             {value}
           </p>

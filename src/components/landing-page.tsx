@@ -41,7 +41,7 @@ function PrivacyModal({ onAccept }: { onAccept: () => void }) {
   return (
     <div style={{ position:"fixed",inset:0,zIndex:9999,background:"rgba(5,3,48,0.92)",backdropFilter:"blur(20px)",display:"flex",alignItems:"center",justifyContent:"center",padding:20,fontFamily:BODY }}>
       <div style={{ background:"#fff",borderRadius:20,width:"100%",maxWidth:500,maxHeight:"88vh",display:"flex",flexDirection:"column",overflow:"hidden",boxShadow:"0 40px 100px rgba(0,0,0,0.6)" }}>
-        <div style={{ background:`linear-gradient(135deg,${NAVY},${BLUE})`,padding:"20px 24px",display:"flex",alignItems:"center",gap:14,borderBottom:`3px solid ${RED}`,flexShrink:0 }}>
+        <div style={{ background:`linear-gradient(135deg,${NAVY},${BLUE})`,padding:"20px 24px",display:"flex",alignItems:"center",gap:14,borderBottom:`1px solid ${RED}`,flexShrink:0 }}>
           <div style={{ width:38,height:38,borderRadius:10,background:"rgba(255,255,255,0.12)",display:"flex",alignItems:"center",justifyContent:"center" }}>
             <Lock size={16} color={GOLD}/>
           </div>

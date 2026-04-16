@@ -54,7 +54,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   return (
     <header style={{
       background: "hsl(var(--card))",
-      borderBottom: "3px solid #E00500",
+      borderBottom: "2.5px solid #E00500",
       padding: "0 32px",
       height: 60,
       display: "flex",
@@ -80,11 +80,12 @@ export function Header({ onMenuClick }: HeaderProps) {
         </Button>
 
         <h1 style={{
-          fontFamily: "var(--font-playfair, Georgia, serif)",
-          fontSize: "1.15rem",
+          fontFamily: "var(--font-sans, 'Inter', system-ui, sans-serif)",
+          fontSize: "1.05rem",
           color: "hsl(var(--foreground))",
-          fontWeight: 700,
+          fontWeight: 600,
           lineHeight: 1,
+          letterSpacing: "-0.01em",
         }}>
           {pageTitle}
         </h1>
