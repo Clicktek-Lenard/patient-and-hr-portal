@@ -145,6 +145,24 @@ VALUES (
 )
 ON CONFLICT (email) DO NOTHING;
 
+-- ── Sample employee departments (portal_employee_department) ─────────────────
+CREATE TABLE IF NOT EXISTS portal_employee_department (
+  id            VARCHAR(30)  PRIMARY KEY,
+  patient_code  VARCHAR(50)  UNIQUE NOT NULL,
+  department    VARCHAR(200) NOT NULL,
+  created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+INSERT INTO portal_employee_department (id, patient_code, department)
+VALUES
+  (gen_random_uuid()::text, 'BAE162604170001', 'Operations'),
+  (gen_random_uuid()::text, 'BAE162604170002', 'IT Department'),
+  (gen_random_uuid()::text, 'BAE162604170003', 'Human Resources'),
+  (gen_random_uuid()::text, 'HOMBJ2504280015', 'One World Corp'),
+  (gen_random_uuid()::text, 'L230000547192', 'Finance')
+ON CONFLICT (patient_code) DO UPDATE SET department = EXCLUDED.department;
+
 -- ── 4. Verify ─────────────────────────────────────────────────────────────────
 SELECT id, patient_code, hr_code, first_name, last_name, email, role, is_verified
 FROM portal_users

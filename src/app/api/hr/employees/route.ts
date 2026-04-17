@@ -108,15 +108,23 @@ export async function GET(req: NextRequest) {
   const patientIds = patients.map((p) => p.id);
   const cmsDeptMap = new Map<string, string>();
   if (patientIds.length > 0) {
-    const corpEmps = await cmsPrisma.corporateEmployee.findMany({
-      where: { patientId: { in: patientIds }, department: { not: null } },
-      select: { patientId: true, department: true },
-      orderBy: { id: "desc" },
-    });
-    for (const ce of corpEmps) {
-      if (ce.patientId && ce.department && !cmsDeptMap.has(ce.patientId.toString())) {
-        cmsDeptMap.set(ce.patientId.toString(), ce.department);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const corpEmpModel = (cmsPrisma as any).corporateEmployee;
+      if (corpEmpModel?.findMany) {
+        const corpEmps = await corpEmpModel.findMany({
+          where: { patientId: { in: patientIds }, department: { not: null } },
+          select: { patientId: true, department: true },
+          orderBy: { id: "desc" },
+        });
+        for (const ce of corpEmps as { patientId: bigint | null; department: string | null }[]) {
+          if (ce.patientId && ce.department && !cmsDeptMap.has(ce.patientId.toString())) {
+            cmsDeptMap.set(ce.patientId.toString(), ce.department);
+          }
+        }
       }
+    } catch (err) {
+      console.warn("[HR_EMPLOYEES] corporate_employees lookup skipped:", err);
     }
   }
 
@@ -189,13 +197,37 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Save department to portal DB (keyed by patient code)
-    if (department?.trim() && patient.code) {
-      await prisma.portalEmployeeDepartment.upsert({
-        where: { patientCode: patient.code },
-        update: { department: department.trim() },
-        create: { patientCode: patient.code, department: department.trim() },
-      });
+    // Write to CMS corporate_employees so department shows in the same
+    // column as existing employees (dept lookup uses this table).
+    if (department?.trim()) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const corpEmpModel = (cmsPrisma as any).corporateEmployee;
+        if (corpEmpModel?.create) {
+          await corpEmpModel.create({
+            data: {
+              lastName: lastName.trim(),
+              firstName: firstName.trim(),
+              gender: gender?.trim() || null,
+              dob: new Date(dob),
+              department: department.trim(),
+              patientId: patient.id,
+              status: "REGISTERED",
+            },
+          });
+        }
+      } catch (err) {
+        console.warn("[POST_EMPLOYEE] corporate_employees write skipped:", err);
+      }
+
+      // Also keep a portal-side copy as fallback/override
+      if (patient.code) {
+        await prisma.portalEmployeeDepartment.upsert({
+          where: { patientCode: patient.code },
+          update: { department: department.trim() },
+          create: { patientCode: patient.code, department: department.trim() },
+        });
+      }
     }
 
     return NextResponse.json({
@@ -209,5 +241,76 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("[POST_EMPLOYEE]", error);
     return NextResponse.json({ error: "Failed to create employee" }, { status: 500 });
+  }
+}
+
+// ── PATCH: update an employee's department ───────────────────────────────────
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const role = (session.user as { role?: string }).role;
+    if (role !== "HR" && role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+    const body = await req.json();
+    const { code, department } = body as { code: string; department: string };
+
+    if (!code?.trim()) {
+      return NextResponse.json({ error: "Employee code is required" }, { status: 400 });
+    }
+
+    const patient = await cmsPrisma.cmsPatient.findFirst({
+      where: { code: code.trim() },
+      select: { id: true, code: true, firstName: true, lastName: true, gender: true, dob: true },
+    });
+    if (!patient) return NextResponse.json({ error: "Employee not found" }, { status: 404 });
+
+    const deptValue = department?.trim() ?? "";
+
+    // Portal-side override (always set, even to empty to clear)
+    if (patient.code) {
+      if (deptValue) {
+        await prisma.portalEmployeeDepartment.upsert({
+          where: { patientCode: patient.code },
+          update: { department: deptValue },
+          create: { patientCode: patient.code, department: deptValue },
+        });
+      } else {
+        await prisma.portalEmployeeDepartment.deleteMany({ where: { patientCode: patient.code } });
+      }
+    }
+
+    // CMS corporate_employees write
+    if (deptValue) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const model = (cmsPrisma as any).corporateEmployee;
+        if (model?.findFirst && model?.create && model?.update) {
+          const existing = await model.findFirst({ where: { patientId: patient.id } });
+          if (existing) {
+            await model.update({ where: { id: existing.id }, data: { department: deptValue } });
+          } else {
+            await model.create({
+              data: {
+                lastName: patient.lastName ?? "",
+                firstName: patient.firstName ?? "",
+                gender: patient.gender ?? null,
+                dob: patient.dob ?? null,
+                department: deptValue,
+                patientId: patient.id,
+                status: "REGISTERED",
+              },
+            });
+          }
+        }
+      } catch (err) {
+        console.warn("[PATCH_EMPLOYEE] corporate_employees write skipped:", err);
+      }
+    }
+
+    return NextResponse.json({ data: { code: patient.code, department: deptValue || null } });
+  } catch (error) {
+    console.error("[PATCH_EMPLOYEE]", error);
+    return NextResponse.json({ error: "Failed to update employee" }, { status: 500 });
   }
 }

@@ -416,6 +416,7 @@ export default function HrEmployeesPage() {
           }}
         />
       )}
+
     </div>
   );
 }
@@ -586,3 +587,4 @@ function AddEmployeeModal({ onClose, onSuccess }: { onClose: () => void; onSucce
     </div>
   );
 }
+
