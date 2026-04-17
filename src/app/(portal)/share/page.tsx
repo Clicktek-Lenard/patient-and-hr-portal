@@ -137,11 +137,11 @@ function SharePageInner() {
       </div>
 
       {/* Info banner */}
-      <div className="flex items-start gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3.5">
-        <Shield className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-        <p className="text-xs text-muted-foreground leading-relaxed">
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, borderRadius: 12, border: "1px solid var(--ui-border)", background: "var(--ui-active-bg)", padding: "12px 16px" }}>
+        <Shield size={15} style={{ color: "var(--ui-active-text)", flexShrink: 0, marginTop: 2 }} />
+        <p style={{ fontSize: "0.75rem", color: "var(--ui-text-muted)", lineHeight: 1.6, margin: 0 }}>
           Shared links are encrypted and expire automatically. Recipients can view the result without logging in.
-          You can revoke access at any time. Links never expose your personal account.
+          You can revoke access at any time.
         </p>
       </div>
 
@@ -184,7 +184,7 @@ function SharePageInner() {
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Link Expires After</label>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(70px, 1fr))", gap: 6 }}>
                 {EXPIRY_OPTIONS.map((opt) => {
                   const active = expiryHours === opt.hours;
                   return (
@@ -193,12 +193,13 @@ function SharePageInner() {
                       type="button"
                       onClick={() => setExpiryHours(opt.hours)}
                       style={{
-                        flex: 1, height: 36, borderRadius: 10,
-                        fontSize: "0.78rem", fontWeight: 600,
+                        height: 36, borderRadius: 8,
+                        fontSize: "0.75rem", fontWeight: 600,
                         cursor: "pointer", transition: "all 0.15s",
                         background: active ? "var(--ui-active-bg)" : "var(--ui-card)",
                         color: active ? "var(--ui-active-text)" : "var(--ui-text-muted)",
                         border: `1.5px solid ${active ? "var(--ui-active-text)" : "var(--ui-border)"}`,
+                        whiteSpace: "nowrap",
                       }}
                     >
                       {opt.label}
@@ -238,9 +239,9 @@ function SharePageInner() {
               ))}
             </div>
           ) : activeLinks.length === 0 ? (
-            <div className="rounded-2xl bg-card border border-border p-8 text-center">
-              <Link2 className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">No active share links</p>
+            <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 32, textAlign: "center", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
+              <Link2 style={{ width: 32, height: 32, color: "var(--ui-text-faint)", margin: "0 auto 8px" }} />
+              <p style={{ fontSize: "0.85rem", color: "var(--ui-text-muted)" }}>No active share links</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -267,22 +268,34 @@ function SharePageInner() {
                     <span>{link.viewCount} view{link.viewCount !== 1 ? "s" : ""}</span>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <button
                       onClick={() => handleCopy(link)}
-                      className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg border border-border bg-muted/30 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                      style={{
+                        flex: "1 1 120px", height: 34, borderRadius: 8,
+                        border: "1px solid var(--ui-border)", background: "var(--ui-card)",
+                        color: "var(--ui-text-primary)", fontSize: "0.75rem", fontWeight: 600,
+                        cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                        transition: "all 0.15s",
+                      }}
                     >
                       {copiedId === link.id
-                        ? <><Check className="h-3 w-3 text-green-500" />Copied!</>
-                        : <><Copy className="h-3 w-3" />Copy Link</>
+                        ? <><Check size={13} style={{ color: "#16A34A" }} />Copied!</>
+                        : <><Copy size={13} />Copy Link</>
                       }
                     </button>
                     <button
                       onClick={() => revokeMutation.mutate(link.id)}
                       disabled={revokeMutation.isPending}
-                      className="flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg border border-destructive/20 bg-destructive/5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                      style={{
+                        flex: "0 1 auto", height: 34, padding: "0 14px", borderRadius: 8,
+                        border: "1px solid var(--ui-status-danger)", background: "transparent",
+                        color: "var(--ui-status-danger)", fontSize: "0.75rem", fontWeight: 600,
+                        cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
+                        transition: "all 0.15s",
+                      }}
                     >
-                      <Trash2 className="h-3 w-3" /> Revoke
+                      <Trash2 size={13} /> Revoke
                     </button>
                   </div>
                 </div>
