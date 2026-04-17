@@ -469,7 +469,8 @@ function AddEmployeeModal({ onClose, onSuccess }: { onClose: () => void; onSucce
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const canSubmit = firstName.trim() && lastName.trim() && dob && !createMutation.isPending;
+  const isUnderage = age !== null && age < 18;
+  const canSubmit = firstName.trim() && lastName.trim() && dob && !isUnderage && !createMutation.isPending;
 
   return (
     <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
@@ -531,11 +532,16 @@ function AddEmployeeModal({ onClose, onSuccess }: { onClose: () => void; onSucce
             </div>
             <div>
               <label style={labelStyle}>Age</label>
-              <div style={{ ...inputStyle, width: 52, background: "var(--ui-active-bg)", color: "var(--ui-active-text)", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ ...inputStyle, width: 52, background: isUnderage ? "#FEE2E2" : "var(--ui-active-bg)", color: isUnderage ? "#DC2626" : "var(--ui-active-text)", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {age !== null ? age : "—"}
               </div>
             </div>
           </div>
+          {isUnderage && (
+            <p style={{ fontSize: "0.72rem", color: "#DC2626", margin: "-6px 0 0", fontWeight: 500 }}>
+              Employee must be at least 18 years old (working age).
+            </p>
+          )}
 
           {/* Row: Contact + Status */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
