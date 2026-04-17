@@ -103,8 +103,8 @@ export async function GET() {
         if (key) conditionMap[key] = (conditionMap[key] ?? 0) + 1;
 
         // Track company for dept compliance
-        if (tx.nameCompany && !empCompany || empCompany === "Unknown") {
-          empCompany = tx.nameCompany;
+        if (tx.nameCompany && (!empCompany || empCompany === "Unknown")) {
+          empCompany = tx.nameCompany ?? "Unknown";
         }
 
         if (isPeTransaction(desc)) {
