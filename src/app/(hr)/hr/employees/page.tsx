@@ -258,44 +258,26 @@ export default function HrEmployeesPage() {
         )}
 
         {/* Gender filter */}
-        <div className="flex items-center gap-1">
-          {["", "Male", "Female"].map((g) => (
-            <button
-              key={g}
-              onClick={() => { setGender(g); setPage(1); }}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors",
-                gender === g
-                  ? "bg-violet-600 text-white border-violet-600"
-                  : "bg-card text-muted-foreground border-border hover:bg-muted"
-              )}
-            >
-              {g === "" ? "All" : g}
-            </button>
-          ))}
-        </div>
+        <select
+          value={gender}
+          onChange={(e) => { setGender(e.target.value); setPage(1); }}
+          style={{ height: 36, padding: "0 12px", borderRadius: 8, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.78rem", fontWeight: 500, outline: "none", cursor: "pointer" }}
+        >
+          <option value="">All Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
 
         {/* Active filter */}
-        <div className="flex items-center gap-1">
-          {[
-            { value: "", label: "All Status" },
-            { value: "1", label: "Active" },
-            { value: "0", label: "Inactive" },
-          ].map((a) => (
-            <button
-              key={a.value}
-              onClick={() => { setActive(a.value); setPage(1); }}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors",
-                active === a.value
-                  ? "bg-violet-600 text-white border-violet-600"
-                  : "bg-card text-muted-foreground border-border hover:bg-muted"
-              )}
-            >
-              {a.label}
-            </button>
-          ))}
-        </div>
+        <select
+          value={active}
+          onChange={(e) => { setActive(e.target.value); setPage(1); }}
+          style={{ height: 36, padding: "0 12px", borderRadius: 8, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.78rem", fontWeight: 500, outline: "none", cursor: "pointer" }}
+        >
+          <option value="">All Status</option>
+          <option value="1">Active</option>
+          <option value="0">Inactive</option>
+        </select>
 
         {hasFilters && (
           <button
@@ -478,8 +460,8 @@ function AddEmployeeModal({ onClose, onSuccess }: { onClose: () => void; onSucce
   const canSubmit = firstName.trim() && lastName.trim() && dob && !createMutation.isPending;
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--ui-card)", borderRadius: 16, width: "100%", maxWidth: 480, maxHeight: "90vh", border: "1px solid var(--ui-border)", boxShadow: "0 20px 60px rgba(0,0,0,0.2)", overflow: "auto", margin: "auto" }}>
+    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--ui-card)", borderRadius: 16, width: "calc(100% - 40px)", maxWidth: 480, maxHeight: "85vh", border: "1px solid var(--ui-border)", boxShadow: "0 20px 60px rgba(0,0,0,0.2)", overflowY: "auto", display: "flex", flexDirection: "column" }}>
         {/* Header */}
         <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--ui-border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
