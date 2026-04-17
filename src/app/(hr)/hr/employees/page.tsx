@@ -478,8 +478,8 @@ function AddEmployeeModal({ onClose, onSuccess }: { onClose: () => void; onSucce
   const canSubmit = firstName.trim() && lastName.trim() && dob && !createMutation.isPending;
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ background: "var(--ui-card)", borderRadius: 16, width: "100%", maxWidth: 480, border: "1px solid var(--ui-border)", boxShadow: "0 20px 60px rgba(0,0,0,0.2)", overflow: "hidden" }}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--ui-card)", borderRadius: 16, width: "100%", maxWidth: 480, maxHeight: "90vh", border: "1px solid var(--ui-border)", boxShadow: "0 20px 60px rgba(0,0,0,0.2)", overflow: "auto", margin: "auto" }}>
         {/* Header */}
         <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--ui-border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
