@@ -53,26 +53,30 @@ export default function CompliancePage() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">PE Compliance Tracker</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Annual Physical Exam status for all employees</p>
+      <div style={{ borderRadius: 14, background: "linear-gradient(135deg, #059669 0%, #0D9488 100%)", padding: "20px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+              <ShieldCheck style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+              <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Compliance &amp; Wellness</span>
+            </div>
+            <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>PE Compliance Tracker</h1>
+            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>Annual Physical Exam status for all employees</p>
+          </div>
+          {summary && summary.overdue > 0 && (
+            <button onClick={sendReminders} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 8, background: "rgba(255,255,255,0.95)", border: "none", color: "#EA580C", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer" }}>
+              <Mail style={{ width: 13, height: 13 }} /> Send Reminders ({summary.overdue})
+            </button>
+          )}
         </div>
-        {summary && summary.overdue > 0 && (
-          <button
-            onClick={sendReminders}
-            className="flex items-center gap-2 h-9 px-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition-colors"
-          >
-            <Mail className="h-4 w-4" /> Send Reminders ({summary.overdue})
-          </button>
-        )}
       </div>
 
       {/* Summary cards */}
       {isLoading ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl bg-card border border-border p-5 animate-pulse">
+            <div key={i} style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }} className="animate-pulse">
               <div className="h-7 w-12 rounded bg-muted mb-2" />
               <div className="h-3 w-20 rounded bg-muted" />
             </div>
@@ -80,23 +84,23 @@ export default function CompliancePage() {
         </div>
       ) : summary && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-2xl bg-card border border-border p-5">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <p className="text-2xl font-bold text-foreground">{summary.total.toLocaleString()}</p>
             <p className="text-xs text-muted-foreground mt-1">Total Employees</p>
           </div>
-          <div className="rounded-2xl bg-card border border-green-200 dark:border-green-500/20 p-5">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <p className="text-2xl font-bold text-green-600">{summary.compliant.toLocaleString()}</p>
             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
               <CheckCircle2 className="h-3 w-3 text-green-500" /> PE Compliant
             </p>
           </div>
-          <div className="rounded-2xl bg-card border border-orange-200 dark:border-orange-500/20 p-5">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <p className="text-2xl font-bold text-orange-600">{summary.overdue.toLocaleString()}</p>
             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
               <AlertTriangle className="h-3 w-3 text-orange-500" /> Overdue
             </p>
           </div>
-          <div className="rounded-2xl bg-card border border-border p-5">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <div className="flex items-end gap-1">
               <p className="text-2xl font-bold text-foreground">{summary.complianceRate}%</p>
             </div>
@@ -122,44 +126,43 @@ export default function CompliancePage() {
       )}
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2 items-center">
+      <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 16px", boxShadow: "0 1px 3px var(--ui-shadow)", display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
         <div className="relative flex-1 min-w-48 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
           <Input
             placeholder="Search by name or code…"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="pl-9 h-9 rounded-xl text-sm bg-card border-border"
+            className="pl-9 h-9 rounded-xl text-sm"
+            style={{ background: "var(--ui-card)", border: "1.5px solid var(--ui-border)", color: "var(--ui-text-primary)" }}
           />
         </div>
-        <div className="flex items-center gap-1">
+        <select
+          value={status}
+          onChange={(e) => { setStatus(e.target.value); setPage(1); }}
+          style={{
+            height: 36, padding: "0 12px", borderRadius: 8,
+            border: "1.5px solid var(--ui-border)", background: "var(--ui-card)",
+            color: "var(--ui-text-primary)", fontSize: "0.82rem", fontWeight: 500,
+            outline: "none", cursor: "pointer", minWidth: 140,
+          }}
+        >
           {STATUS_OPTS.map((s) => (
-            <button
-              key={s.value}
-              onClick={() => { setStatus(s.value); setPage(1); }}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors",
-                status === s.value
-                  ? "bg-violet-600 text-white border-violet-600"
-                  : "bg-card text-muted-foreground border-border hover:bg-muted"
-              )}
-            >
-              {s.label}
-            </button>
+            <option key={s.value} value={s.value}>{s.label}</option>
           ))}
-        </div>
+        </select>
         {(search || status) && (
           <button
             onClick={() => { setSearch(""); setStatus(""); setPage(1); }}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-destructive border border-destructive/20 bg-destructive/5"
+            style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: 8, fontSize: "0.75rem", fontWeight: 600, color: "var(--ui-status-danger)", background: "transparent", border: "1px solid var(--ui-status-danger)", cursor: "pointer" }}
           >
-            <X className="h-3 w-3" /> Clear
+            <X style={{ width: 12, height: 12 }} /> Clear
           </button>
         )}
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl bg-card border border-border overflow-hidden">
+      <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

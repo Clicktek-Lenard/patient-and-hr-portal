@@ -100,13 +100,14 @@ function NotificationCard({
 
   return (
     <div
-      className={cn(
-        "rounded-xl border transition-all duration-200",
-        !notification.isRead
-          ? "border-primary/40 bg-primary/5 dark:bg-primary/10 shadow-sm"
-          : "border-border bg-card",
-        isOpen && "ring-2 ring-primary/20"
-      )}
+      style={{
+        background: "var(--ui-card)",
+        border: !notification.isRead ? "1.5px solid var(--ui-active-text)" : "1px solid var(--ui-border)",
+        borderRadius: 12,
+        boxShadow: !notification.isRead ? "0 2px 8px var(--ui-shadow)" : "0 1px 3px var(--ui-shadow)",
+        transition: "all 0.2s",
+        ...(isOpen ? { outline: "2px solid var(--ui-active-text)", outlineOffset: 1 } : {}),
+      }}
     >
       {/* ── Collapsed row ── */}
       <div
@@ -257,34 +258,41 @@ export default function NotificationsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Bell className="h-6 w-6 text-primary" />
-            Notifications
-            {unreadCount > 0 && (
-              <span className="text-sm font-semibold bg-primary text-primary-foreground rounded-full px-2 py-0.5">
-                {unreadCount} new
-              </span>
-            )}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {unreadCount > 0
-              ? `You have ${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}.`
-              : "You're all caught up!"}
-          </p>
+      <div style={{ borderRadius: 14, background: "linear-gradient(135deg, #D97706 0%, #F59E0B 100%)", padding: "20px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+              <Bell style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+              <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Tools</span>
+            </div>
+            <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2, display: "flex", alignItems: "center", gap: 10 }}>
+              Notifications
+              {unreadCount > 0 && (
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, background: "rgba(255,255,255,0.2)", borderRadius: 20, padding: "3px 10px", color: "#fff" }}>
+                  {unreadCount} new
+                </span>
+              )}
+            </h1>
+            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>
+              {unreadCount > 0
+                ? `You have ${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}.`
+                : "You're all caught up!"}
+            </p>
+          </div>
+          {unreadCount > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => markAllMutation.mutate()}
+              disabled={markAllMutation.isPending}
+              style={{ background: "rgba(255,255,255,0.9)", border: "none", color: "#92400E" }}
+            >
+              <CheckCheck className="h-4 w-4 mr-2" />
+              Mark all as read
+            </Button>
+          )}
         </div>
-        {unreadCount > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => markAllMutation.mutate()}
-            disabled={markAllMutation.isPending}
-          >
-            <CheckCheck className="h-4 w-4 mr-2" />
-            Mark all as read
-          </Button>
-        )}
       </div>
 
       {/* Filter tabs */}

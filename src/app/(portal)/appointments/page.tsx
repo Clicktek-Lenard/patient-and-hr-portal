@@ -74,15 +74,16 @@ export default function AppointmentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
-            <CalendarPlus className="h-4 w-4 text-primary" />
+      <div style={{ borderRadius: 14, background: "linear-gradient(135deg, #0891B2 0%, #06B6D4 100%)", padding: "20px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <CalendarPlus style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Main</span>
           </div>
-          <span className="text-xs font-semibold text-primary tracking-widest uppercase">Scheduling</span>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>Appointments</h1>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>Book and manage your lab appointments</p>
         </div>
-        <h1 className="text-2xl font-bold text-foreground">Appointments</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Book and manage your lab appointments</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -99,7 +100,7 @@ export default function AppointmentsPage() {
               ))}
             </div>
           ) : slots.length === 0 ? (
-            <div className="rounded-2xl bg-card border border-border p-8 text-center">
+            <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 32, textAlign: "center", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
               <Calendar className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">No available slots at the moment</p>
             </div>
@@ -113,14 +114,13 @@ export default function AppointmentsPage() {
                     key={slot.id}
                     disabled={isFull}
                     onClick={() => setSelectedSlot(isSelected ? null : slot)}
-                    className={cn(
-                      "w-full text-left rounded-2xl border p-4 transition-all duration-150",
-                      isFull
-                        ? "opacity-50 cursor-not-allowed bg-muted/30 border-border"
-                        : isSelected
-                        ? "bg-primary/5 border-primary/40 shadow-sm"
-                        : "bg-card border-border hover:border-primary/30 hover:bg-primary/3"
-                    )}
+                    style={{
+                      background: isFull ? "var(--ui-bg)" : isSelected ? "var(--ui-active-bg)" : "var(--ui-card)",
+                      border: isSelected ? "1.5px solid var(--ui-active-text)" : "1px solid var(--ui-border)",
+                      borderRadius: 12, padding: 16, boxShadow: isSelected ? "0 2px 8px var(--ui-shadow)" : "0 1px 3px var(--ui-shadow)",
+                      opacity: isFull ? 0.5 : 1, cursor: isFull ? "not-allowed" : "pointer",
+                      transition: "all 0.15s", textAlign: "left", width: "100%",
+                    }}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
@@ -160,7 +160,7 @@ export default function AppointmentsPage() {
         <div className="space-y-4">
           {/* Booking form */}
           {selectedSlot && (
-            <div className="rounded-2xl bg-card border border-primary/30 p-5 space-y-4">
+            <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }} className="space-y-4">
               <h3 className="text-sm font-semibold text-foreground">Confirm Booking</h3>
               <div className="space-y-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
@@ -224,7 +224,7 @@ export default function AppointmentsPage() {
                 ))}
               </div>
             ) : appointments.length === 0 ? (
-              <div className="rounded-2xl bg-card border border-border p-8 text-center">
+              <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 32, textAlign: "center", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
                 <CalendarPlus className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">No upcoming appointments</p>
                 <p className="text-xs text-muted-foreground mt-1">Select a slot above to book one</p>
@@ -232,7 +232,7 @@ export default function AppointmentsPage() {
             ) : (
               <div className="space-y-3">
                 {appointments.map((appt) => (
-                  <div key={appt.id} className="rounded-2xl bg-card border border-border p-4">
+                  <div key={appt.id} style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 16, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-foreground">{appt.packageType}</p>

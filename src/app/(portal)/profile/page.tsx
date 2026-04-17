@@ -62,7 +62,7 @@ function NotificationPreferences() {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-(--shadow-xs) overflow-hidden">
+    <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
       <div className="px-6 py-4 border-b border-border bg-(--surface-1)">
         <h2 className="text-sm font-semibold text-foreground">Notification Preferences</h2>
         <p className="text-xs text-muted-foreground mt-0.5">Choose what you want to be notified about</p>
@@ -244,23 +244,20 @@ export default function ProfilePage() {
     <div className="space-y-6">
 
       {/* Page header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-(--color-info-bg) border border-(--color-info-border)">
-              <User className="h-4 w-4 text-(--color-info)" />
-            </div>
-            <span className="text-xs font-semibold text-(--color-info) tracking-widest uppercase">My Account</span>
+      <div style={{ borderRadius: 14, background: "linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)", padding: "20px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <User style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Account</span>
           </div>
-          <h1 className="text-2xl font-bold text-foreground leading-tight">Profile</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Manage your personal information and security settings
-          </p>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>Profile</h1>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>Manage your personal information and security settings</p>
         </div>
       </div>
 
       {/* Avatar card */}
-      <div className="rounded-2xl border border-border bg-card shadow-(--shadow-xs) overflow-hidden">
+      <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
         <div className="h-20 w-full" style={{ background: "var(--gradient-hero)" }} />
         <div className="px-6 pb-5">
           <div className="-mt-10 flex items-end justify-between gap-4">
@@ -369,7 +366,7 @@ export default function ProfilePage() {
         <TabsContent value="profile" className="mt-4 space-y-4">
 
           {/* Personal Information — read-only */}
-          <div className="rounded-2xl border border-border bg-card shadow-(--shadow-xs) overflow-hidden">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <div className="px-6 py-4 border-b border-border bg-(--surface-1) flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-semibold text-foreground">Personal Information</h2>
@@ -397,7 +394,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Account Details */}
-          <div className="rounded-2xl border border-border bg-card shadow-(--shadow-xs) overflow-hidden">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <div className="px-6 py-4 border-b border-border bg-(--surface-1)">
               <h2 className="text-sm font-semibold text-foreground">Account Details</h2>
               <p className="text-xs text-muted-foreground mt-0.5">Your account identifiers and status</p>
@@ -412,7 +409,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Account Security chips */}
-          <div className="rounded-2xl border border-border bg-card shadow-(--shadow-xs) overflow-hidden">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <div className="px-6 py-4 border-b border-border bg-(--surface-1)">
               <h2 className="text-sm font-semibold text-foreground">Account Security</h2>
             </div>

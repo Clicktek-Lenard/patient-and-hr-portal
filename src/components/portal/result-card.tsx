@@ -45,12 +45,10 @@ export function ResultCard({ result, className }: ResultCardProps) {
 
   return (
     <Link href={`/results/${result.queueCode}`}>
-      <div className={cn(
-        "group flex items-center gap-3.5 rounded-xl border border-border bg-card px-4 py-3.5",
-        "hover:border-primary/30 hover:shadow-(--glow-primary)",
-        "transition-all duration-200 cursor-pointer",
-        className
-      )}>
+      <div
+        style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "14px 16px", boxShadow: "0 1px 3px var(--ui-shadow)", transition: "all 0.2s", cursor: "pointer" }}
+        className={cn("group flex items-center gap-3.5 nwd-nav-item", className)}
+      >
         {/* Type icon */}
         <div className={cn(
           "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border",

@@ -5,8 +5,8 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import {
   Users, CalendarDays, ClipboardList, FlaskConical,
-  ArrowRight, TrendingUp, Clock, CheckCircle2,
-  UserCheck, Activity, Stethoscope,
+  ArrowRight, TrendingUp, CheckCircle2,
+  Activity, Stethoscope,
   Loader2, AlertTriangle, HeartPulse, Star,
 } from "lucide-react";
 
@@ -316,136 +316,6 @@ export default function HrDashboardPage() {
         </div>
       </div>
 
-      {/* ── Recent visits + Top patients ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-        {/* Recent visits */}
-        <div className="lg:col-span-2 rounded-2xl bg-card border border-border overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">Recent Visits</h2>
-            </div>
-            <Link href="/hr/visits" style={{ fontSize: "0.75rem", color: "#4F46E5", display: "flex", alignItems: "center", gap: 4, textDecoration: "none" }} className="hover:opacity-70 transition-opacity">
-              View all <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-
-          <div className="divide-y divide-border">
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-3 px-5 py-3.5 animate-pulse">
-                  <div className="h-8 w-8 rounded-full bg-muted shrink-0" />
-                  <div className="flex-1 space-y-1.5">
-                    <div className="h-3 w-32 rounded bg-muted" />
-                    <div className="h-2.5 w-24 rounded bg-muted" />
-                  </div>
-                  <div className="h-5 w-14 rounded-full bg-muted" />
-                </div>
-              ))
-            ) : recentVisits.length === 0 ? (
-              <div className="px-5 py-8 text-center text-sm text-muted-foreground">No visits found</div>
-            ) : (
-              recentVisits.map((v) => {
-                const statusInfo = resolveStatus(v.status);
-                return (
-                  <div key={String(v.id)} className="flex items-center gap-3 px-5 py-3.5 nwd-row-hover transition-colors">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-500/10 border border-violet-400/15">
-                      <UserCheck className="h-3.5 w-3.5 text-violet-500" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{v.qFullName ?? "—"}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {v.code} · {v.patientType ?? "General"}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1 shrink-0">
-                      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${statusInfo.color}`}>
-                        {statusInfo.label}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground/50">
-                        {new Date(v.dateTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        {/* Top patients */}
-        <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }} className="">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-sm font-semibold text-foreground">Top Patients</h2>
-            </div>
-            <Link href="/hr/employees" style={{ fontSize: "0.75rem", color: "#4F46E5", display: "flex", alignItems: "center", gap: 4, textDecoration: "none" }} className="hover:opacity-70 transition-opacity">
-              All <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-
-          <div className="divide-y divide-border">
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-3 px-5 py-3.5 animate-pulse">
-                  <div className="h-7 w-7 rounded-full bg-muted shrink-0" />
-                  <div className="flex-1 space-y-1.5">
-                    <div className="h-3 w-28 rounded bg-muted" />
-                    <div className="h-2.5 w-16 rounded bg-muted" />
-                  </div>
-                  <div className="h-4 w-8 rounded bg-muted" />
-                </div>
-              ))
-            ) : topPatients.length === 0 ? (
-              <div className="px-5 py-8 text-center text-sm text-muted-foreground">No data</div>
-            ) : (
-              topPatients.map((tp, idx) => (
-                <Link
-                  key={String(tp.idPatient)}
-                  href={`/hr/employees/${encodeURIComponent(tp.patient?.code ?? tp.idPatient)}`}
-                  className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors group"
-                >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-500/10 border border-violet-400/20 text-xs font-bold text-violet-600">
-                    {idx + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate group-hover:text-indigo-600 transition-colors">
-                      {tp.patient?.fullName ?? "—"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{tp.patient?.code}</p>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <CheckCircle2 className="h-3 w-3 text-success" />
-                    <span className="text-xs font-semibold text-foreground">{tp.visitCount}</span>
-                  </div>
-                </Link>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick links */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { href: "/hr/employees",  label: "Browse Employees", icon: Users,        color: "hover:bg-indigo-50 hover:border-indigo-200" },
-          { href: "/hr/visits",     label: "View All Visits",  icon: ClipboardList, color: "hover:bg-green-50 hover:border-green-200" },
-          { href: "/hr/results",    label: "Lab Results",      icon: FlaskConical,  color: "hover:bg-purple-50 hover:border-purple-200" },
-          { href: "/hr/compliance", label: "PE Compliance",    icon: CheckCircle2,  color: "hover:bg-amber-50 hover:border-amber-200" },
-        ].map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 10, boxShadow: "0 1px 3px var(--ui-shadow)", textDecoration: "none" }}
-            className={`flex items-center gap-3 p-4 transition-all ${item.color}`}
-          >
-            <item.icon className="h-4 w-4 text-foreground/70 shrink-0" />
-            <span className="text-sm font-medium text-foreground">{item.label}</span>
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }

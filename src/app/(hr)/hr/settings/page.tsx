@@ -99,19 +99,20 @@ export default function HrSettingsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-500/10 border border-violet-400/20">
-            <Settings className="h-4 w-4 text-violet-500" />
+      <div style={{ borderRadius: 14, background: "linear-gradient(135deg, #475569 0%, #64748B 100%)", padding: "20px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <Settings style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>System</span>
           </div>
-          <span className="text-xs font-semibold text-violet-500 tracking-widest uppercase">Configuration</span>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>Account Settings</h1>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>Manage HR account and notification preferences</p>
         </div>
-        <h1 className="text-xl font-bold text-foreground">Account Settings</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Manage HR account and notification preferences</p>
       </div>
 
       {/* Company Profile */}
-      <div className="rounded-2xl bg-card border border-border overflow-hidden">
+      <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Building2 className="h-4 w-4 text-violet-500" />
@@ -197,7 +198,7 @@ export default function HrSettingsPage() {
       </div>
 
       {/* UAT Feedback Settings */}
-      <div className="rounded-2xl bg-card border border-border overflow-hidden">
+      <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <MessageSquarePlus className="h-4 w-4 text-teal-500" />
@@ -305,7 +306,7 @@ export default function HrSettingsPage() {
       </div>
 
       {/* Notification Settings */}
-      <div className="rounded-2xl bg-card border border-border overflow-hidden">
+      <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Bell className="h-4 w-4 text-violet-500" />

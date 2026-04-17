@@ -81,15 +81,22 @@ export default function BulkSchedulingPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Bulk PE Scheduling</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Upload an employee list to schedule Annual Physical Exams in bulk</p>
+      <div style={{ borderRadius: 14, background: "linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)", padding: "20px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <CalendarClock style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Reports &amp; Tools</span>
+          </div>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>Bulk PE Scheduling</h1>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>Upload an employee list to schedule Annual Physical Exams in bulk</p>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Upload form */}
         <div className="space-y-5">
-          <div className="rounded-2xl bg-card border border-border overflow-hidden">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <div className="px-5 py-4 border-b border-border">
               <h2 className="text-sm font-semibold text-foreground">Upload Employee List</h2>
               <p className="text-xs text-muted-foreground mt-0.5">Accepted formats: .xlsx, .xls, .csv</p>
@@ -190,7 +197,7 @@ export default function BulkSchedulingPage() {
           </div>
 
           {/* Required columns */}
-          <div className="rounded-2xl border border-border bg-card p-4">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 16, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <p className="text-xs font-semibold text-foreground mb-2">Required Columns</p>
             <div className="grid grid-cols-2 gap-1.5">
               {["Employee ID", "Employee Name", "Email", "Mobile"].map((col) => (
@@ -213,7 +220,7 @@ export default function BulkSchedulingPage() {
           ) : (
             <div className="space-y-3">
               {SAMPLE_SCHEDULED.map((s, i) => (
-                <div key={i} className="rounded-2xl bg-card border border-border p-4">
+                <div key={i} style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 16, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold text-foreground">{s.packageType}</p>

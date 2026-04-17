@@ -246,7 +246,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               />
             </svg>
             <p className="text-[10px] text-white/25 text-center mt-3 tracking-[0.2em] uppercase">
-              BAESA Clinical Management System
+              v2.0
             </p>
           </div>
         </div>

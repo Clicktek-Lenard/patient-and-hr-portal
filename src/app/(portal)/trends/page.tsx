@@ -102,20 +102,20 @@ function TrendChart({ series }: { series: Series }) {
   const bandHeight = Math.max(0, bandBottom - bandTop);
 
   return (
-    <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+    <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
       {/* Card header */}
-      <div className="px-5 py-4 border-b border-gray-100 flex items-start justify-between gap-3">
+      <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--ui-border)", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
         <div>
-          <h3 className="font-bold text-base text-indigo-700 leading-snug">
-            {series.name} {series.unit ? <span className="text-gray-400 font-normal text-sm">({series.unit})</span> : ""}
+          <h3 style={{ fontWeight: 700, fontSize: "0.95rem", color: "var(--ui-active-text)", lineHeight: 1.3 }}>
+            {series.name} {series.unit ? <span style={{ color: "var(--ui-text-faint)", fontWeight: 400, fontSize: "0.85rem" }}>({series.unit})</span> : ""}
           </h3>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p style={{ fontSize: "0.72rem", color: "var(--ui-text-faint)", marginTop: 2 }}>
             {series.group} results over time
             {series.normalRange ? ` · Normal range: ${series.normalRange} ${series.unit}` : ""}
           </p>
         </div>
         {/* Legend */}
-        <div className="flex items-center gap-3 shrink-0 text-xs text-gray-500">
+        <div className="flex items-center gap-3 shrink-0" style={{ fontSize: "0.72rem", color: "var(--ui-text-muted)" }}>
           <span className="flex items-center gap-1.5">
             <span className="inline-block w-3 h-0.5 rounded bg-indigo-600" />
             {series.name}
@@ -244,15 +244,16 @@ export default function TrendsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
-            <TrendingUp className="h-4 w-4 text-primary" />
+      <div style={{ borderRadius: 14, background: "linear-gradient(135deg, #0891B2 0%, #06B6D4 100%)", padding: "20px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <TrendingUp style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Main</span>
           </div>
-          <span className="text-xs font-semibold text-primary tracking-widest uppercase">Analytics</span>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>Health Trends</h1>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>Vital sign readings tracked across your visits — 12 months</p>
         </div>
-        <h1 className="text-2xl font-bold text-foreground">Health Trends</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Vital sign readings tracked across your visits — 12 months</p>
       </div>
 
       {/* Summary badges */}

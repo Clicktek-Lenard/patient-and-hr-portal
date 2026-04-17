@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultCard } from "@/components/portal/result-card";
 import type { LabResult, PaginatedResponse } from "@/types";
-import { cn } from "@/lib/utils";
 
 async function fetchResults(page: number, type: string): Promise<PaginatedResponse<LabResult>> {
   const params = new URLSearchParams({ page: String(page), pageSize: "10" });
@@ -42,49 +41,43 @@ export default function ResultsPage() {
     <div className="space-y-6">
 
       {/* Page header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-(--color-purple-bg) border border-(--color-purple-border)">
-              <FlaskConical className="h-4 w-4 text-(--color-purple)" />
+      <div style={{ borderRadius: 14, background: "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)", padding: "20px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+              <FlaskConical style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+              <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Main</span>
             </div>
-            <span className="text-xs font-semibold text-(--color-purple) tracking-widest uppercase">Records</span>
+            <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>Lab Results</h1>
+            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>Laboratory, imaging, and pathology reports</p>
           </div>
-          <h1 className="text-2xl font-bold text-foreground leading-tight">Lab Results</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Laboratory, imaging, and pathology reports
-          </p>
+          {data && !isLoading && (
+            <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 16px", display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: "1.4rem", fontWeight: 700, color: "#fff" }}>{data.total}</span>
+              <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.6)" }}>results</span>
+            </div>
+          )}
         </div>
-
-        {data && !isLoading && (
-          <div className="hidden sm:flex items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 shadow-(--shadow-xs) shrink-0">
-            <span className="text-2xl font-bold text-foreground font-data tabular-nums">{data.total}</span>
-            <span className="text-xs text-muted-foreground font-medium">results</span>
-          </div>
-        )}
       </div>
 
-      {/* Filter pills */}
-      <div className="flex flex-wrap gap-2">
-        {TYPE_FILTERS.map((f) => {
-          const Icon = f.icon;
-          const isActive = typeFilter === f.value;
-          return (
-            <button
-              key={f.value}
-              onClick={() => handleFilter(f.value)}
-              className={cn(
-                "inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-medium transition-all duration-150",
-                isActive
-                  ? "border-primary/30 bg-primary/10 text-primary shadow-(--glow-primary)"
-                  : "border-border bg-card text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground"
-              )}
-            >
-              <Icon className={cn("h-3.5 w-3.5", isActive ? "text-primary" : f.style)} />
-              {f.label}
-            </button>
-          );
-        })}
+      {/* Filter */}
+      <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "12px 16px", boxShadow: "0 1px 3px var(--ui-shadow)", display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--ui-text-muted)", whiteSpace: "nowrap" }}>Filter by:</span>
+        <select
+          value={typeFilter}
+          onChange={(e) => handleFilter(e.target.value)}
+          style={{
+            height: 36, padding: "0 12px", borderRadius: 8,
+            border: "1.5px solid var(--ui-border)", background: "var(--ui-card)",
+            color: "var(--ui-text-primary)", fontSize: "0.82rem", fontWeight: 500,
+            outline: "none", cursor: "pointer", minWidth: 160,
+          }}
+        >
+          {TYPE_FILTERS.map((f) => (
+            <option key={f.value} value={f.value}>{f.label}</option>
+          ))}
+        </select>
       </div>
 
       {/* Results list */}

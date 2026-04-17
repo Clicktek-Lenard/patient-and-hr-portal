@@ -47,23 +47,24 @@ export default function AccessHistoryPage() {
     <div className="space-y-6">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
-              <History className="h-4 w-4 text-primary" />
+      <div style={{ borderRadius: 14, background: "linear-gradient(135deg, #475569 0%, #64748B 100%)", padding: "20px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+              <History style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+              <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Tools</span>
             </div>
-            <span className="text-xs font-semibold text-primary tracking-widest uppercase">Security</span>
+            <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>Access History</h1>
+            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>A record of every time your records were accessed</p>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Access History</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">A record of every time your records were accessed</p>
+          {logs.length > 0 && (
+            <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 16px", display: "flex", alignItems: "center", gap: 6 }}>
+              <ShieldAlert style={{ width: 14, height: 14, color: "rgba(255,255,255,0.7)" }} />
+              <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.7)" }}>{logs.length} record{logs.length !== 1 ? "s" : ""}</span>
+            </div>
+          )}
         </div>
-        {logs.length > 0 && (
-          <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/40 px-4 py-2.5 self-start sm:self-auto shrink-0">
-            <ShieldAlert className="h-4 w-4 text-muted-foreground/60" />
-            <span className="text-xs text-muted-foreground">{logs.length} record{logs.length !== 1 ? "s" : ""} found</span>
-          </div>
-        )}
       </div>
 
       {/* Info banner */}
@@ -116,13 +117,13 @@ export default function AccessHistoryPage() {
                 <span className="text-xs text-muted-foreground shrink-0">{dayLogs.length} event{dayLogs.length !== 1 ? "s" : ""}</span>
               </div>
 
-              {/* Rows card */}
-              <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border">
+              {/* Rows — individual cards */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {dayLogs.map((log) => {
                   const meta = TYPE_META[log.accessType] ?? TYPE_META.SUMMARY;
                   const Icon = meta.icon;
                   return (
-                    <div key={log.id} className="flex items-center gap-4 px-4 sm:px-5 py-3.5 hover:bg-muted/30 transition-colors">
+                    <div key={log.id} className="nwd-nav-item" style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, boxShadow: "0 1px 3px var(--ui-shadow)", display: "flex", alignItems: "center", gap: 16, padding: "14px 16px", transition: "all 0.15s" }}>
 
                       {/* Icon */}
                       <div className={cn(

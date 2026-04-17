@@ -1,16 +1,18 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Search, Users, UserCheck, UserX,
   ChevronLeft, ChevronRight, ExternalLink,
   X, Building2, ChevronDown, ChevronUp,
+  Plus, Loader2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
+import { toast } from "sonner";
 
 type Patient = {
   id: string;
@@ -50,6 +52,7 @@ function getAge(dob: string) {
 const DEPT_LABEL = "No Department";
 
 export default function HrEmployeesPage() {
+  const qc = useQueryClient();
   const [page, setPage]       = useState(1);
   const [search, setSearch]   = useState("");
   const [gender, setGender]   = useState("");
@@ -57,6 +60,7 @@ export default function HrEmployeesPage() {
   const [company, setCompany] = useState("");
   const [groupByDept, setGroupByDept] = useState(false);
   const [collapsedDepts, setCollapsedDepts] = useState<Set<string>>(new Set());
+  const [showAddModal, setShowAddModal] = useState(false);
   const debouncedSearch = useDebounce(search, 400);
 
   const buildUrl = useCallback(() => {
@@ -176,30 +180,61 @@ export default function HrEmployeesPage() {
     <div className="space-y-5">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Employees</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {pagination ? <>{pagination.total.toLocaleString()} total records</> : "All registered employees"}
-          </p>
+      <div style={{
+        borderRadius: 14,
+        background: "linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)",
+        padding: "20px 24px", position: "relative", overflow: "hidden",
+      }}>
+        <div style={{
+          position: "absolute", inset: 0, opacity: 0.06,
+          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+        }} />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <Users style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Overview</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div>
+              <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>Employees</h1>
+              <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>
+                {pagination ? `${pagination.total.toLocaleString()} total records` : "All registered employees"}
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                onClick={() => setGroupByDept((v) => !v)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "7px 14px", borderRadius: 8,
+                  background: groupByDept ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.12)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  color: groupByDept ? "#4F46E5" : "#fff",
+                  fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", transition: "all 0.15s",
+                }}
+              >
+                <Building2 size={13} /> Group by Dept
+              </button>
+              <button
+                onClick={() => setShowAddModal(true)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "7px 14px", borderRadius: 8,
+                  background: "rgba(255,255,255,0.95)", border: "none",
+                  color: "#4F46E5", fontSize: "0.75rem", fontWeight: 600,
+                  cursor: "pointer", transition: "all 0.15s",
+                }}
+              >
+                <Plus size={13} /> Add Employee
+              </button>
+            </div>
+          </div>
         </div>
-        {/* Group by dept toggle */}
-        <button
-          onClick={() => setGroupByDept((v) => !v)}
-          className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-colors",
-            groupByDept
-              ? "bg-violet-600 text-white border-violet-600"
-              : "bg-card text-muted-foreground border-border hover:bg-muted"
-          )}
-        >
-          <Building2 className="h-3.5 w-3.5" />
-          Group by Department
-        </button>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2 items-center">
+      <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "14px 18px", boxShadow: "0 1px 3px var(--ui-shadow)" }} className="flex flex-wrap gap-2 items-center">
         <div className="relative flex-1 min-w-48 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
           <Input
@@ -273,7 +308,7 @@ export default function HrEmployeesPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl bg-card border border-border overflow-hidden">
+      <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -387,6 +422,191 @@ export default function HrEmployeesPage() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Add Employee Modal */}
+      {showAddModal && (
+        <AddEmployeeModal
+          onClose={() => setShowAddModal(false)}
+          onSuccess={() => {
+            setShowAddModal(false);
+            qc.invalidateQueries({ queryKey: ["hr-employees"] });
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ── Add Employee Modal ── */
+function AddEmployeeModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+  const [firstName, setFirstName]     = useState("");
+  const [lastName, setLastName]       = useState("");
+  const [dob, setDob]                 = useState("");
+  const [department, setDepartment]   = useState("");
+  const [gender, setGender]           = useState("");
+
+  const age = dob
+    ? (() => {
+        const today = new Date();
+        const birth = new Date(dob);
+        let a = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) a--;
+        return a;
+      })()
+    : null;
+
+  const createMutation = useMutation({
+    mutationFn: () =>
+      fetch("/api/hr/employees", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firstName, lastName, dob, department, gender }),
+      }).then(async (r) => {
+        const json = await r.json();
+        if (!r.ok) throw new Error(json.error ?? "Failed to create employee");
+        return json;
+      }),
+    onSuccess: (data) => {
+      toast.success(`Employee ${data.data?.fullName ?? "created"} added (${data.data?.code})`);
+      onSuccess();
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const canSubmit = firstName.trim() && lastName.trim() && dob && !createMutation.isPending;
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ background: "var(--ui-card)", borderRadius: 16, width: "100%", maxWidth: 480, border: "1px solid var(--ui-border)", boxShadow: "0 20px 60px rgba(0,0,0,0.2)", overflow: "hidden" }}>
+        {/* Header */}
+        <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--ui-border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--ui-active-bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Plus size={16} style={{ color: "var(--ui-active-text)" }} />
+            </div>
+            <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--ui-text-primary)" }}>Add Employee</h2>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ui-text-muted)", padding: 4 }}>
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Form */}
+        <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* First Name */}
+          <div>
+            <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
+              First Name <span style={{ color: "#E00500" }}>*</span>
+            </label>
+            <input
+              value={firstName} onChange={(e) => setFirstName(e.target.value)}
+              placeholder="e.g. Juan"
+              style={{ width: "100%", height: 40, padding: "0 12px", borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
+            />
+          </div>
+
+          {/* Last Name */}
+          <div>
+            <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
+              Last Name <span style={{ color: "#E00500" }}>*</span>
+            </label>
+            <input
+              value={lastName} onChange={(e) => setLastName(e.target.value)}
+              placeholder="e.g. Dela Cruz"
+              style={{ width: "100%", height: 40, padding: "0 12px", borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
+            />
+          </div>
+
+          {/* Date of Birth + Age */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12 }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
+                Date of Birth <span style={{ color: "#E00500" }}>*</span>
+              </label>
+              <input
+                type="date"
+                value={dob} onChange={(e) => setDob(e.target.value)}
+                style={{ width: "100%", height: 40, padding: "0 12px", borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
+                Age
+              </label>
+              <div style={{ height: 40, minWidth: 60, padding: "0 12px", borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-active-bg)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", fontWeight: 700, color: "var(--ui-active-text)" }}>
+                {age !== null ? age : "—"}
+              </div>
+            </div>
+          </div>
+
+          {/* Department */}
+          <div>
+            <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
+              Department
+            </label>
+            <input
+              value={department} onChange={(e) => setDepartment(e.target.value)}
+              placeholder="e.g. Operations"
+              style={{ width: "100%", height: 40, padding: "0 12px", borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
+            />
+          </div>
+
+          {/* Gender */}
+          <div>
+            <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
+              Gender
+            </label>
+            <div style={{ display: "flex", gap: 8 }}>
+              {["Male", "Female"].map((g) => (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => setGender(g)}
+                  style={{
+                    flex: 1, height: 36, borderRadius: 10,
+                    fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
+                    transition: "all 0.15s",
+                    background: gender === g ? "var(--ui-active-bg)" : "var(--ui-card)",
+                    color: gender === g ? "var(--ui-active-text)" : "var(--ui-text-muted)",
+                    border: `1.5px solid ${gender === g ? "var(--ui-active-text)" : "var(--ui-border)"}`,
+                  }}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: "16px 24px", borderTop: "1px solid var(--ui-border)", display: "flex", justifyContent: "flex-end", gap: 10 }}>
+          <button
+            onClick={onClose}
+            style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-muted)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => createMutation.mutate()}
+            disabled={!canSubmit}
+            style={{
+              padding: "8px 22px", borderRadius: 10, border: "none",
+              background: canSubmit ? "#7C3AED" : "var(--ui-border)",
+              color: canSubmit ? "#fff" : "var(--ui-text-faint)",
+              fontSize: "0.82rem", fontWeight: 600,
+              cursor: canSubmit ? "pointer" : "not-allowed",
+              display: "flex", alignItems: "center", gap: 6,
+              transition: "all 0.15s",
+            }}
+          >
+            {createMutation.isPending
+              ? <><Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} /> Saving…</>
+              : <><Plus size={14} /> Add Employee</>
+            }
+          </button>
+        </div>
       </div>
     </div>
   );

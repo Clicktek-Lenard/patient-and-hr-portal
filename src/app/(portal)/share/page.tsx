@@ -111,15 +111,16 @@ function SharePageInner() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
-            <Share2 className="h-4 w-4 text-primary" />
+      <div style={{ borderRadius: 14, background: "linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)", padding: "20px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <Share2 style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Tools</span>
           </div>
-          <span className="text-xs font-semibold text-primary tracking-widest uppercase">Sharing</span>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>Share Results</h1>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>Generate secure, time-limited links to share your lab results</p>
         </div>
-        <h1 className="text-2xl font-bold text-foreground">Share Results</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Generate secure, time-limited links to share your lab results</p>
       </div>
 
       {/* Info banner */}
@@ -133,9 +134,9 @@ function SharePageInner() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Generate form */}
-        <div className="rounded-2xl bg-card border border-border overflow-hidden">
-          <div className="px-5 py-4 border-b border-border">
-            <h2 className="text-sm font-semibold text-foreground">Generate Secure Link</h2>
+        <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
+          <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--ui-border)" }}>
+            <h2 style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--ui-text-primary)" }}>Generate Secure Link</h2>
           </div>
           <div className="p-5 space-y-4">
             <div className="space-y-1.5">
@@ -231,7 +232,7 @@ function SharePageInner() {
           ) : (
             <div className="space-y-3">
               {activeLinks.map((link) => (
-                <div key={link.id} className="rounded-2xl bg-card border border-border p-4 space-y-3">
+                <div key={link.id} style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 16, boxShadow: "0 1px 3px var(--ui-shadow)" }} className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-foreground truncate">
@@ -284,7 +285,7 @@ function SharePageInner() {
               </h3>
               <div className="space-y-2">
                 {expiredLinks.map((link) => (
-                  <div key={link.id} className="rounded-xl bg-muted/30 border border-border p-3 opacity-60">
+                  <div key={link.id} style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 10, padding: 12, boxShadow: "0 1px 2px var(--ui-shadow)", opacity: 0.65 }}>
                     <p className="text-xs font-medium text-foreground truncate">{link.resultLabel ?? link.queueCode}</p>
                     <p className="text-[10px] text-muted-foreground mt-0.5">
                       {link.revokedAt ? "Revoked" : "Expired"} · {new Date(link.revokedAt ?? link.expiresAt).toLocaleDateString()}

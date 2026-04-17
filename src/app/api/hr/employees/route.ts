@@ -1,6 +1,5 @@
 import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { cmsPrisma } from "@/lib/prisma-cms";
 import { EMPLOYEE_TRANSACTION_WHERE } from "@/lib/hr-employee-filter";
 
@@ -103,4 +102,64 @@ export async function GET(req: NextRequest) {
     data,
     pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
   });
+}
+
+// ── POST: add a new employee ─────────────────────────────────────────────────
+export async function POST(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const role = (session.user as { role?: string }).role;
+    if (role !== "HR" && role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+    const body = await req.json();
+    const { firstName, lastName, dob, department, gender } = body as {
+      firstName: string;
+      lastName: string;
+      dob: string;
+      department?: string;
+      gender?: string;
+    };
+
+    if (!firstName?.trim() || !lastName?.trim() || !dob) {
+      return NextResponse.json({ error: "First name, last name, and date of birth are required" }, { status: 400 });
+    }
+
+    // Generate next ID — find max existing ID and increment
+    const maxResult = await cmsPrisma.$queryRaw<[{ maxId: bigint | null }]>`
+      SELECT MAX(id) as "maxId" FROM patient
+    `;
+    const nextId = BigInt((maxResult[0]?.maxId ?? 0n)) + 1n;
+
+    // Generate a patient code like EMP-YYYYMMDD-XXXXX
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const code = `EMP-${dateStr}-${String(nextId).padStart(5, "0")}`;
+
+    const fullName = `${lastName.trim()}, ${firstName.trim()}`;
+
+    const patient = await cmsPrisma.cmsPatient.create({
+      data: {
+        id: nextId,
+        code,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        fullName,
+        gender: gender?.trim() || null,
+        dob: new Date(dob),
+        isActive: 1,
+      },
+    });
+
+    return NextResponse.json({
+      data: {
+        id: Number(patient.id),
+        code: patient.code,
+        fullName: patient.fullName,
+        department: department || null,
+      },
+    }, { status: 201 });
+  } catch (error) {
+    console.error("[POST_EMPLOYEE]", error);
+    return NextResponse.json({ error: "Failed to create employee" }, { status: 500 });
+  }
 }

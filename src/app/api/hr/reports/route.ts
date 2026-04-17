@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { cmsPrisma } from "@/lib/prisma-cms";
+import { EMPLOYEE_PATIENT_WHERE, EMPLOYEE_QUEUE_WHERE, EMPLOYEE_TRANSACTION_WHERE } from "@/lib/hr-employee-filter";
 import * as XLSX from "xlsx";
 
 export async function GET(req: NextRequest) {
@@ -11,22 +12,52 @@ export async function GET(req: NextRequest) {
     if (role !== "HR" && role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const { searchParams } = new URL(req.url);
-    const type   = searchParams.get("type")   ?? "summary";   // summary | demographic
-    const format = searchParams.get("format") ?? "json";      // json | excel | csv
-    const from   = searchParams.get("from");                  // date filter start
-    const to     = searchParams.get("to");                    // date filter end
+    const type       = searchParams.get("type")       ?? "summary";
+    const format     = searchParams.get("format")     ?? "json";
+    const from       = searchParams.get("from");
+    const to         = searchParams.get("to");
+    const department = searchParams.get("department") ?? "";
 
     const dateFilter = from && to
       ? { gte: new Date(from), lte: new Date(to) }
       : undefined;
 
+    // Build department-aware employee filter
+    const deptTxWhere = department
+      ? { ...EMPLOYEE_TRANSACTION_WHERE, nameCompany: { equals: department, mode: "insensitive" as const } }
+      : EMPLOYEE_TRANSACTION_WHERE;
+
+    const empPatientWhere = {
+      isActive: 1 as const,
+      queues: { some: { transactions: { some: deptTxWhere } } },
+    };
+
+    const empQueueWhere = {
+      transactions: { some: deptTxWhere },
+    };
+
+    // ── DEPARTMENTS LIST (for "json" requests) ───────────────────
+    if (type === "departments") {
+      const txs = await cmsPrisma.cmsTransaction.findMany({
+        where: EMPLOYEE_TRANSACTION_WHERE,
+        select: { nameCompany: true },
+        distinct: ["nameCompany"],
+      });
+      const departments = txs
+        .map((t) => t.nameCompany)
+        .filter((n): n is string => !!n)
+        .sort();
+      return NextResponse.json({ data: departments });
+    }
+
     // ── DEMOGRAPHIC REPORT ────────────────────────────────────────
     if (type === "demographic") {
+      const empBase = empPatientWhere;
       const [maleCount, femaleCount, otherCount, totalCount] = await Promise.all([
-        cmsPrisma.cmsPatient.count({ where: { gender: { equals: "Male",   mode: "insensitive" }, isActive: 1 } }),
-        cmsPrisma.cmsPatient.count({ where: { gender: { equals: "Female", mode: "insensitive" }, isActive: 1 } }),
-        cmsPrisma.cmsPatient.count({ where: { gender: { notIn: ["Male", "Female"] }, isActive: 1 } }),
-        cmsPrisma.cmsPatient.count({ where: { isActive: 1 } }),
+        cmsPrisma.cmsPatient.count({ where: { ...empBase, gender: { equals: "Male",   mode: "insensitive" } } }),
+        cmsPrisma.cmsPatient.count({ where: { ...empBase, gender: { equals: "Female", mode: "insensitive" } } }),
+        cmsPrisma.cmsPatient.count({ where: { ...empBase, gender: { notIn: ["Male", "Female"] } } }),
+        cmsPrisma.cmsPatient.count({ where: empBase }),
       ]);
 
       // Top 10 chief complaints (used as disease/diagnosis proxy from vitals)
@@ -93,23 +124,31 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // ── SUMMARY REPORT ────────────────────────────────────────────
-    const whereQueue = dateFilter ? { date: dateFilter } : {};
+    // ── SUMMARY REPORT (employees only, with optional department) ──
+    const whereQueue = {
+      ...empQueueWhere,
+      ...(dateFilter ? { date: dateFilter } : {}),
+    };
+
+    const whereTransaction = {
+      ...deptTxWhere,
+      ...(dateFilter ? { date: dateFilter } : {}),
+    };
 
     const [totalVisits, completedVisits, totalPatients, totalRevenue, labResults] = await Promise.all([
       cmsPrisma.cmsQueue.count({ where: whereQueue }),
       cmsPrisma.cmsQueue.count({ where: { ...whereQueue, status: { gte: 400 } } }),
-      cmsPrisma.cmsPatient.count({ where: { isActive: 1 } }),
+      cmsPrisma.cmsPatient.count({ where: empPatientWhere }),
       cmsPrisma.cmsTransaction.aggregate({
         _sum: { amountItemPrice: true },
-        where: dateFilter ? { date: dateFilter } : {},
+        where: whereTransaction,
       }),
       cmsPrisma.cmsTransaction.count({
-        where: dateFilter ? { date: dateFilter } : {},
+        where: whereTransaction,
       }),
     ]);
 
-    // Visits by day
+    // Visits by day (employee visits only)
     const visits = await cmsPrisma.cmsQueue.findMany({
       where: whereQueue,
       select: { date: true, patientType: true, status: true },
@@ -152,7 +191,7 @@ export async function GET(req: NextRequest) {
     const summaryRows = [
       { Metric: "Total Visits",      Value: totalVisits },
       { Metric: "Completed Visits",  Value: completedVisits },
-      { Metric: "Total Patients",    Value: totalPatients },
+      { Metric: "Total Employees",   Value: totalPatients },
       { Metric: "Total Revenue",     Value: Number(totalRevenue._sum.amountItemPrice ?? 0).toFixed(2) },
       { Metric: "Lab Results",       Value: labResults },
     ];

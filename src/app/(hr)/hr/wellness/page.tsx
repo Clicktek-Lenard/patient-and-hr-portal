@@ -40,7 +40,7 @@ function LineChart({
   const yPos = (v: number) => PAD_T + (1 - (v - minVal) / range) * (H - PAD_T - PAD_B);
 
   return (
-    <div className="rounded-2xl bg-card border border-border overflow-hidden">
+    <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
       <div className="px-5 py-4 border-b border-border">
         <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       </div>
@@ -120,16 +120,23 @@ export default function WellnessPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Wellness Trends</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">12-month workforce health analytics</p>
+      <div style={{ borderRadius: 14, background: "linear-gradient(135deg, #E11D48 0%, #F43F5E 100%)", padding: "20px 24px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <Heart style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Compliance &amp; Wellness</span>
+          </div>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>Wellness Trends</h1>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>12-month workforce health analytics</p>
+        </div>
       </div>
 
       {/* KPI cards */}
       {isLoading ? (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="rounded-2xl bg-card border border-border p-5 animate-pulse">
+            <div key={i} style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }} className="animate-pulse">
               <div className="h-7 w-14 rounded bg-muted mb-2" />
               <div className="h-3 w-24 rounded bg-muted" />
             </div>
@@ -137,7 +144,7 @@ export default function WellnessPage() {
         </div>
       ) : d && (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="rounded-2xl bg-card border border-border p-5">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="h-4 w-4 text-violet-500" />
               <span className="text-xs text-muted-foreground">PE Compliance</span>
@@ -148,7 +155,7 @@ export default function WellnessPage() {
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">Target: 95%</p>
           </div>
-          <div className="rounded-2xl bg-card border border-border p-5">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <div className="flex items-center gap-2 mb-3">
               <Heart className="h-4 w-4 text-red-500" />
               <span className="text-xs text-muted-foreground">Hypertension Rate</span>
@@ -159,7 +166,7 @@ export default function WellnessPage() {
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">BP ≥140/90 mmHg</p>
           </div>
-          <div className="rounded-2xl bg-card border border-border p-5">
+          <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <div className="flex items-center gap-2 mb-3">
               <Users className="h-4 w-4 text-blue-500" />
               <span className="text-xs text-muted-foreground">Active Patients</span>
@@ -174,7 +181,7 @@ export default function WellnessPage() {
       {isLoading ? (
         <div className="space-y-4">
           {[0, 1].map((i) => (
-            <div key={i} className="rounded-2xl bg-card border border-border p-5 animate-pulse">
+            <div key={i} style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }} className="animate-pulse">
               <div className="h-4 w-48 rounded bg-muted mb-4" />
               <div className="h-32 w-full rounded bg-muted" />
             </div>
@@ -201,7 +208,7 @@ export default function WellnessPage() {
 
       {/* Clinical insight */}
       {!isLoading && d && (
-        <div className="flex items-start gap-3 rounded-2xl border border-border bg-muted/30 px-4 py-4">
+        <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: "16px 20px", boxShadow: "0 1px 3px var(--ui-shadow)", display: "flex", alignItems: "flex-start", gap: 12 }}>
           <Activity className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
           <div className="text-xs text-muted-foreground space-y-1">
             <p className="font-semibold text-foreground">Clinical Insights</p>
