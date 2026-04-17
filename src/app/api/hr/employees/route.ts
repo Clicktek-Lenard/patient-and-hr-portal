@@ -73,11 +73,31 @@ export async function GET(req: NextRequest) {
         isActive:    true,
         lastVisit:   true,
         pictureLink: true,
+        queues: {
+          select: {
+            transactions: {
+              where:  EMPLOYEE_TRANSACTION_WHERE,
+              select: { nameCompany: true },
+              take:   1,
+            },
+          },
+          take: 3,
+          orderBy: { date: "desc" },
+        },
       },
     }),
   ]);
 
-  const data = patients.map((p) => ({ ...p, id: Number(p.id) }));
+  const data = patients.map((p) => {
+    // Pick the first non-null company from recent queues
+    let company: string | null = null;
+    for (const q of p.queues) {
+      const c = q.transactions[0]?.nameCompany ?? null;
+      if (c) { company = c; break; }
+    }
+    const { queues: _q, ...rest } = p;
+    return { ...rest, id: Number(p.id), company };
+  });
 
   return NextResponse.json({
     data,

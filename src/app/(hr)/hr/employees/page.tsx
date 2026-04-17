@@ -3,15 +3,9 @@
 import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Search,
-  Users,
-  UserCheck,
-  UserX,
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink,
-
-  X,
+  Search, Users, UserCheck, UserX,
+  ChevronLeft, ChevronRight, ExternalLink,
+  X, Building2, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,6 +25,7 @@ type Patient = {
   contactNo: string | null;
   isActive: number;
   lastVisit: string | null;
+  company: string | null;
 };
 
 type PaginatedResponse = {
@@ -52,19 +47,24 @@ function getAge(dob: string) {
   return age;
 }
 
+const DEPT_LABEL = "No Department";
+
 export default function HrEmployeesPage() {
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [gender, setGender] = useState("");
-  const [active, setActive] = useState("");
+  const [page, setPage]       = useState(1);
+  const [search, setSearch]   = useState("");
+  const [gender, setGender]   = useState("");
+  const [active, setActive]   = useState("");
+  const [company, setCompany] = useState("");
+  const [groupByDept, setGroupByDept] = useState(false);
+  const [collapsedDepts, setCollapsedDepts] = useState<Set<string>>(new Set());
   const debouncedSearch = useDebounce(search, 400);
 
   const buildUrl = useCallback(() => {
     const params = new URLSearchParams();
     params.set("page", String(page));
-    params.set("limit", "20");
+    params.set("limit", "100"); // load more when grouping
     if (debouncedSearch) params.set("search", debouncedSearch);
-    if (gender) params.set("gender", gender);
+    if (gender)  params.set("gender", gender);
     if (active !== "") params.set("active", active);
     return `/api/hr/employees?${params}`;
   }, [page, debouncedSearch, gender, active]);
@@ -74,17 +74,103 @@ export default function HrEmployeesPage() {
     queryFn: () => fetch(buildUrl()).then((r) => r.json()),
   });
 
-  const patients = data?.data ?? [];
-  const pagination = data?.pagination;
+  const allPatients = data?.data ?? [];
+  const pagination  = data?.pagination;
 
-  const hasFilters = search || gender || active !== "";
+  // Unique companies for dept filter
+  const companies = Array.from(
+    new Set(allPatients.map((p) => p.company ?? DEPT_LABEL))
+  ).sort();
+
+  // Apply company filter
+  const patients = company
+    ? allPatients.filter((p) => (p.company ?? DEPT_LABEL) === company)
+    : allPatients;
+
+  // Group by department
+  const grouped: Record<string, Patient[]> = {};
+  if (groupByDept) {
+    for (const p of patients) {
+      const dept = p.company ?? DEPT_LABEL;
+      if (!grouped[dept]) grouped[dept] = [];
+      grouped[dept].push(p);
+    }
+  }
+
+  const hasFilters = search || gender || active !== "" || company;
 
   function clearFilters() {
-    setSearch("");
-    setGender("");
-    setActive("");
-    setPage(1);
+    setSearch(""); setGender(""); setActive(""); setCompany(""); setPage(1);
   }
+
+  function toggleDept(dept: string) {
+    setCollapsedDepts((prev) => {
+      const next = new Set(prev);
+      next.has(dept) ? next.delete(dept) : next.add(dept);
+      return next;
+    });
+  }
+
+  function renderRow(p: Patient) {
+    const initials = ((p.firstName?.[0] ?? "") + (p.lastName?.[0] ?? "")).toUpperCase() || "?";
+    const age  = getAge(p.dob);
+    const href = p.code ? `/hr/employees/${encodeURIComponent(p.code)}` : null;
+    return (
+      <tr
+        key={String(p.id)}
+        className={cn("transition-colors group", href ? "hover:bg-muted/40 cursor-pointer" : "")}
+        onClick={() => href && (window.location.href = href)}
+      >
+        <td className="px-4 py-3.5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-500/10 border border-violet-400/20 text-xs font-bold text-violet-600 dark:text-violet-400">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <p className="font-medium text-foreground truncate max-w-35">{p.fullName ?? "—"}</p>
+              <p className="text-xs text-muted-foreground truncate max-w-35">{p.email ?? p.mobile ?? "—"}</p>
+            </div>
+          </div>
+        </td>
+        <td className="px-4 py-3.5 hidden sm:table-cell">
+          <span className="font-mono text-xs text-muted-foreground">{p.code ?? "—"}</span>
+        </td>
+        {!groupByDept && (
+          <td className="px-4 py-3.5 hidden md:table-cell">
+            {p.company ? (
+              <span className="text-xs font-medium text-foreground truncate max-w-40 block">{p.company}</span>
+            ) : (
+              <span className="text-xs text-muted-foreground">—</span>
+            )}
+          </td>
+        )}
+        <td className="px-4 py-3.5 hidden md:table-cell text-muted-foreground text-xs">{p.gender ?? "—"}</td>
+        <td className="px-4 py-3.5 hidden md:table-cell text-muted-foreground text-xs">{age} yrs</td>
+        <td className="px-4 py-3.5 hidden lg:table-cell text-muted-foreground text-xs">{p.mobile ?? p.contactNo ?? "—"}</td>
+        <td className="px-4 py-3.5 hidden lg:table-cell text-muted-foreground text-xs">
+          {p.lastVisit ? new Date(p.lastVisit).toLocaleDateString() : "—"}
+        </td>
+        <td className="px-4 py-3.5">
+          <span className={cn(
+            "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold",
+            p.isActive
+              ? "text-green-700 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-500/10 dark:border-green-500/20"
+              : "text-muted-foreground bg-muted border-border"
+          )}>
+            {p.isActive
+              ? <><UserCheck className="h-2.5 w-2.5" /> Active</>
+              : <><UserX className="h-2.5 w-2.5" /> Inactive</>
+            }
+          </span>
+        </td>
+        <td className="px-4 py-3.5 text-right">
+          {href && <ExternalLink className="h-3.5 w-3.5 text-violet-500 opacity-40 group-hover:opacity-100 transition-opacity" />}
+        </td>
+      </tr>
+    );
+  }
+
+  const colSpan = groupByDept ? 7 : 8;
 
   return (
     <div className="space-y-5">
@@ -94,18 +180,26 @@ export default function HrEmployeesPage() {
         <div>
           <h1 className="text-xl font-bold text-foreground">Employees</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {pagination ? (
-              <>{pagination.total.toLocaleString()} total records</>
-            ) : (
-              "All registered employees"
-            )}
+            {pagination ? <>{pagination.total.toLocaleString()} total records</> : "All registered employees"}
           </p>
         </div>
+        {/* Group by dept toggle */}
+        <button
+          onClick={() => setGroupByDept((v) => !v)}
+          className={cn(
+            "flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-colors",
+            groupByDept
+              ? "bg-violet-600 text-white border-violet-600"
+              : "bg-card text-muted-foreground border-border hover:bg-muted"
+          )}
+        >
+          <Building2 className="h-3.5 w-3.5" />
+          Group by Department
+        </button>
       </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 items-center">
-        {/* Search */}
         <div className="relative flex-1 min-w-48 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
           <Input
@@ -115,6 +209,18 @@ export default function HrEmployeesPage() {
             className="pl-9 h-9 rounded-xl text-sm bg-card border-border"
           />
         </div>
+
+        {/* Department filter */}
+        {companies.length > 1 && (
+          <select
+            value={company}
+            onChange={(e) => { setCompany(e.target.value); setPage(1); }}
+            className="h-9 px-3 rounded-xl text-xs font-medium border border-border bg-card text-foreground focus:outline-none"
+          >
+            <option value="">All Departments</option>
+            {companies.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        )}
 
         {/* Gender filter */}
         <div className="flex items-center gap-1">
@@ -174,6 +280,9 @@ export default function HrEmployeesPage() {
               <tr className="border-b border-border bg-muted/40">
                 <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wide">Employee</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wide hidden sm:table-cell">Code</th>
+                {!groupByDept && (
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wide hidden md:table-cell">Department</th>
+                )}
                 <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wide hidden md:table-cell">Gender</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wide hidden md:table-cell">Age</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wide hidden lg:table-cell">Contact</th>
@@ -204,106 +313,75 @@ export default function HrEmployeesPage() {
                 ))
               ) : patients.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center">
+                  <td colSpan={colSpan} className="px-4 py-12 text-center">
                     <Users className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
                     <p className="text-sm text-muted-foreground">No employees found</p>
                   </td>
                 </tr>
-              ) : (
-                patients.map((p) => {
-                  const initials = ((p.firstName?.[0] ?? "") + (p.lastName?.[0] ?? "")).toUpperCase() || "?";
-                  const age = getAge(p.dob);
-                  const href = p.code ? `/hr/employees/${encodeURIComponent(p.code)}` : null;
+              ) : groupByDept ? (
+                Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b)).map(([dept, emps]) => {
+                  const collapsed = collapsedDepts.has(dept);
                   return (
-                    <tr
-                      key={String(p.id)}
-                      className={cn("transition-colors group", href ? "hover:bg-muted/40 cursor-pointer" : "")}
-                      onClick={() => href && (window.location.href = href)}
-                    >
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-500/10 border border-violet-400/20 text-xs font-bold text-violet-600 dark:text-violet-400">
-                            {initials}
+                    <>
+                      {/* Department header row */}
+                      <tr
+                        key={`dept-${dept}`}
+                        className="bg-violet-50 dark:bg-violet-500/10 cursor-pointer hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors"
+                        onClick={() => toggleDept(dept)}
+                      >
+                        <td colSpan={colSpan} className="px-4 py-2.5">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="h-3.5 w-3.5 text-violet-500" />
+                            <span className="text-xs font-bold text-violet-700 dark:text-violet-400 uppercase tracking-wider">
+                              {dept}
+                            </span>
+                            <span className="text-[10px] font-semibold text-violet-500 bg-violet-100 dark:bg-violet-500/20 rounded-full px-2 py-0.5">
+                              {emps.length} employee{emps.length !== 1 ? "s" : ""}
+                            </span>
+                            <span className="ml-auto">
+                              {collapsed
+                                ? <ChevronDown className="h-3.5 w-3.5 text-violet-400" />
+                                : <ChevronUp className="h-3.5 w-3.5 text-violet-400" />
+                              }
+                            </span>
                           </div>
-                          <div className="min-w-0">
-                            <p className="font-medium text-foreground truncate max-w-35">{p.fullName ?? "—"}</p>
-                            <p className="text-xs text-muted-foreground truncate max-w-35">{p.email ?? p.mobile ?? "—"}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3.5 hidden sm:table-cell">
-                        <span className="font-mono text-xs text-muted-foreground">{p.code ?? "—"}</span>
-                      </td>
-                      <td className="px-4 py-3.5 hidden md:table-cell text-muted-foreground text-xs">{p.gender ?? "—"}</td>
-                      <td className="px-4 py-3.5 hidden md:table-cell text-muted-foreground text-xs">{age} yrs</td>
-                      <td className="px-4 py-3.5 hidden lg:table-cell text-muted-foreground text-xs">{p.mobile ?? p.contactNo ?? "—"}</td>
-                      <td className="px-4 py-3.5 hidden lg:table-cell text-muted-foreground text-xs">
-                        {p.lastVisit ? new Date(p.lastVisit).toLocaleDateString() : "—"}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className={cn(
-                          "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold",
-                          p.isActive
-                            ? "text-success bg-success-bg border-success-border"
-                            : "text-muted-foreground bg-muted border-border"
-                        )}>
-                          {p.isActive
-                            ? <><UserCheck className="h-2.5 w-2.5" /> Active</>
-                            : <><UserX className="h-2.5 w-2.5" /> Inactive</>
-                          }
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-right">
-                        {href && (
-                          <ExternalLink className="h-3.5 w-3.5 text-violet-500 opacity-40 group-hover:opacity-100 transition-opacity" />
-                        )}
-                      </td>
-                    </tr>
+                        </td>
+                      </tr>
+                      {/* Employee rows */}
+                      {!collapsed && emps.map((p) => renderRow(p))}
+                    </>
                   );
                 })
+              ) : (
+                patients.map((p) => renderRow(p))
               )}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination */}
-        {pagination && pagination.totalPages > 1 && (
+        {/* Pagination — only show when not grouping */}
+        {!groupByDept && pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-border">
             <p className="text-xs text-muted-foreground">
               Page {pagination.page} of {pagination.totalPages} · {pagination.total.toLocaleString()} total
             </p>
             <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7 rounded-lg"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
+              <Button variant="outline" size="icon" className="h-7 w-7 rounded-lg"
+                disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
                 <ChevronLeft className="h-3.5 w-3.5" />
               </Button>
               {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                 const start = Math.max(1, Math.min(page - 2, pagination.totalPages - 4));
                 const pg = start + i;
                 return (
-                  <Button
-                    key={pg}
-                    variant={pg === page ? "default" : "outline"}
-                    size="icon"
-                    className="h-7 w-7 rounded-lg text-xs"
-                    onClick={() => setPage(pg)}
-                  >
+                  <Button key={pg} variant={pg === page ? "default" : "outline"}
+                    size="icon" className="h-7 w-7 rounded-lg text-xs" onClick={() => setPage(pg)}>
                     {pg}
                   </Button>
                 );
               })}
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7 rounded-lg"
-                disabled={page >= pagination.totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
+              <Button variant="outline" size="icon" className="h-7 w-7 rounded-lg"
+                disabled={page >= pagination.totalPages} onClick={() => setPage((p) => p + 1)}>
                 <ChevronRight className="h-3.5 w-3.5" />
               </Button>
             </div>
