@@ -18,14 +18,19 @@ export async function GET(req: NextRequest) {
   const gender   = searchParams.get("gender") ?? "";
   const active   = searchParams.get("active") ?? "";
 
-  // Base clause: employees only — patients with at least one corporate transaction
+  // Base clause: employees only — patients with corporate transactions OR manually added (EMP- code)
   const andClauses: object[] = [
     {
-      queues: {
-        some: {
-          transactions: { some: EMPLOYEE_TRANSACTION_WHERE },
+      OR: [
+        {
+          queues: {
+            some: {
+              transactions: { some: EMPLOYEE_TRANSACTION_WHERE },
+            },
+          },
         },
-      },
+        { code: { startsWith: "EMP-" } },
+      ],
     },
   ];
 
