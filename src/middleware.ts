@@ -57,6 +57,11 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // HR/ADMIN users must not access patient routes — redirect back to HR portal
+  if (isLoggedIn && (userRole === "HR" || userRole === "ADMIN") && !isHrRoute) {
+    return NextResponse.redirect(new URL("/hr/dashboard", nextUrl));
+  }
+
   // All other protected routes: require login
   if (!isPublicRoute && !isLoggedIn) {
     const url = new URL("/login", nextUrl);
