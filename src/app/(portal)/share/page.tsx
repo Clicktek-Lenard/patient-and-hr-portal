@@ -28,7 +28,20 @@ const EXPIRY_OPTIONS = [
 ];
 
 function copyToClipboard(text: string) {
-  navigator.clipboard.writeText(text).then(() => toast.success("Link copied!"));
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => toast.success("Link copied!"));
+  } else {
+    // Fallback for HTTP (non-secure) origins
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    toast.success("Link copied!");
+  }
 }
 
 function getShareUrl(token: string) {
