@@ -6,6 +6,7 @@ import {
   LayoutDashboard, FlaskConical, TrendingUp, CalendarPlus,
   Share2, History, CreditCard, Bell,
   User, Heart, MapPin, HelpCircle, Star,
+  MessageSquarePlus,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,7 @@ const navGroups: NavGroup[] = [
       { href: "/find-a-clinic", label: "Find a Clinic",       icon: MapPin },
       { href: "/help",          label: "Help & FAQ",          icon: HelpCircle },
       { href: "/loyalty",       label: "Loyalty Card",        icon: Star, comingSoon: true },
+      { href: "/feedback",      label: "UAT Feedback",        icon: MessageSquarePlus },
     ],
   },
 ];

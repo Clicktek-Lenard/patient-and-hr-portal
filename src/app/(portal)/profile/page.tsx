@@ -357,199 +357,50 @@ export default function ProfilePage() {
       {/* Tabs */}
       <Tabs defaultValue="profile">
         <TabsList className="h-10 rounded-xl border border-border bg-muted/40 p-1 gap-1">
-          <TabsTrigger value="profile"  className="rounded-lg text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-(--shadow-xs) gap-1.5">
-            <User className="h-3.5 w-3.5" /> Personal Info
-          </TabsTrigger>
-          <TabsTrigger value="password" className="rounded-lg text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-(--shadow-xs) gap-1.5">
-            <Key className="h-3.5 w-3.5" /> Password
+          <TabsTrigger value="profile" className="rounded-lg text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-(--shadow-xs) gap-1.5">
+            <User className="h-3.5 w-3.5" /> Account &amp; Info
           </TabsTrigger>
           <TabsTrigger value="notifications" className="rounded-lg text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-(--shadow-xs) gap-1.5">
             <Bell className="h-3.5 w-3.5" /> Notifications
           </TabsTrigger>
-          <TabsTrigger value="account"  className="rounded-lg text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-(--shadow-xs) gap-1.5">
-            <Shield className="h-3.5 w-3.5" /> Account
-          </TabsTrigger>
         </TabsList>
 
-        {/* ── Personal Info ── */}
-        <TabsContent value="profile" className="mt-4">
+        {/* ── Account & Personal Info (combined, read-only) ── */}
+        <TabsContent value="profile" className="mt-4 space-y-4">
+
+          {/* Personal Information — read-only */}
           <div className="rounded-2xl border border-border bg-card shadow-(--shadow-xs) overflow-hidden">
-            <div className="px-6 py-4 border-b border-border bg-(--surface-1)">
-              <h2 className="text-sm font-semibold text-foreground">Personal Information</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Update your name, email, and date of birth</p>
+            <div className="px-6 py-4 border-b border-border bg-(--surface-1) flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold text-foreground">Personal Information</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Your registered personal details</p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-(--color-info-border) bg-(--color-info-bg) px-2.5 py-1 text-[10px] font-semibold text-(--color-info)">
+                <Shield className="h-3 w-3" /> Read-only
+              </span>
             </div>
-            <div className="p-6">
-              <form
-                onSubmit={profileForm.handleSubmit((d) => updateProfileMutation.mutate(d))}
-                className="space-y-5"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="firstName" className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                      First Name
-                    </Label>
-                    <Input
-                      id="firstName"
-                      {...profileForm.register("firstName")}
-                      disabled={isLoading || updateProfileMutation.isPending}
-                      className="h-10 rounded-xl"
-                    />
-                    {profileForm.formState.errors.firstName && (
-                      <p className="text-xs text-destructive">{profileForm.formState.errors.firstName.message}</p>
-                    )}
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="lastName" className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                      Last Name
-                    </Label>
-                    <Input
-                      id="lastName"
-                      {...profileForm.register("lastName")}
-                      disabled={isLoading || updateProfileMutation.isPending}
-                      className="h-10 rounded-xl"
-                    />
-                    {profileForm.formState.errors.lastName && (
-                      <p className="text-xs text-destructive">{profileForm.formState.errors.lastName.message}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    Email Address
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    {...profileForm.register("email")}
-                    disabled={isLoading || updateProfileMutation.isPending}
-                    className="h-10 rounded-xl"
-                  />
-                  {profileForm.formState.errors.email && (
-                    <p className="text-xs text-destructive">{profileForm.formState.errors.email.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="dob" className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    Date of Birth
-                  </Label>
-                  <Input
-                    id="dob"
-                    type="date"
-                    {...profileForm.register("dob")}
-                    disabled={isLoading || updateProfileMutation.isPending}
-                    className="h-10 rounded-xl"
-                  />
-                  {profileForm.formState.errors.dob && (
-                    <p className="text-xs text-destructive">{profileForm.formState.errors.dob.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    Mobile Number
-                  </Label>
-                  <Input
-                    value={profile?.mobile ?? ""}
-                    disabled
-                    readOnly
-                    className="h-10 rounded-xl bg-muted/60 text-muted-foreground"
-                  />
-                  <p className="text-xs text-muted-foreground">Mobile number can only be changed by contacting support</p>
-                </div>
-
-                <div className="flex justify-end pt-1">
-                  <Button
-                    type="submit"
-                    disabled={updateProfileMutation.isPending || isLoading}
-                    className="h-10 rounded-xl px-6 gap-2"
-                    style={{ background: "var(--gradient-primary)" }}
-                  >
-                    {updateProfileMutation.isPending
-                      ? <><Loader2 className="h-4 w-4 animate-spin" />Saving…</>
-                      : <><Check className="h-4 w-4" />Save Changes</>
-                    }
-                  </Button>
-                </div>
-              </form>
+            <div className="px-6 py-2">
+              <FieldRow label="First Name"   value={isLoading ? "—" : (profile?.firstName ?? "—")} />
+              <FieldRow label="Last Name"    value={isLoading ? "—" : (profile?.lastName ?? "—")} />
+              <FieldRow label="Email"        value={isLoading ? "—" : (profile?.email ?? "—")} />
+              <FieldRow label="Date of Birth" value={isLoading ? "—" : (profile?.dob ? formatDate(profile.dob) : "—")} />
+              <FieldRow label="Mobile"       value={isLoading ? "—" : (profile?.mobile ?? "—")} mono />
+            </div>
+            <div className="px-6 pb-4 pt-2">
+              <div className="flex items-start gap-2.5 rounded-xl border border-border bg-muted/30 px-4 py-3">
+                <Shield className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  To update your personal information, please contact our clinic or support team. These details are managed by our clinical staff.
+                </p>
+              </div>
             </div>
           </div>
-        </TabsContent>
 
-        {/* ── Password ── */}
-        <TabsContent value="password" className="mt-4">
-          <div className="rounded-2xl border border-border bg-card shadow-(--shadow-xs) overflow-hidden">
-            <div className="px-6 py-4 border-b border-border bg-(--surface-1)">
-              <h2 className="text-sm font-semibold text-foreground">Change Password</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Keep your account secure with a strong password</p>
-            </div>
-            <div className="p-6">
-              <form
-                onSubmit={passwordForm.handleSubmit((d) => changePasswordMutation.mutate(d))}
-                className="space-y-5"
-              >
-                {[
-                  { id: "currentPassword", label: "Current Password", show: showCurrent, toggle: () => setShowCurrent(v => !v) },
-                  { id: "newPassword",     label: "New Password",     show: showNew,     toggle: () => setShowNew(v => !v) },
-                  { id: "confirmPassword", label: "Confirm Password", show: showConfirm, toggle: () => setShowConfirm(v => !v) },
-                ].map(({ id, label, show, toggle }) => (
-                  <div key={id} className="space-y-1.5">
-                    <Label htmlFor={id} className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                      {label}
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id={id}
-                        type={show ? "text" : "password"}
-                        {...passwordForm.register(id as keyof ChangePasswordInput)}
-                        disabled={changePasswordMutation.isPending}
-                        className="h-10 rounded-xl pr-11"
-                      />
-                      <button
-                        type="button"
-                        onClick={toggle}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-                      >
-                        {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                    {passwordForm.formState.errors[id as keyof ChangePasswordInput] && (
-                      <p className="text-xs text-destructive">
-                        {passwordForm.formState.errors[id as keyof ChangePasswordInput]?.message}
-                      </p>
-                    )}
-                  </div>
-                ))}
-
-                <div className="flex justify-end pt-1">
-                  <Button
-                    type="submit"
-                    disabled={changePasswordMutation.isPending}
-                    className="h-10 rounded-xl px-6 gap-2"
-                  >
-                    {changePasswordMutation.isPending
-                      ? <><Loader2 className="h-4 w-4 animate-spin" />Changing…</>
-                      : <><Key className="h-4 w-4" />Change Password</>
-                    }
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* ── Notifications ── */}
-        <TabsContent value="notifications" className="mt-4">
-          <NotificationPreferences />
-        </TabsContent>
-
-        {/* ── Account ── */}
-        <TabsContent value="account" className="mt-4 space-y-4">
+          {/* Account Details */}
           <div className="rounded-2xl border border-border bg-card shadow-(--shadow-xs) overflow-hidden">
             <div className="px-6 py-4 border-b border-border bg-(--surface-1)">
               <h2 className="text-sm font-semibold text-foreground">Account Details</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Your account identifiers and verification status</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Your account identifiers and status</p>
             </div>
             <div className="px-6 py-2">
               <FieldRow label="Patient Code"   value={profile?.patientCode ?? "Not linked"} mono />
@@ -560,7 +411,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Account health panel */}
+          {/* Account Security chips */}
           <div className="rounded-2xl border border-border bg-card shadow-(--shadow-xs) overflow-hidden">
             <div className="px-6 py-4 border-b border-border bg-(--surface-1)">
               <h2 className="text-sm font-semibold text-foreground">Account Security</h2>
@@ -590,13 +441,11 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Info footer */}
-          <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3.5">
-            <Shield className="h-4 w-4 text-muted-foreground/60 shrink-0 mt-0.5" />
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              To update your mobile number or patient code, please contact our support team. These fields are managed by our clinical staff.
-            </p>
-          </div>
+        </TabsContent>
+
+        {/* ── Notifications ── */}
+        <TabsContent value="notifications" className="mt-4">
+          <NotificationPreferences />
         </TabsContent>
       </Tabs>
     </div>

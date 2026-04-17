@@ -349,7 +349,7 @@ export default function HrDashboardPage() {
               recentVisits.map((v) => {
                 const statusInfo = resolveStatus(v.status);
                 return (
-                  <div key={String(v.id)} className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors">
+                  <div key={String(v.id)} className="flex items-center gap-3 px-5 py-3.5 nwd-row-hover transition-colors">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-500/10 border border-violet-400/15">
                       <UserCheck className="h-3.5 w-3.5 text-violet-500" />
                     </div>

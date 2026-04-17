@@ -586,6 +586,20 @@
 }
 
 /* ============================================================
+   THEME-AWARE NATIVE SELECT
+   All <select> elements respect the current theme palette
+   ============================================================ */
+select {
+  background-color: var(--ui-card) !important;
+  color: var(--ui-text-primary) !important;
+  border-color: var(--ui-border) !important;
+}
+select option {
+  background-color: var(--ui-card) !important;
+  color: var(--ui-text-primary) !important;
+}
+
+/* ============================================================
    THEME-AWARE CARD / SURFACE
    ============================================================ */
 .nwd-card-surface {
@@ -600,6 +614,10 @@
    ============================================================ */
 .nwd-row-hover:hover {
   background-color: var(--ui-hover-bg) !important;
+  color: var(--ui-text-primary) !important;
+}
+.nwd-row-hover:hover * {
+  color: inherit;
 }
 
 /* ============================================================

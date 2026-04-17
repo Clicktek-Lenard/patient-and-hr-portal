@@ -251,7 +251,7 @@ export default function UatFeedbackPage() {
                           transition: "background 0.15s",
                         }}
                         onClick={() => setExpandedId(isExpanded ? null : row.id)}
-                        className="hover:bg-muted/50"
+                        className="nwd-row-hover"
                       >
                         {/* Date */}
                         <td style={tdStyle}>
@@ -270,7 +270,7 @@ export default function UatFeedbackPage() {
                         </td>
                         {/* Role */}
                         <td style={tdStyle}>
-                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#08036A" }}>
+                          <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-secondary)" }}>
                             {row.userRole}
                           </span>
                         </td>
@@ -278,7 +278,7 @@ export default function UatFeedbackPage() {
                         <td style={tdStyle}>
                           <span style={{
                             fontSize: "0.72rem", fontWeight: 700,
-                            background: "rgba(8,3,106,0.06)", color: "#08036A",
+                            background: "var(--ui-active-bg)", color: "var(--ui-active-text)",
                             borderRadius: 6, padding: "2px 8px",
                           }}>
                             {row.module}

@@ -34,6 +34,7 @@ const PAGE_LABELS: Record<string, string> = {
   "find-a-clinic": "Find a Clinic",
   help:           "Help & FAQ",
   loyalty:        "Loyalty Card",
+  feedback:       "My UAT Feedback",
 };
 
 interface HeaderProps {
