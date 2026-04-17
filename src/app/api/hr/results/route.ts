@@ -15,10 +15,9 @@ export async function GET(req: NextRequest) {
   const limit  = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") ?? "25")));
   const search = searchParams.get("search")?.trim() ?? "";
 
-  // Filter: only corporate/employee transactions
+  // Filter: employee transactions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = {
-    status: { not: 2 },
     ...EMPLOYEE_TRANSACTION_WHERE,
   };
 
