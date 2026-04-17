@@ -39,7 +39,7 @@ model CmsQueue {
   id           BigInt    @id @default(autoincrement()) @map("id")
   idbu         String?   @map("idbu") @db.VarChar(10)
   code         String?   @map("code") @db.VarChar(20)
-  date         DateTime  @map("Date") @db.Date
+  date         DateTime  @map("date") @db.Date
   dateTime     DateTime  @map("datetime") @db.Timestamp(6)
   idPatient    BigInt    @map("idpatient")
   qFullName    String?   @map("qfullname") @db.VarChar(200)
@@ -64,7 +64,7 @@ model CmsQueue {
 model CmsTransaction {
   id                   BigInt   @id @default(autoincrement()) @map("id")
   idQueue              BigInt   @map("idqueue")
-  date                 DateTime @map("Date") @db.Date
+  date                 DateTime @map("date") @db.Date
   nameDoctor           String?  @map("namedoctor") @db.VarChar(200)
   nameCompany          String?  @map("namecompany") @db.VarChar(500)
   transactionType      String?  @map("transactiontype") @db.VarChar(150)
@@ -79,24 +79,31 @@ model CmsTransaction {
   @@map("transactions")
 }
 
-// vitalsign uses Int for queue_id (not BigInt) in this local db
+// vitalsign — mapped to actual CMS DB columns
 model CmsVitalSign {
-  id              Int      @id @default(autoincrement())
-  queueId         Int      @unique @map("queue_id")
-  patientId       String?  @map("patient_id") @db.VarChar(50)
-  chiefComplaint  String?  @map("chief_complaint")
-  pcpDoctor       String?  @map("pcp_doctor") @db.VarChar(200)
-  bpSystolic      Int?     @map("bp_systolic")
-  bpDiastolic     Int?     @map("bp_diastolic")
-  heartRate       Int?     @map("heart_rate")
-  temperature     Float?   @map("temperature")
-  respiratoryRate Int?     @map("respiratory_rate")
-  weightKg        Float?   @map("weight_kg")
-  heightCm        Float?   @map("height_cm")
-  bmi             Float?   @map("bmi")
-  recordedBy      Int?     @map("recorded_by")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id               BigInt   @id @map("id")
+  idQueue          BigInt   @map("idqueue")
+  queueCode        String?  @map("queuecode") @db.VarChar(50)
+  pcpId            BigInt?  @map("pcpid")
+  pcpName          String?  @map("pcpname") @db.VarChar(200)
+  chiefComplaint   String?  @map("chiefcomplaint") @db.VarChar(500)
+  pulseRate        String?  @map("pulserate") @db.VarChar(50)
+  respiratoryRate  String?  @map("respiratoryrate") @db.VarChar(50)
+  bpSystolic       Int?     @map("bloodpresure")
+  bpDiastolic      Int?     @map("bloodpresureover")
+  bpSystolic2      Int?     @map("bloodpresure2")
+  bpDiastolic2     Int?     @map("bloodpresureover2")
+  bpSystolic3      Int?     @map("bloodpresure3")
+  bpDiastolic3     Int?     @map("bloodpresureover3")
+  temperature      String?  @map("temperature") @db.VarChar(50)
+  height           String?  @map("height") @db.VarChar(50)
+  weight           String?  @map("weight") @db.VarChar(50)
+  bmi              String?  @map("bmi") @db.VarChar(50)
+  bmiCategory      String?  @map("bmicategory") @db.VarChar(50)
+  inputBy          String?  @map("inputby") @db.VarChar(50)
+  inputDate        DateTime? @map("inputdate")
+  updateBy         String?  @map("updateby") @db.VarChar(50)
+  updatedDate      DateTime? @map("updateddate")
 
   @@map("vitalsign")
 }

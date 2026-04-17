@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { HrSidebar } from "@/components/hr/hr-sidebar";
 import { HrHeader } from "@/components/hr/hr-header";
+import { UatFeedbackButton } from "@/components/hr/uat-feedback-button";
 
 export default function HrLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -22,6 +23,7 @@ export default function HrLayout({ children }: { children: React.ReactNode }) {
           </div>
         </main>
       </div>
+      <UatFeedbackButton />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { cmsPrisma } from "@/lib/prisma-cms";
+import { EMPLOYEE_TRANSACTION_WHERE } from "@/lib/hr-employee-filter";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -14,8 +15,13 @@ export async function GET(req: NextRequest) {
   const limit  = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") ?? "25")));
   const search = searchParams.get("search")?.trim() ?? "";
 
+  // Filter: only corporate/employee transactions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = { status: { not: 2 } };
+  const where: any = {
+    status: { not: 2 },
+    ...EMPLOYEE_TRANSACTION_WHERE,
+  };
+
   if (search) {
     where.OR = [
       { descriptionItemPrice: { contains: search, mode: "insensitive" } },
@@ -47,7 +53,6 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
-  // Fetch queues for these transactions separately (avoid required-relation null error)
   const queueIds = [...new Set(transactions.map((t) => t.idQueue).filter(Boolean))];
   const queues = queueIds.length
     ? await cmsPrisma.cmsQueue.findMany({
@@ -56,7 +61,6 @@ export async function GET(req: NextRequest) {
       })
     : [];
 
-  // Fetch patients for those queues separately
   const patientIds = [...new Set(queues.map((q) => q.idPatient).filter(Boolean))];
   const patients = patientIds.length
     ? await cmsPrisma.cmsPatient.findMany({

@@ -14,28 +14,25 @@ export async function GET(req: NextRequest) {
   const limit  = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") ?? "25")));
   const search = searchParams.get("search")?.trim() ?? "";
 
-  // Step 1 — fetch vitals (no relations)
   const [total, vitals] = await Promise.all([
     cmsPrisma.cmsVitalSign.count(),
     cmsPrisma.cmsVitalSign.findMany({
       skip: (page - 1) * limit,
       take: limit,
-      orderBy: { createdAt: "desc" },
+      orderBy: { inputDate: "desc" },
     }),
   ]);
 
-  // Step 2 — fetch queues by Int queueId separately (no required-relation join)
-  const queueIdsAsInt = [...new Set(vitals.map((v) => v.queueId).filter((id) => id != null))] as number[];
-  const queueIdsAsBigInt = queueIdsAsInt.map((id) => BigInt(id));
+  // Fetch queues by BigInt idQueue
+  const queueIds = [...new Set(vitals.map((v) => v.idQueue).filter((id) => id != null))] as bigint[];
 
-  const queues = queueIdsAsBigInt.length
+  const queues = queueIds.length
     ? await cmsPrisma.cmsQueue.findMany({
-        where: { id: { in: queueIdsAsBigInt } },
+        where: { id: { in: queueIds } },
         select: { id: true, code: true, qFullName: true, dateTime: true, idPatient: true },
       })
     : [];
 
-  // Step 3 — fetch patients separately
   const patientIds = [...new Set(queues.map((q) => q.idPatient).filter(Boolean))];
   const patients = patientIds.length
     ? await cmsPrisma.cmsPatient.findMany({
@@ -48,7 +45,7 @@ export async function GET(req: NextRequest) {
   const patientMap = new Map(patients.map((p) => [p.id.toString(), p]));
 
   let data = vitals.map((v) => {
-    const queue   = v.queueId != null ? queueMap.get(BigInt(v.queueId).toString()) : null;
+    const queue   = v.idQueue != null ? queueMap.get(v.idQueue.toString()) : null;
     const patient = queue?.idPatient ? patientMap.get(queue.idPatient.toString()) : null;
 
     const sys = v.bpSystolic  ?? 0;
@@ -60,32 +57,34 @@ export async function GET(req: NextRequest) {
       : null;
 
     return {
-      id:             v.id,
-      queueCode:      queue?.code ?? "—",
-      patientCode:    patient?.code ?? "—",
-      patientName:    patient?.fullName ?? queue?.qFullName ?? "—",
-      date:           queue?.dateTime?.toISOString() ?? v.createdAt.toISOString(),
-      bpSystolic:     v.bpSystolic  ?? null,
-      bpDiastolic:    v.bpDiastolic ?? null,
-      heartRate:      v.heartRate   ?? null,
-      temperature:    v.temperature ?? null,
+      id:              Number(v.id),
+      queueCode:       queue?.code ?? v.queueCode ?? "—",
+      patientCode:     patient?.code ?? "—",
+      patientName:     patient?.fullName ?? queue?.qFullName ?? "—",
+      date:            queue?.dateTime?.toISOString() ?? v.inputDate?.toISOString() ?? null,
+      bpSystolic:      v.bpSystolic  ?? null,
+      bpDiastolic:     v.bpDiastolic ?? null,
+      heartRate:       v.pulseRate   ?? null,
+      temperature:     v.temperature ?? null,
       respiratoryRate: v.respiratoryRate ?? null,
-      weightKg:       v.weightKg    ?? null,
-      heightCm:       v.heightCm    ?? null,
-      bmi:            v.bmi         ?? null,
-      chiefComplaint: v.chiefComplaint ?? null,
-      pcpDoctor:      v.pcpDoctor   ?? null,
-      recordedBy:     v.recordedBy  ?? null,
+      weight:          v.weight ?? null,
+      height:          v.height ?? null,
+      bmi:             v.bmi    ?? null,
+      bmiCategory:     v.bmiCategory ?? null,
+      chiefComplaint:  v.chiefComplaint ?? null,
+      pcpDoctor:       v.pcpName  ?? null,
       bpCategory,
-      createdAt:      v.createdAt.toISOString(),
+      recordedAt:      v.inputDate?.toISOString() ?? null,
     };
   });
 
-  // Apply search filter in-memory (after join)
   if (search) {
     const s = search.toLowerCase();
     data = data.filter(
-      (d) => d.patientName.toLowerCase().includes(s) || d.patientCode.toLowerCase().includes(s) || d.queueCode.toLowerCase().includes(s)
+      (d) =>
+        d.patientName.toLowerCase().includes(s) ||
+        d.patientCode.toLowerCase().includes(s) ||
+        d.queueCode.toLowerCase().includes(s)
     );
   }
 

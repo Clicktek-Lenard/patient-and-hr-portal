@@ -18,6 +18,7 @@ export async function GET(
     const queue = await cmsPrisma.cmsQueue.findFirst({
       where: { code: queueCode },
       include: {
+        patient: { select: { code: true, fullName: true } },
         transactions: {
           where: { status: { not: 2 } },
           select: {
@@ -43,7 +44,6 @@ export async function GET(
     const patientCode = session.user.patientCode;
 
     if (role === "PATIENT") {
-      // Patients can only view their own results
       if (!patientCode) {
         return NextResponse.json({ error: "Result not found" }, { status: 404 });
       }
@@ -55,36 +55,46 @@ export async function GET(
         return NextResponse.json({ error: "Result not found" }, { status: 404 });
       }
     } else if (role !== "HR" && role !== "ADMIN") {
-      // Unknown role — deny
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const doctor = queue.transactions.find((t) => t.nameDoctor)?.nameDoctor ?? null;
 
-    // Determine result type
-    const groups = queue.transactions.map((t) =>
-      (t.groupItemMaster ?? t.descriptionItemPrice ?? "").toLowerCase()
-    );
+    const allText = [
+      ...queue.transactions.map((t) => t.groupItemMaster ?? ""),
+      ...queue.transactions.map((t) => t.descriptionItemPrice ?? ""),
+    ].map((s) => s.toLowerCase());
+
     const resultType =
-      groups.some((g) => g.includes("lab") || g.includes("chem") || g.includes("hema") || g.includes("micro") || g.includes("cbc") || g.includes("urinal"))
+      allText.some((g) =>
+        g.includes("lab") || g.includes("chem") || g.includes("hema") ||
+        g.includes("micro") || g.includes("cbc") || g.includes("urin") ||
+        g.includes("glucose") || g.includes("blood") || g.includes("fbs") ||
+        g.includes("lipid") || g.includes("thyroid") || g.includes("hepat") ||
+        g.includes("culture") || g.includes("serol")
+      )
         ? "lab"
-        : groups.some((g) => g.includes("xray") || g.includes("x-ray") || g.includes("imaging") || g.includes("ultrasound") || g.includes("ct") || g.includes("mri"))
+        : allText.some((g) =>
+          g.includes("xray") || g.includes("x-ray") || g.includes("imaging") ||
+          g.includes("ultrasound") || g.includes("ct") || g.includes("mri") ||
+          g.includes("ecg") || g.includes("echo") || g.includes("abpm") ||
+          g.includes("radiolog")
+        )
         ? "imaging"
-        : groups.some((g) => g.includes("path") || g.includes("histo") || g.includes("cyto"))
+        : allText.some((g) => g.includes("path") || g.includes("histo") || g.includes("cyto"))
         ? "pathology"
         : "other";
 
-    // Map transactions to ResultParameter shape
+    // Map transactions as visit service items
     const parameters = queue.transactions.map((t) => ({
       name:           t.descriptionItemPrice ?? t.codeItemPrice ?? "—",
-      value:          "—",   // actual result values not stored in this table
+      value:          t.amountItemPrice != null ? `₱${Number(t.amountItemPrice).toLocaleString("en-PH", { minimumFractionDigits: 2 })}` : "—",
       unit:           undefined,
       referenceRange: undefined,
       flag:           undefined,
-      group:          t.groupItemMaster ?? undefined,
+      group:          t.groupItemMaster ?? t.transactionType ?? undefined,
     }));
 
-    // Build description from services
     const serviceNames = queue.transactions
       .map((t) => t.descriptionItemPrice)
       .filter(Boolean)
@@ -116,8 +126,8 @@ export async function GET(
         date:        queue.dateTime.toISOString(),
         type:        resultType,
         description,
-        status:      queue.status >= 400 ? "released" : "pending",
-        hasPdf:      false,
+        status:      queue.status >= 500 ? "released" : "pending",
+        hasPdf:      true,
         releasedAt:  null,
         requestedBy: doctor,
         parameters,

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Sidebar } from "@/components/portal/sidebar";
 import { Header } from "@/components/portal/header";
 import { QueueAlertProvider } from "@/components/portal/queue-alert-provider";
+import { UatFeedbackButton } from "@/components/hr/uat-feedback-button";
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,6 +26,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           </div>
         </main>
       </div>
+      <UatFeedbackButton />
     </div>
   );
 }

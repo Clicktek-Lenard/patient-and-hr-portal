@@ -5,22 +5,11 @@ import { useQuery } from "@tanstack/react-query";
 import { CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { PaymentCard } from "@/components/portal/payment-card";
 import type { PaymentListItem, PaginatedResponse } from "@/types";
 
-async function fetchPayments(
-  page: number,
-  status: string
-): Promise<PaginatedResponse<PaymentListItem>> {
+async function fetchPayments(page: number): Promise<PaginatedResponse<PaymentListItem>> {
   const params = new URLSearchParams({ page: String(page), pageSize: "10" });
-  if (status && status !== "all") params.set("status", status);
   const res = await fetch(`/api/payments?${params}`);
   if (!res.ok) throw new Error("Failed to fetch payments");
   const json = await res.json();
@@ -29,11 +18,10 @@ async function fetchPayments(
 
 export default function PaymentsPage() {
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState("all");
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["payments", page, statusFilter],
-    queryFn: () => fetchPayments(page, statusFilter),
+    queryKey: ["payments", page],
+    queryFn: () => fetchPayments(page),
   });
 
   return (
@@ -44,30 +32,12 @@ export default function PaymentsPage() {
             Payment History
           </h1>
           <p className="text-muted-foreground">
-            View your billing records and receipts
+            View your fully paid billing records
           </p>
         </div>
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
           <CreditCard className="h-5 w-5 text-green-600" />
         </div>
-      </div>
-
-      {/* Filter */}
-      <div className="flex gap-2">
-        <Select
-          value={statusFilter}
-          onValueChange={(v) => { setStatusFilter(v); setPage(1); }}
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="All statuses" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="paid">Paid</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="refunded">Refunded</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="space-y-3">

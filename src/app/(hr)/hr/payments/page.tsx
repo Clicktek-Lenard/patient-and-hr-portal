@@ -56,7 +56,7 @@ function PaymentModal({ payment, onClose }: { payment: Payment; onClose: () => v
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60"
+      className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/60"
       onClick={onClose}
     >
       <div
@@ -202,7 +202,7 @@ export default function HrPaymentsPage() {
           <div className="relative flex-1 min-w-48 max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
             <Input
-              placeholder="Search by patient or queue code…"
+              placeholder="Search by employee or queue code…"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               className="pl-9 h-9 rounded-xl text-sm bg-card border-border"
@@ -235,7 +235,7 @@ export default function HrPaymentsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Patient</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Employee</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground hidden sm:table-cell">Queue Code</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground hidden md:table-cell">Type</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground hidden lg:table-cell">Date</th>
@@ -275,7 +275,7 @@ export default function HrPaymentsPage() {
                             <UserCheck className="h-3.5 w-3.5 text-violet-500" />
                           </div>
                           <div className="min-w-0">
-                            <p className="font-medium text-foreground truncate max-w-[130px]">{p.patientName}</p>
+                            <p className="font-medium text-foreground truncate max-w-32.5">{p.patientName}</p>
                             <p className="text-xs text-muted-foreground">{p.patientCode}</p>
                           </div>
                         </div>

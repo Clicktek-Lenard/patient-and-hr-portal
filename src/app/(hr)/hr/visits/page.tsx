@@ -110,7 +110,7 @@ export default function HrVisitsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Patient</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Employee</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground hidden sm:table-cell">Queue Code</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground hidden md:table-cell">Type</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground hidden lg:table-cell">Date</th>
@@ -153,7 +153,7 @@ export default function HrVisitsPage() {
                             <UserCheck className="h-3.5 w-3.5 text-violet-500" />
                           </div>
                           <div className="min-w-0">
-                            <p className="font-medium text-foreground truncate max-w-[160px]">{v.qFullName ?? "—"}</p>
+                            <p className="font-medium text-foreground truncate max-w-40">{v.qFullName ?? "—"}</p>
                             <p className="text-xs text-muted-foreground">
                               {v.qGender === "M" ? "Male" : v.qGender === "F" ? "Female" : v.qGender ?? "—"}
                               {v.agePatient ? ` · ${v.agePatient}y` : ""}

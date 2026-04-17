@@ -184,7 +184,7 @@ export default function ReportsPage() {
               [
                 { label: "Total Visits",     value: summary.totals.totalVisits,     icon: CalendarDays, color: "text-violet-500" },
                 { label: "Completed",        value: summary.totals.completedVisits, icon: TrendingUp,   color: "text-success" },
-                { label: "Total Patients",   value: summary.totals.totalPatients,   icon: Users,        color: "text-info" },
+                { label: "Total Employees",  value: summary.totals.totalPatients,   icon: Users,        color: "text-info" },
                 { label: "Lab Results",      value: summary.totals.labResults,      icon: FlaskConical, color: "text-warning" },
                 { label: "Revenue (₱)",     value: `₱${Number(summary.totals.totalRevenue).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: BarChart2, color: "text-success" },
               ].map((s) => (

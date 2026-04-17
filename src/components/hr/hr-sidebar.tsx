@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import {
-  LayoutDashboard, Users, BarChart2, X, ChevronRight,
+  LayoutDashboard, Users, BarChart2, X,
   ShieldAlert, Heart, CalendarClock, Settings, ClipboardList,
+  MessageSquarePlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getInitials } from "@/lib/utils";
 
 type NavItem  = { href: string; label: string; icon: React.ElementType };
 type NavGroup = { label: string; items: NavItem[] };
@@ -32,9 +31,10 @@ const navGroups: NavGroup[] = [
   {
     label: "Reports & Tools",
     items: [
-      { href: "/hr/reports",    label: "Reports & Exports", icon: BarChart2 },
-      { href: "/hr/scheduling", label: "Bulk Scheduling",   icon: CalendarClock },
-      { href: "/hr/audit",      label: "Audit Trail",       icon: ClipboardList },
+      { href: "/hr/reports",       label: "Reports & Exports", icon: BarChart2 },
+      { href: "/hr/scheduling",    label: "Bulk Scheduling",   icon: CalendarClock },
+      { href: "/hr/audit",         label: "Audit Trail",       icon: ClipboardList },
+      { href: "/hr/uat-feedback",  label: "UAT Feedback",      icon: MessageSquarePlus },
     ],
   },
   {
@@ -52,11 +52,6 @@ interface HrSidebarProps {
 
 export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
   const pathname = usePathname();
-  const { data: session } = useSession();
-
-  const firstName = session?.user?.firstName ?? "";
-  const lastName  = session?.user?.lastName  ?? "";
-  const initials  = firstName && lastName ? getInitials(firstName, lastName) : "HR";
 
   return (
     <>
@@ -107,38 +102,6 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
               <X className="h-4 w-4" />
             </Button>
           )}
-        </div>
-
-        {/* ── User section ── */}
-        <div style={{
-          padding: "16px 20px",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          display: "flex", alignItems: "center", gap: 10,
-        }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-            background: "#E00500",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "0.75rem", fontWeight: 700, color: "white",
-          }}>
-            {initials}
-          </div>
-          <div style={{ overflow: "hidden", flex: 1 }}>
-            <p style={{
-              fontSize: "0.82rem", fontWeight: 600, color: "white",
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            }}>
-              {firstName} {lastName}
-            </p>
-            <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)" }}>HR Staff</p>
-          </div>
-          <div style={{
-            padding: "1px 7px", borderRadius: 10,
-            background: "#E00500",
-            fontSize: "0.65rem", fontWeight: 700, color: "white", letterSpacing: "0.06em",
-          }}>
-            HR
-          </div>
         </div>
 
         {/* ── Navigation ── */}
@@ -204,39 +167,6 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
           </p>
         </div>
 
-        {/* ── Footer ── */}
-        <div style={{ padding: "16px 20px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-          <Link
-            href="/hr/settings"
-            style={{
-              display: "flex", alignItems: "center", gap: 10,
-              padding: "8px 12px", borderRadius: 8,
-              textDecoration: "none", transition: "background 0.2s",
-            }}
-            className="hover:bg-white/10"
-          >
-            <div style={{
-              width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-              background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "0.75rem", fontWeight: 700, color: "white",
-            }}>
-              {initials}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{
-                fontSize: "0.82rem", fontWeight: 600, color: "white",
-                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-              }}>
-                {firstName} {lastName}
-              </p>
-              <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.45)", marginTop: 1 }}>
-                Account settings
-              </p>
-            </div>
-            <ChevronRight style={{ width: 14, height: 14, color: "rgba(255,255,255,0.3)", flexShrink: 0 }} />
-          </Link>
-        </div>
       </aside>
     </>
   );

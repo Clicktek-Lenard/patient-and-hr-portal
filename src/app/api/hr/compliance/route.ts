@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { cmsPrisma } from "@/lib/prisma-cms";
+import { EMPLOYEE_PATIENT_WHERE, EMPLOYEE_TRANSACTION_WHERE } from "@/lib/hr-employee-filter";
 
 const PE_KEYWORDS = ["APE", "ANNUAL", "PHYSICAL", "CAAP"];
 
@@ -17,16 +18,19 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get("search") ?? "";
     const status = searchParams.get("status") ?? "";
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: any = {
+      ...EMPLOYEE_PATIENT_WHERE,
+      ...(search ? {
+        OR: [
+          { fullName: { contains: search, mode: "insensitive" } },
+          { code:     { contains: search, mode: "insensitive" } },
+        ],
+      } : {}),
+    };
+
     const patients = await cmsPrisma.cmsPatient.findMany({
-      where: {
-        isActive: 1,
-        ...(search ? {
-          OR: [
-            { fullName: { contains: search, mode: "insensitive" } },
-            { code:     { contains: search, mode: "insensitive" } },
-          ],
-        } : {}),
-      },
+      where,
       select: {
         id: true,
         code: true,
@@ -34,12 +38,14 @@ export async function GET(req: NextRequest) {
         gender: true,
         dob: true,
         queues: {
+          where: { transactions: { some: EMPLOYEE_TRANSACTION_WHERE } },
           orderBy: { date: "desc" },
           take: 10,
           select: {
             id: true,
             date: true,
             status: true,
+            patientType: true,
             transactions: {
               select: { descriptionItemPrice: true, date: true },
             },
@@ -85,9 +91,9 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    const filtered = status ? rows.filter((r) => r.peStatus === status) : rows;
-    const total    = filtered.length;
-    const paginated = filtered.slice((page - 1) * limit, page * limit);
+    const filtered   = status ? rows.filter((r) => r.peStatus === status) : rows;
+    const total      = filtered.length;
+    const paginated  = filtered.slice((page - 1) * limit, page * limit);
 
     const overdueCnt    = rows.filter((r) => r.peStatus === "overdue").length;
     const compliantCnt  = rows.filter((r) => r.peStatus === "compliant").length;

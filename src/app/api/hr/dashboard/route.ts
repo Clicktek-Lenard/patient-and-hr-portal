@@ -1,9 +1,11 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { cmsPrisma } from "@/lib/prisma-cms";
+import { EMPLOYEE_PATIENT_WHERE, EMPLOYEE_QUEUE_WHERE, EMPLOYEE_TRANSACTION_WHERE } from "@/lib/hr-employee-filter";
 
 const ONGOING_STATUSES  = [100, 201, 202, 203, 210, 212, 230, 250, 260, 280, 300];
 const COMPLETE_STATUSES = [360, 400, 500, 550, 600, 610, 615, 620, 630, 650];
+const PE_KW = ["APE", "ANNUAL", "PHYSICAL", "CAAP"];
 
 function statusLabel(status: number): string {
   if ([100, 201].includes(status))                           return "waiting";
@@ -13,6 +15,12 @@ function statusLabel(status: number): string {
   if ([205, 900].includes(status))                           return "exit";
   if (status >= 360)                                         return "complete";
   return "unknown";
+}
+
+function isPeTransaction(desc: string | null): boolean {
+  if (!desc) return false;
+  const up = desc.toUpperCase();
+  return PE_KW.some((k) => up.includes(k));
 }
 
 export async function GET() {
@@ -25,48 +33,133 @@ export async function GET() {
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-  const PE_KW    = ["APE", "ANNUAL", "PHYSICAL", "CAAP"];
-  const XRAY_KW  = ["XRAY", "X-RAY", "CHEST"];
-  const CBC_KW   = ["CBC", "COMPLETE BLOOD"];
-  const URINE_KW = ["URINE", "URINALYSIS", "UA "];
-
+  // ── Core counts — employees only ────────────────────────────────
   const [
-    totalPatients,
+    totalEmployees,
     todayVisits,
-    monthVisits,
     totalVisits,
     ongoingVisits,
     completedVisits,
-    pendingResults,
   ] = await Promise.all([
-    cmsPrisma.cmsPatient.count({ where: { isActive: 1 } }),
-    cmsPrisma.cmsQueue.count({ where: { date: { gte: today, lt: tomorrow } } }),
-    cmsPrisma.cmsQueue.count({ where: { date: { gte: monthStart, lt: tomorrow } } }),
-    cmsPrisma.cmsQueue.count(),
+    cmsPrisma.cmsPatient.count({ where: EMPLOYEE_PATIENT_WHERE }),
+    cmsPrisma.cmsQueue.count({ where: { ...EMPLOYEE_QUEUE_WHERE, date: { gte: today, lt: tomorrow } } }),
+    cmsPrisma.cmsQueue.count({ where: EMPLOYEE_QUEUE_WHERE }),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cmsPrisma.cmsQueue.count({ where: { status: { in: ONGOING_STATUSES } } as any }),
+    cmsPrisma.cmsQueue.count({ where: { ...EMPLOYEE_QUEUE_WHERE, status: { in: ONGOING_STATUSES } } as any }),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    cmsPrisma.cmsQueue.count({ where: { status: { in: COMPLETE_STATUSES } } as any }),
-    // pending = in-progress queues with transactions
-    cmsPrisma.cmsTransaction.count({ where: { status: { not: 2 } } }),
+    cmsPrisma.cmsQueue.count({ where: { ...EMPLOYEE_QUEUE_WHERE, status: { in: COMPLETE_STATUSES } } as any }),
   ]);
 
-  // Service counts from transactions
-  const mkOr = (kws: string[]) => kws.map((k) => ({
-    descriptionItemPrice: { contains: k, mode: "insensitive" as const },
-  }));
+  // ── Employees with at least one released result ──────────────────
+  const employeesWithResults = await cmsPrisma.cmsPatient.count({
+    where: {
+      ...EMPLOYEE_PATIENT_WHERE,
+      queues: {
+        some: {
+          status: { gte: 500, lt: 650 },
+          transactions: { some: EMPLOYEE_TRANSACTION_WHERE },
+        },
+      },
+    },
+  });
 
-  const [apeCount, xrayCount, cbcCount, urinalysisCount] = await Promise.all([
-    cmsPrisma.cmsTransaction.count({ where: { OR: mkOr(PE_KW),    status: { not: 2 } } }),
-    cmsPrisma.cmsTransaction.count({ where: { OR: mkOr(XRAY_KW),  status: { not: 2 } } }),
-    cmsPrisma.cmsTransaction.count({ where: { OR: mkOr(CBC_KW),   status: { not: 2 } } }),
-    cmsPrisma.cmsTransaction.count({ where: { OR: mkOr(URINE_KW), status: { not: 2 } } }),
-  ]);
+  // ── Fetch all employees with recent queues + transactions ────────
+  const allEmployees = await cmsPrisma.cmsPatient.findMany({
+    where: EMPLOYEE_PATIENT_WHERE,
+    select: {
+      id: true,
+      queues: {
+        where: { transactions: { some: EMPLOYEE_TRANSACTION_WHERE } },
+        orderBy: { date: "desc" },
+        take: 20,
+        select: {
+          date: true,
+          status: true,
+          patientType: true,
+          transactions: {
+            where: EMPLOYEE_TRANSACTION_WHERE,
+            select: { descriptionItemPrice: true, date: true, nameCompany: true },
+          },
+        },
+      },
+    },
+  });
 
-  // Recent 8 visits — no inline patient relation to avoid null errors
+  let overdueCount   = 0;
+  let compliantCount = 0;
+  let neverCount     = 0;
+  const conditionMap: Record<string, number> = {};
+  const companyMap:   Record<string, { total: number; compliant: number }> = {};
+
+  for (const emp of allEmployees) {
+    let lastPeDate: Date | null = null;
+    let empCompany = "Unknown";
+
+    for (const q of emp.queues) {
+      for (const tx of q.transactions) {
+        const desc = tx.descriptionItemPrice ?? "";
+        const key  = desc.trim();
+        if (key) conditionMap[key] = (conditionMap[key] ?? 0) + 1;
+
+        // Track company for dept compliance
+        if (tx.nameCompany && !empCompany || empCompany === "Unknown") {
+          empCompany = tx.nameCompany;
+        }
+
+        if (isPeTransaction(desc)) {
+          const d = tx.date ? new Date(tx.date) : q.date ? new Date(q.date) : null;
+          if (d && (!lastPeDate || d > lastPeDate)) lastPeDate = d;
+        }
+      }
+    }
+
+    if (!companyMap[empCompany]) companyMap[empCompany] = { total: 0, compliant: 0 };
+    companyMap[empCompany].total++;
+
+    if (!lastPeDate) {
+      neverCount++;
+    } else {
+      const daysAgo = Math.floor((today.getTime() - lastPeDate.getTime()) / 86400000);
+      if (daysAgo > 365) overdueCount++;
+      else {
+        compliantCount++;
+        companyMap[empCompany].compliant++;
+      }
+    }
+  }
+
+  const total = allEmployees.length || 1;
+  const peComplianceRate = Math.round((compliantCount / total) * 100);
+
+  // ── Top 5 Conditions ─────────────────────────────────────────────
+  const top5Conditions = Object.entries(conditionMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, count]) => ({ name, count }));
+
+  // ── PE Compliance by Company ──────────────────────────────────────
+  const peByDept = Object.entries(companyMap)
+    .filter(([, v]) => v.total >= 1)
+    .map(([dept, v]) => ({
+      dept,
+      total: v.total,
+      compliant: v.compliant,
+      rate: Math.round((v.compliant / v.total) * 100),
+    }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 6);
+
+  // ── Wellness score ────────────────────────────────────────────────
+  const patientsWithVitals = await cmsPrisma.cmsVitalSign.count();
+  const vitalRate = totalEmployees > 0
+    ? Math.min(100, Math.round((patientsWithVitals / totalEmployees) * 100))
+    : 0;
+  const wellnessScore = Math.min(100, Math.round((peComplianceRate + vitalRate) / 2));
+
+  // ── Recent 8 employee visits ──────────────────────────────────────
   const recentVisitsRaw = await cmsPrisma.cmsQueue.findMany({
+    where: EMPLOYEE_QUEUE_WHERE,
     take: 8,
     orderBy: { dateTime: "desc" },
     select: {
@@ -75,7 +168,6 @@ export async function GET() {
     },
   });
 
-  // Fetch patients for recent visits separately
   const recentPatientIds = [...new Set(recentVisitsRaw.map((q) => q.idPatient).filter(Boolean))];
   const recentPatients = recentPatientIds.length
     ? await cmsPrisma.cmsPatient.findMany({
@@ -102,9 +194,10 @@ export async function GET() {
     };
   });
 
-  // Top 5 patients by visit count
+  // ── Top 5 employees by visit count ────────────────────────────────
   const topGrouped = await cmsPrisma.cmsQueue.groupBy({
     by: ["idPatient"],
+    where: EMPLOYEE_QUEUE_WHERE,
     _count: { id: true },
     orderBy: { _count: { id: "desc" } },
     take: 5,
@@ -115,7 +208,7 @@ export async function GET() {
     select: { id: true, fullName: true, code: true, gender: true, lastVisit: true },
   });
   const topPatients = topGrouped.map((tp) => {
-    const p = topDetails.find((p) => p.id === tp.idPatient) ?? null;
+    const p = topDetails.find((pd) => pd.id === tp.idPatient) ?? null;
     return {
       idPatient:  Number(tp.idPatient),
       visitCount: tp._count.id,
@@ -129,37 +222,21 @@ export async function GET() {
     };
   });
 
-  // Gender breakdown
-  const [maleCount, femaleCount, otherGenderCount] = await Promise.all([
-    cmsPrisma.cmsPatient.count({ where: { gender: { equals: "Male",   mode: "insensitive" }, isActive: 1 } }),
-    cmsPrisma.cmsPatient.count({ where: { gender: { equals: "Female", mode: "insensitive" }, isActive: 1 } }),
-    cmsPrisma.cmsPatient.count({ where: { gender: { notIn: ["Male", "Female", "male", "female"] }, isActive: 1 } }),
-  ]);
-
-  // Patient type breakdown
-  const patientTypeRaw = await cmsPrisma.cmsQueue.groupBy({
-    by: ["patientType"],
-    _count: { id: true },
-    orderBy: { _count: { id: "desc" } },
-  });
-
   return NextResponse.json({
     stats: {
-      totalPatients,
+      totalPatients:        totalEmployees,
       todayVisits,
-      monthVisits,
       totalVisits,
       ongoingVisits,
       completedVisits,
-      pendingResults,
-      apeCount,
-      xrayCount,
-      cbcCount,
-      urinalysisCount,
+      employeesWithResults,
+      overdueAnnualPe:      overdueCount,
+      peComplianceRate,
+      wellnessScore,
     },
+    top5Conditions,
+    peByDept,
     recentVisits,
     topPatients,
-    genderBreakdown:      { male: maleCount, female: femaleCount, other: otherGenderCount },
-    patientTypeBreakdown: patientTypeRaw.map((pt) => ({ type: pt.patientType ?? "Unknown", count: pt._count.id })),
   });
 }

@@ -92,12 +92,12 @@ export default function HrEmployeesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Employees / Patients</h1>
+          <h1 className="text-xl font-bold text-foreground">Employees</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             {pagination ? (
               <>{pagination.total.toLocaleString()} total records</>
             ) : (
-              "All registered patients"
+              "All registered employees"
             )}
           </p>
         </div>
@@ -172,7 +172,7 @@ export default function HrEmployeesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wide">Patient</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wide">Employee</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wide hidden sm:table-cell">Code</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wide hidden md:table-cell">Gender</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground tracking-wide hidden md:table-cell">Age</th>
@@ -206,7 +206,7 @@ export default function HrEmployeesPage() {
                 <tr>
                   <td colSpan={8} className="px-4 py-12 text-center">
                     <Users className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">No patients found</p>
+                    <p className="text-sm text-muted-foreground">No employees found</p>
                   </td>
                 </tr>
               ) : (

@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     const rawPageSize = parseInt(searchParams.get("pageSize") ?? "10", 10);
     const page        = isNaN(rawPage)     || rawPage     < 1 ? 1  : rawPage;
     const pageSize    = isNaN(rawPageSize) || rawPageSize < 1 ? 10 : Math.min(100, rawPageSize);
-    const type     = searchParams.get("type") ?? "";
+    const type        = searchParams.get("type") ?? "";
 
     const cmsPatient = await cmsPrisma.cmsPatient.findUnique({
       where: { code: patientCode },
@@ -33,11 +33,13 @@ export async function GET(req: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {
       idPatient: cmsPatient.id,
-      // Only visits that have at least one non-cancelled transaction
+      // Exclude cancelled queues (status 650+) and pure in-progress (< 100)
+      status: { gte: 100, lt: 650 },
+      // Must have at least one non-cancelled transaction
       transactions: { some: { status: { not: 2 } } },
     };
 
-    // Type filter — match against transaction descriptions in the queue
+    // Type filter — match against transaction groups/descriptions
     if (type && type !== "all") {
       where.transactions = {
         some: {
@@ -80,22 +82,33 @@ export async function GET(req: NextRequest) {
     ]);
 
     const data = queues.map((q) => {
-      // Determine dominant result type from transaction groups
-      const groups = q.transactions.map((t) =>
-        (t.groupItemMaster ?? t.descriptionItemPrice ?? "").toLowerCase()
-      );
+      const allText = [
+        ...q.transactions.map((t) => t.groupItemMaster ?? ""),
+        ...q.transactions.map((t) => t.descriptionItemPrice ?? ""),
+      ].map((s) => s.toLowerCase());
+
       const resultType =
-        groups.some((g) => g.includes("lab") || g.includes("chem") || g.includes("hema") || g.includes("micro") || g.includes("cbc") || g.includes("urinal"))
+        allText.some((g) =>
+          g.includes("lab") || g.includes("chem") || g.includes("hema") ||
+          g.includes("micro") || g.includes("cbc") || g.includes("urin") ||
+          g.includes("glucose") || g.includes("blood") || g.includes("fbs") ||
+          g.includes("lipid") || g.includes("thyroid") || g.includes("hepat") ||
+          g.includes("culture") || g.includes("serol")
+        )
           ? "lab"
-          : groups.some((g) => g.includes("xray") || g.includes("x-ray") || g.includes("imaging") || g.includes("ultrasound") || g.includes("ct") || g.includes("mri"))
+          : allText.some((g) =>
+            g.includes("xray") || g.includes("x-ray") || g.includes("imaging") ||
+            g.includes("ultrasound") || g.includes("ct") || g.includes("mri") ||
+            g.includes("ecg") || g.includes("echo") || g.includes("abpm") ||
+            g.includes("radiolog")
+          )
           ? "imaging"
-          : groups.some((g) => g.includes("path") || g.includes("histo") || g.includes("cyto"))
+          : allText.some((g) => g.includes("path") || g.includes("histo") || g.includes("cyto"))
           ? "pathology"
           : "other";
 
       const doctor = q.transactions.find((t) => t.nameDoctor)?.nameDoctor ?? undefined;
 
-      // Build a summary description from the services
       const serviceNames = q.transactions
         .map((t) => t.descriptionItemPrice)
         .filter(Boolean)
@@ -112,8 +125,8 @@ export async function GET(req: NextRequest) {
         date:        q.dateTime.toISOString(),
         type:        resultType as "lab" | "imaging" | "pathology" | "other",
         description,
-        hasPdf:      false,
-        status:      q.status >= 400 ? "released" : "pending",
+        hasPdf:      true, // PDF visit summary is always available
+        status:      (q.status >= 500 ? "released" : "pending") as "released" | "pending",
         releasedAt:  undefined,
         requestedBy: doctor,
       };

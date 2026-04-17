@@ -33,8 +33,10 @@ export async function GET(req: NextRequest) {
 
     // Payments derived from transactions grouped by queue visit
     // Each queue visit = one "payment record" — sum of transaction amounts
+    // Only show fully paid/completed visits (status >= 400)
     const where = {
       idPatient: cmsPatient.id,
+      status:    { gte: 400 },
     };
 
     const [total, queues] = await Promise.all([
@@ -61,8 +63,6 @@ export async function GET(req: NextRequest) {
     const data = queues.map((q) => {
       const totalAmount = q.transactions.reduce((s, t) => s + Number(t.amountItemPrice ?? 0), 0);
       const company     = q.transactions.find((t) => t.nameCompany)?.nameCompany ?? null;
-      // status >= 400 = completed visit (paid)
-      const status = q.status >= 600 ? "paid" : q.status >= 400 ? "paid" : "pending";
 
       return {
         id:            Number(q.id),
@@ -71,16 +71,12 @@ export async function GET(req: NextRequest) {
         receiptNo:     q.accessionNo ?? q.code ?? "",
         totalAmount,
         paymentMethod: company ? `HMO - ${company}` : "CASH",
-        status,
+        status:        "paid",
       };
     });
 
-    const filtered = statusFilter && statusFilter !== "all"
-      ? data.filter((p) => p.status === statusFilter)
-      : data;
-
     return NextResponse.json({
-      data: { data: filtered, total, page, pageSize, totalPages: Math.ceil(total / pageSize) },
+      data: { data, total, page, pageSize, totalPages: Math.ceil(total / pageSize) },
     });
   } catch (error) {
     console.error("[GET_PAYMENTS]", error);

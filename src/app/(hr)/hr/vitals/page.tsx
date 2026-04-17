@@ -70,7 +70,7 @@ export default function HrVitalsPage() {
         <div className="relative flex-1 min-w-48 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
           <Input
-            placeholder="Search by patient or queue code…"
+            placeholder="Search by employee or queue code…"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="pl-9 h-9 rounded-xl text-sm bg-card border-border"

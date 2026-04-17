@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { cmsPrisma } from "@/lib/prisma-cms";
+import { EMPLOYEE_TRANSACTION_WHERE } from "@/lib/hr-employee-filter";
+
+const PE_KEYWORDS = ["APE", "ANNUAL", "PHYSICAL"];
 
 export async function GET() {
   try {
@@ -11,10 +14,9 @@ export async function GET() {
 
     const today = new Date();
 
-    // Build last 12 months
     const months: { label: string; start: Date; end: Date }[] = [];
     for (let i = 11; i >= 0; i--) {
-      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const d   = new Date(today.getFullYear(), today.getMonth() - i, 1);
       const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
       months.push({
         label: d.toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
@@ -23,62 +25,84 @@ export async function GET() {
       });
     }
 
-    const PE_KEYWORDS = ["APE", "ANNUAL", "PHYSICAL"];
+    // Total active employees
+    const totalEmployees = await cmsPrisma.cmsPatient.count({
+      where: {
+        isActive: 1,
+        queues: { some: { transactions: { some: EMPLOYEE_TRANSACTION_WHERE } } },
+      },
+    });
 
-    // Total active patients
-    const totalPatients = await cmsPrisma.cmsPatient.count({ where: { isActive: 1 } });
-
-    // For each month: count PE transactions (APE/annual physical)
+    // PE transactions per month
     const peByMonth = await Promise.all(
       months.map(async (m) => {
         const count = await cmsPrisma.cmsTransaction.count({
           where: {
             date: { gte: m.start, lte: m.end },
+            ...EMPLOYEE_TRANSACTION_WHERE,
             OR: PE_KEYWORDS.map((k) => ({
               descriptionItemPrice: { contains: k, mode: "insensitive" },
             })),
           },
         });
-        const rate = totalPatients > 0 ? Math.round((count / totalPatients) * 100) : 0;
+        const rate = totalEmployees > 0 ? Math.round((count / totalEmployees) * 100) : 0;
         return { month: m.label, count, rate };
       })
     );
 
-    // For each month: count patients with hypertension (bp_systolic >= 140 OR bp_diastolic >= 90)
+    // Get employee queue BigInt IDs for vitals lookups
+    const empQueues = await cmsPrisma.cmsQueue.findMany({
+      where: { transactions: { some: EMPLOYEE_TRANSACTION_WHERE } },
+      select: { id: true },
+    });
+    const empQueueBigIds = empQueues.map((q) => q.id);
+
+    // Hypertension — bpSystolic/bpDiastolic are Int columns
     const hypertensionByMonth = await Promise.all(
       months.map(async (m) => {
-        const count = await cmsPrisma.cmsVitalSign.count({
-          where: {
-            createdAt: { gte: m.start, lte: m.end },
-            OR: [
-              { bpSystolic: { gte: 140 } },
-              { bpDiastolic: { gte: 90 } },
-            ],
-          },
-        });
-        const totalVitals = await cmsPrisma.cmsVitalSign.count({
-          where: { createdAt: { gte: m.start, lte: m.end } },
-        });
+        const [count, totalVitals] = await Promise.all([
+          cmsPrisma.cmsVitalSign.count({
+            where: {
+              idQueue: { in: empQueueBigIds },
+              inputDate: { gte: m.start, lte: m.end },
+              OR: [
+                { bpSystolic: { gte: 140 } },
+                { bpDiastolic: { gte: 90 } },
+              ],
+            },
+          }),
+          cmsPrisma.cmsVitalSign.count({
+            where: {
+              idQueue: { in: empQueueBigIds },
+              inputDate: { gte: m.start, lte: m.end },
+            },
+          }),
+        ]);
         const rate = totalVitals > 0 ? Math.round((count / totalVitals) * 100) : 0;
         return { month: m.label, count, rate };
       })
     );
 
-    // Pre-hypertension (120-139 systolic OR 80-89 diastolic)
     const preHypertensionByMonth = await Promise.all(
       months.map(async (m) => {
-        const count = await cmsPrisma.cmsVitalSign.count({
-          where: {
-            createdAt: { gte: m.start, lte: m.end },
-            OR: [
-              { bpSystolic: { gte: 120, lt: 140 } },
-              { bpDiastolic: { gte: 80, lt: 90 } },
-            ],
-          },
-        });
-        const totalVitals = await cmsPrisma.cmsVitalSign.count({
-          where: { createdAt: { gte: m.start, lte: m.end } },
-        });
+        const [count, totalVitals] = await Promise.all([
+          cmsPrisma.cmsVitalSign.count({
+            where: {
+              idQueue: { in: empQueueBigIds },
+              inputDate: { gte: m.start, lte: m.end },
+              OR: [
+                { bpSystolic: { gte: 120, lt: 140 } },
+                { bpDiastolic: { gte: 80, lt: 90 } },
+              ],
+            },
+          }),
+          cmsPrisma.cmsVitalSign.count({
+            where: {
+              idQueue: { in: empQueueBigIds },
+              inputDate: { gte: m.start, lte: m.end },
+            },
+          }),
+        ]);
         const rate = totalVitals > 0 ? Math.round((count / totalVitals) * 100) : 0;
         return { month: m.label, count, rate };
       })
@@ -86,11 +110,11 @@ export async function GET() {
 
     return NextResponse.json({
       data: {
-        months: months.map((m) => m.label),
-        peCompliance:      peByMonth.map((m) => m.rate),
-        hypertension:      hypertensionByMonth.map((m) => m.rate),
-        preHypertension:   preHypertensionByMonth.map((m) => m.rate),
-        totalPatients,
+        months:          months.map((m) => m.label),
+        peCompliance:    peByMonth.map((m) => m.rate),
+        hypertension:    hypertensionByMonth.map((m) => m.rate),
+        preHypertension: preHypertensionByMonth.map((m) => m.rate),
+        totalPatients:   totalEmployees,
       },
     });
   } catch (error) {

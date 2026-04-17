@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { cmsPrisma } from "@/lib/prisma-cms";
+import { EMPLOYEE_TRANSACTION_WHERE } from "@/lib/hr-employee-filter";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -15,8 +16,12 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get("search")?.trim() ?? "";
   const status = searchParams.get("status") ?? "";
 
+  // Base filter: employee visits only (has at least one corporate transaction)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = {};
+  const where: any = {
+    transactions: { some: EMPLOYEE_TRANSACTION_WHERE },
+  };
+
   if (search) {
     where.OR = [
       { qFullName:  { contains: search, mode: "insensitive" } },
@@ -49,7 +54,6 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
-  // Fetch patients separately to avoid required-relation null errors
   const patientIds = [...new Set(visits.map((v) => v.idPatient).filter(Boolean))];
   const patients = patientIds.length
     ? await cmsPrisma.cmsPatient.findMany({

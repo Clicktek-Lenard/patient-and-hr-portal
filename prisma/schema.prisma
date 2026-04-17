@@ -150,6 +150,52 @@ enum UserRole {
   @@map("user_role")
 }
 
+enum UatSeverity {
+  Bug
+  Suggestion
+  Question
+  Blocker
+
+  @@map("uat_severity")
+}
+
+enum UatStatus {
+  Open
+  Acknowledged
+  Resolved
+
+  @@map("uat_status")
+}
+
+model UatFeedback {
+  id             BigInt      @id @default(autoincrement())
+  submittedBy    String      @map("submitted_by") @db.VarChar(100)
+  userFullname   String?     @map("user_fullname") @db.VarChar(200)
+  userRole       String      @map("user_role") @db.VarChar(100)
+  module         String      @db.VarChar(100)
+  pageUrl        String      @map("page_url") @db.Text
+  pageTitle      String?     @map("page_title") @db.VarChar(200)
+  severity       UatSeverity
+  description    String      @db.Text
+  screenshotPath String?     @map("screenshot_path") @db.Text
+  status         UatStatus   @default(Open)
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  @@map("uat_feedback")
+}
+
+model UatSettings {
+  id          Int       @id @default(1)
+  isActive    Boolean   @default(false) @map("is_active")
+  activeFrom  DateTime? @map("active_from") @db.Date
+  activeUntil DateTime? @map("active_until") @db.Date
+  updatedBy   String?   @map("updated_by") @db.VarChar(100)
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("uat_settings")
+}
+
 enum OtpType {
   EMAIL
   MOBILE

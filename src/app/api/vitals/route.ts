@@ -27,48 +27,46 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ data: { data: [], total: 0, page: 1, pageSize: 10, totalPages: 0 } });
     }
 
-    // Get patient's queue IDs first, then join vitalsign
+    // Get patient's queue IDs
     const patientQueues = await cmsPrisma.cmsQueue.findMany({
       where: { idPatient: cmsPatient.id },
       select: { id: true, code: true, dateTime: true },
       orderBy: { dateTime: "desc" },
     });
 
-    const queueIds = patientQueues.map((q) => parseInt(q.id.toString())); // bigint→number for Int FK
+    const queueBigIds = patientQueues.map((q) => q.id);
 
     const [total, vitalSigns] = await Promise.all([
-      cmsPrisma.cmsVitalSign.count({ where: { queueId: { in: queueIds } } }),
+      cmsPrisma.cmsVitalSign.count({ where: { idQueue: { in: queueBigIds } } }),
       cmsPrisma.cmsVitalSign.findMany({
-        where: { queueId: { in: queueIds } },
-        orderBy: { createdAt: "desc" },
+        where: { idQueue: { in: queueBigIds } },
+        orderBy: { inputDate: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
     ]);
 
-    const queueMap = new Map<number, typeof patientQueues[number]>(
-      patientQueues.map((q) => [parseInt(q.id.toString()), q])
-    );
+    const queueMap = new Map(patientQueues.map((q) => [q.id.toString(), q]));
 
     const data = vitalSigns.map((v) => {
-      const queue       = queueMap.get(parseInt(v.queueId.toString()));
-      const bpSystolic  = v.bpSystolic  ?? undefined;
-      const bpDiastolic = v.bpDiastolic ?? undefined;
+      const queue      = v.idQueue ? queueMap.get(v.idQueue.toString()) : null;
+      const sys        = v.bpSystolic  ?? undefined;
+      const dia        = v.bpDiastolic ?? undefined;
       return {
-        id:              v.id,
-        queueCode:       queue?.code ?? "",
-        date:            queue?.dateTime.toISOString() ?? v.createdAt.toISOString(),
-        bp:              bpSystolic && bpDiastolic ? `${bpSystolic}/${bpDiastolic}` : undefined,
-        bpSystolic,
-        bpDiastolic,
+        id:              Number(v.id),
+        queueCode:       queue?.code ?? v.queueCode ?? "",
+        date:            queue?.dateTime?.toISOString() ?? v.inputDate?.toISOString() ?? null,
+        bp:              sys && dia ? `${sys}/${dia}` : undefined,
+        bpSystolic:      sys,
+        bpDiastolic:     dia,
         temp:            v.temperature     ?? undefined,
-        weight:          v.weightKg        ?? undefined,
-        height:          v.heightCm        ?? undefined,
+        weight:          v.weight          ?? undefined,
+        height:          v.height          ?? undefined,
         bmi:             v.bmi             ?? undefined,
-        pulse:           v.heartRate       ?? undefined,
+        pulse:           v.pulseRate       ?? undefined,
         respiratoryRate: v.respiratoryRate ?? undefined,
         chiefComplaint:  v.chiefComplaint  ?? undefined,
-        recordedAt:      v.createdAt.toISOString(),
+        recordedAt:      v.inputDate?.toISOString() ?? null,
       };
     });
 

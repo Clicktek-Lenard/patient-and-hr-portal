@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import {
   LayoutDashboard, FlaskConical, TrendingUp, CalendarPlus,
   Share2, History, CreditCard, Bell,
@@ -11,8 +10,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNotifications } from "@/hooks/use-notifications";
-import { useAvatar } from "@/hooks/use-avatar";
-import { getInitials } from "@/lib/utils";
 
 type NavItem = {
   href: string;
@@ -66,13 +63,6 @@ interface SidebarProps {
 export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const pathname    = usePathname();
   const { unreadCount } = useNotifications();
-  const { data: session } = useSession();
-
-  const firstName = session?.user?.firstName ?? "";
-  const lastName  = session?.user?.lastName  ?? "";
-  const patientId = (session?.user as { patientId?: string })?.patientId ?? "";
-  const initials  = firstName && lastName ? getInitials(firstName, lastName) : "?";
-  const avatarUrl = useAvatar();
 
   return (
     <>
@@ -123,38 +113,6 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               <X className="h-4 w-4" />
             </Button>
           )}
-        </div>
-
-        {/* ── User section ── */}
-        <div style={{
-          padding: "16px 20px",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          display: "flex", alignItems: "center", gap: 10,
-        }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-            background: avatarUrl ? undefined : "#E00500",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "0.75rem", fontWeight: 700, color: "white",
-            overflow: "hidden",
-          }}>
-            {avatarUrl
-              /* eslint-disable-next-line @next/next/no-img-element */
-              ? <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              : initials
-            }
-          </div>
-          <div style={{ overflow: "hidden" }}>
-            <p style={{
-              fontSize: "0.82rem", fontWeight: 600, color: "white",
-              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            }}>
-              {firstName} {lastName}
-            </p>
-            <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-mono, monospace)" }}>
-              {patientId || "Patient"}
-            </p>
-          </div>
         </div>
 
         {/* ── Navigation ── */}
