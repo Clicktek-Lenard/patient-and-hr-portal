@@ -39,7 +39,7 @@ export async function PUT(req: NextRequest) {
     };
 
     const u = session.user as { firstName?: string; lastName?: string; email?: string };
-    const updatedBy = `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || u.email ?? "unknown";
+    const updatedBy = (`${u.firstName ?? ""} ${u.lastName ?? ""}`.trim()) || (u.email ?? "unknown");
 
     const settings = await prisma.uatSettings.upsert({
       where: { id: 1 },
