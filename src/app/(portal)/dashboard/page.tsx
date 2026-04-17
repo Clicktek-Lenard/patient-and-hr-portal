@@ -121,9 +121,9 @@ function RecentResultCard({ result }: { result: LabResult }) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div style={{ borderRadius: 10, border: "1px solid #E8EAED", background: "#ffffff", overflow: "hidden" }}>
       {/* Card header */}
-      <div className="flex items-start justify-between gap-3 px-4 py-3 border-b border-border bg-(--surface-1)">
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, padding: "10px 16px", borderBottom: "1px solid #E8EAED", background: "#F9FAFB" }}>
         <div>
           <p className="font-semibold text-sm text-foreground leading-snug">{result.description}</p>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -180,7 +180,7 @@ function RecentResultCard({ result }: { result: LabResult }) {
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-1 px-3 py-2.5 border-t border-border bg-(--surface-1)">
+      <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "8px 12px", borderTop: "1px solid #E8EAED", background: "#F9FAFB" }}>
         <Button
           variant="ghost" size="sm"
           className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-primary rounded-lg px-2.5"
@@ -237,18 +237,26 @@ export default function DashboardPage() {
     <div className="space-y-6">
 
       {/* ── Hero welcome banner ── */}
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-(--shadow-sm) page-header-pattern">
-        <div className="px-6 py-5 flex items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
-              <span className="text-xs font-semibold text-primary tracking-widest uppercase">{getGreeting()}</span>
-            </div>
-            <h1 className="text-2xl font-bold text-foreground leading-tight">
-              {firstName} <span className="text-muted-foreground font-normal text-lg">— welcome back</span>
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1 tracking-wide">{dateStr}</p>
+      <div style={{
+        borderRadius: 14, background: "linear-gradient(135deg, #08036A 0%, #1006A0 60%, #1a12cc 100%)",
+        padding: "20px 24px", position: "relative", overflow: "hidden",
+      }}>
+        <div style={{
+          position: "absolute", inset: 0, opacity: 0.06,
+          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+        }} />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+            <Sparkles style={{ width: 13, height: 13, color: "rgba(255,255,255,0.6)" }} />
+            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              {getGreeting()}
+            </span>
           </div>
+          <h1 style={{ fontSize: "1.45rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>
+            {firstName} <span style={{ fontWeight: 400, color: "rgba(255,255,255,0.65)", fontSize: "1.1rem" }}>— welcome back</span>
+          </h1>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)", marginTop: 6 }}>{dateStr}</p>
         </div>
       </div>
 
@@ -289,15 +297,15 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Recent Results ── */}
-      <div className="rounded-2xl border border-border bg-card shadow-(--shadow-xs) overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-(--surface-1)">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/8">
-              <FlaskConical className="h-4 w-4 text-primary" />
+      <div style={{ borderRadius: 12, border: "1px solid #E8EAED", background: "#ffffff", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px", borderBottom: "1px solid #E8EAED", background: "#F9FAFB" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <FlaskConical style={{ width: 14, height: 14, color: "#4F46E5" }} />
             </div>
-            <h2 className="font-semibold text-sm text-foreground">Recent Results</h2>
+            <h2 style={{ fontSize: "0.875rem", fontWeight: 600, color: "#111827" }}>Recent Results</h2>
           </div>
-          <Button variant="ghost" size="sm" asChild className="text-xs h-7 px-2.5 text-muted-foreground hover:text-primary rounded-lg gap-1">
+          <Button variant="ghost" size="sm" asChild className="text-xs h-7 px-2.5 text-gray-400 hover:text-indigo-600 rounded-lg gap-1">
             <Link href="/results">
               View all <ArrowRight className="h-3 w-3" />
             </Link>

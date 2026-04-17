@@ -75,21 +75,27 @@ function StatCard({
   icon: React.ElementType; accent: string; sub?: string; live?: boolean; suffix?: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-card border border-border p-5 group hover:shadow-(--shadow-md) transition-shadow">
-      <div className={`absolute top-0 left-0 right-0 h-0.75 ${accent}`} />
-      <div className="flex items-start justify-between mb-4">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accent.replace("bg-", "bg-").replace(/bg-(\S+)/, "bg-$1/10")} border border-current/10`}>
-          <Icon className="h-5 w-5" />
+    <div style={{
+      background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 12,
+      padding: "18px 20px", position: "relative", overflow: "hidden",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.06)", transition: "all 0.2s ease",
+    }}
+    className="group hover:shadow-md"
+    >
+      <div className={`absolute top-0 left-0 right-0 h-1 rounded-t-xl ${accent}`} />
+      <div className="flex items-start justify-between mb-3 mt-1">
+        <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${accent.replace(/bg-(\S+)/, "bg-$1/10")}`}>
+          <Icon className="h-4.5 w-4.5" />
         </div>
         {live && <span className="live-dot-green" style={{ width: 6, height: 6, marginTop: 2 }} />}
-        {!live && <TrendingUp className="h-4 w-4 text-muted-foreground/30 group-hover:text-success transition-colors" />}
+        {!live && <TrendingUp className="h-4 w-4 text-gray-300 group-hover:text-green-500 transition-colors" />}
       </div>
-      <p className="text-2xl font-bold text-foreground tabular-nums">
+      <p style={{ fontSize: "1.8rem", fontWeight: 700, color: "#111827", lineHeight: 1, letterSpacing: "-0.02em" }} className="tabular-nums">
         {typeof value === "number" ? value.toLocaleString() : value}
-        {suffix && <span className="text-sm font-normal text-muted-foreground ml-1">{suffix}</span>}
+        {suffix && <span style={{ fontSize: "0.85rem", fontWeight: 400, color: "#9CA3AF", marginLeft: 4 }}>{suffix}</span>}
       </p>
-      <p className="text-sm text-muted-foreground mt-0.5">{label}</p>
-      {sub && <p className="text-xs text-muted-foreground/50 mt-1">{sub}</p>}
+      <p style={{ fontSize: "0.8rem", color: "#374151", marginTop: 3, fontWeight: 500 }}>{label}</p>
+      {sub && <p style={{ fontSize: "0.72rem", color: "#9CA3AF", marginTop: 2 }}>{sub}</p>}
     </div>
   );
 }
@@ -98,11 +104,11 @@ function ServiceCard({ label, value, icon: Icon, color }: {
   label: string; value: number | string; icon: React.ElementType; color: string;
 }) {
   return (
-    <div className={`rounded-xl border p-4 flex items-center gap-3 ${color}`}>
-      <Icon className="h-5 w-5 shrink-0 opacity-70" />
+    <div style={{ background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }} className={color}>
+      <Icon className="h-4 w-4 shrink-0 opacity-60" />
       <div className="min-w-0 flex-1">
-        <p className="text-xs text-muted-foreground truncate">{label}</p>
-        <p className="text-lg font-bold text-foreground tabular-nums">{typeof value === "number" ? value.toLocaleString() : value}</p>
+        <p style={{ fontSize: "0.72rem", color: "#6B7280", marginBottom: 1 }} className="truncate">{label}</p>
+        <p style={{ fontSize: "1.25rem", fontWeight: 700, color: "#111827" }} className="tabular-nums">{typeof value === "number" ? value.toLocaleString() : value}</p>
       </div>
       <span className="live-dot-green shrink-0" style={{ width: 6, height: 6 }} />
     </div>
@@ -148,32 +154,32 @@ export default function HrDashboardPage() {
     <div className="space-y-6">
 
       {/* Page header */}
-      <div
-        className="relative overflow-hidden rounded-2xl p-6 border border-border"
-        style={{ background: "var(--gradient-hero)" }}
-      >
-        <div
-          className="absolute inset-0 pointer-events-none opacity-30"
-          style={{
-            backgroundImage: "radial-gradient(rgba(167,139,250,0.15) 1px, transparent 1px)",
-            backgroundSize: "30px 30px",
-          }}
-        />
-        <div className="relative z-10 flex items-start justify-between">
+      <div style={{
+        borderRadius: 14, background: "linear-gradient(135deg, #08036A 0%, #1006A0 50%, #E00500 140%)",
+        padding: "20px 24px", position: "relative", overflow: "hidden",
+      }}>
+        <div style={{
+          position: "absolute", inset: 0, opacity: 0.06,
+          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+        }} />
+        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
               <span className="live-dot-green" style={{ width: 6, height: 6 }} />
-              <span className="text-xs font-semibold text-white/60 tracking-widest uppercase">HR Dashboard — Live</span>
+              <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                HR Dashboard — Live
+              </span>
             </div>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 style={{ fontSize: "1.45rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>
               {getGreeting()}, {firstName}.
             </h1>
-            <p className="text-sm text-white/55 mt-1">
+            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", marginTop: 6 }}>
               Hospital-wide overview · updates every 10 seconds
             </p>
           </div>
           {lastUpdated && (
-            <div className="flex items-center gap-1.5 text-xs text-white/40 shrink-0">
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>
               {isLoading && <Loader2 className="h-3 w-3 animate-spin" />}
               <span>Updated {lastUpdated}</span>
             </div>
@@ -233,7 +239,7 @@ export default function HrDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         {/* Top 5 Workforce Conditions */}
-        <div className="rounded-2xl bg-card border border-border overflow-hidden">
+        <div style={{ background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }} className="">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4 text-muted-foreground" />
@@ -274,13 +280,13 @@ export default function HrDashboardPage() {
         </div>
 
         {/* PE Compliance by Department */}
-        <div className="rounded-2xl bg-card border border-border overflow-hidden">
+        <div style={{ background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }} className="">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <div className="flex items-center gap-2">
               <ClipboardList className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-sm font-semibold text-foreground">PE Compliance by Department</h2>
             </div>
-            <Link href="/hr/compliance" className="text-xs text-violet-500 hover:text-violet-600 flex items-center gap-1">
+            <Link href="/hr/compliance" style={{ fontSize: "0.75rem", color: "#4F46E5", display: "flex", alignItems: "center", gap: 4, textDecoration: "none" }} className="hover:opacity-70 transition-opacity">
               View all <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
@@ -320,7 +326,7 @@ export default function HrDashboardPage() {
               <Clock className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-sm font-semibold text-foreground">Recent Visits</h2>
             </div>
-            <Link href="/hr/visits" className="flex items-center gap-1 text-xs text-violet-500 hover:text-violet-600 transition-colors">
+            <Link href="/hr/visits" style={{ fontSize: "0.75rem", color: "#4F46E5", display: "flex", alignItems: "center", gap: 4, textDecoration: "none" }} className="hover:opacity-70 transition-opacity">
               View all <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
@@ -343,7 +349,7 @@ export default function HrDashboardPage() {
               recentVisits.map((v) => {
                 const statusInfo = resolveStatus(v.status);
                 return (
-                  <div key={String(v.id)} className="flex items-center gap-3 px-5 py-3.5 hover:bg-muted/40 transition-colors">
+                  <div key={String(v.id)} className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-500/10 border border-violet-400/15">
                       <UserCheck className="h-3.5 w-3.5 text-violet-500" />
                     </div>
@@ -369,13 +375,13 @@ export default function HrDashboardPage() {
         </div>
 
         {/* Top patients */}
-        <div className="rounded-2xl bg-card border border-border overflow-hidden">
+        <div style={{ background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }} className="">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-sm font-semibold text-foreground">Top Patients</h2>
             </div>
-            <Link href="/hr/employees" className="flex items-center gap-1 text-xs text-violet-500 hover:text-violet-600 transition-colors">
+            <Link href="/hr/employees" style={{ fontSize: "0.75rem", color: "#4F46E5", display: "flex", alignItems: "center", gap: 4, textDecoration: "none" }} className="hover:opacity-70 transition-opacity">
               All <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
@@ -399,13 +405,13 @@ export default function HrDashboardPage() {
                 <Link
                   key={String(tp.idPatient)}
                   href={`/hr/employees/${encodeURIComponent(tp.patient?.code ?? tp.idPatient)}`}
-                  className="flex items-center gap-3 px-5 py-3.5 hover:bg-muted/40 transition-colors group"
+                  className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors group"
                 >
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-500/10 border border-violet-400/20 text-xs font-bold text-violet-600">
                     {idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate group-hover:text-violet-500 transition-colors">
+                    <p className="text-sm font-medium text-foreground truncate group-hover:text-indigo-600 transition-colors">
                       {tp.patient?.fullName ?? "—"}
                     </p>
                     <p className="text-xs text-muted-foreground">{tp.patient?.code}</p>
@@ -424,15 +430,16 @@ export default function HrDashboardPage() {
       {/* Quick links */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { href: "/hr/employees",  label: "Browse Employees", icon: Users,        color: "border-violet-400/20 bg-violet-500/5 hover:bg-violet-500/10" },
-          { href: "/hr/visits",     label: "View All Visits",  icon: ClipboardList, color: "border-success/20 bg-success-bg hover:bg-success/10" },
-          { href: "/hr/results",    label: "Lab Results",      icon: FlaskConical,  color: "border-purple/20 bg-purple-bg hover:bg-purple/10" },
-          { href: "/hr/compliance", label: "PE Compliance",    icon: CheckCircle2,  color: "border-warning/20 bg-warning-bg hover:bg-warning/10" },
+          { href: "/hr/employees",  label: "Browse Employees", icon: Users,        color: "hover:bg-indigo-50 hover:border-indigo-200" },
+          { href: "/hr/visits",     label: "View All Visits",  icon: ClipboardList, color: "hover:bg-green-50 hover:border-green-200" },
+          { href: "/hr/results",    label: "Lab Results",      icon: FlaskConical,  color: "hover:bg-purple-50 hover:border-purple-200" },
+          { href: "/hr/compliance", label: "PE Compliance",    icon: CheckCircle2,  color: "hover:bg-amber-50 hover:border-amber-200" },
         ].map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-3 rounded-xl border p-4 transition-colors ${item.color}`}
+            style={{ background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.05)", textDecoration: "none" }}
+            className={`flex items-center gap-3 p-4 transition-all ${item.color}`}
           >
             <item.icon className="h-4 w-4 text-foreground/70 shrink-0" />
             <span className="text-sm font-medium text-foreground">{item.label}</span>

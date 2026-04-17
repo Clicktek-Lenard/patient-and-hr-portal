@@ -51,17 +51,17 @@ export function HrHeader({ onMenuClick }: HrHeaderProps) {
 
   return (
     <header style={{
-      background: "hsl(var(--card))",
-      borderBottom: "2.5px solid #E00500",
-      padding: "0 32px",
-      height: 60,
+      background: "#ffffff",
+      borderBottom: "1px solid #E8EAED",
+      padding: "0 24px",
+      height: 56,
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
       position: "sticky",
       top: 0,
       zIndex: 50,
-      boxShadow: "0 2px 8px rgba(16,6,160,0.08)",
+      boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
       flexShrink: 0,
     }}>
       {/* Left: mobile menu + page title */}
@@ -71,7 +71,7 @@ export function HrHeader({ onMenuClick }: HrHeaderProps) {
           size="icon"
           className="lg:hidden"
           onClick={onMenuClick}
-          style={{ color: "#08036A" }}
+          style={{ color: "#6B7280" }}
         >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
@@ -79,8 +79,8 @@ export function HrHeader({ onMenuClick }: HrHeaderProps) {
 
         <h1 style={{
           fontFamily: "var(--font-sans, 'Inter', system-ui, sans-serif)",
-          fontSize: "1.05rem",
-          color: "hsl(var(--foreground))",
+          fontSize: "0.95rem",
+          color: "#111827",
           fontWeight: 600,
           lineHeight: 1,
           letterSpacing: "-0.01em",
@@ -94,14 +94,14 @@ export function HrHeader({ onMenuClick }: HrHeaderProps) {
         <ThemeToggle />
         {/* HR access badge */}
         <div style={{
-          display: "flex", alignItems: "center", gap: 6,
-          padding: "4px 12px", borderRadius: 20,
-          background: "rgba(8,3,106,0.06)", border: "1px solid rgba(8,3,106,0.15)",
+          display: "flex", alignItems: "center", gap: 5,
+          padding: "3px 10px", borderRadius: 20,
+          background: "#EEF2FF", border: "1px solid #C7D2FE",
         }}
         className="hidden sm:flex"
         >
-          <ShieldCheck style={{ width: 13, height: 13, color: "#08036A" }} />
-          <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "#08036A", letterSpacing: "0.08em" }}>
+          <ShieldCheck style={{ width: 12, height: 12, color: "#4F46E5" }} />
+          <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#4F46E5", letterSpacing: "0.06em" }}>
             HR ACCESS
           </span>
         </div>
@@ -115,25 +115,25 @@ export function HrHeader({ onMenuClick }: HrHeaderProps) {
               background: "transparent", border: "none", cursor: "pointer",
               transition: "background 0.15s",
             }}
-            className="hover:bg-[#F5F7FA]"
+            className="hover:bg-gray-100"
             >
               <div style={{
-                width: 34, height: 34, borderRadius: 8, flexShrink: 0,
+                width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
                 background: "#08036A",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "0.75rem", fontWeight: 700, color: "white",
+                fontSize: "0.72rem", fontWeight: 700, color: "white",
               }}>
                 {initials}
               </div>
               <span style={{
-                fontSize: "0.85rem", fontWeight: 600, color: "hsl(var(--foreground))",
+                fontSize: "0.84rem", fontWeight: 500, color: "#111827",
                 maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}
               className="hidden sm:block"
               >
                 {firstName} {lastName[0]}.
               </span>
-              <ChevronDown className="hidden sm:block h-3.5 w-3.5" style={{ color: "#7A7AAA" }} />
+              <ChevronDown className="hidden sm:block h-3.5 w-3.5" style={{ color: "#9CA3AF" }} />
             </button>
           </DropdownMenuTrigger>
 
@@ -141,16 +141,16 @@ export function HrHeader({ onMenuClick }: HrHeaderProps) {
             align="end"
             style={{
               width: 220,
-              background: "hsl(var(--card))",
-              border: "1.5px solid hsl(var(--border))",
-              borderRadius: 12,
-              boxShadow: "0 8px 32px rgba(16,6,160,0.14)",
+              background: "#ffffff",
+              border: "1px solid #E8EAED",
+              borderRadius: 10,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
             }}
           >
             <DropdownMenuLabel style={{ padding: "12px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{
-                  width: 34, height: 34, borderRadius: 8, flexShrink: 0,
+                  width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
                   background: "#08036A",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: "0.75rem", fontWeight: 700, color: "white",
@@ -158,13 +158,13 @@ export function HrHeader({ onMenuClick }: HrHeaderProps) {
                   {initials}
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: "0.85rem", fontWeight: 600, color: "hsl(var(--foreground))", lineHeight: 1 }}>
+                  <p style={{ fontSize: "0.85rem", fontWeight: 600, color: "#111827", lineHeight: 1 }}>
                     {firstName} {lastName}
                   </p>
-                  <p style={{ fontSize: "0.72rem", color: "hsl(var(--muted-foreground))", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <p style={{ fontSize: "0.72rem", color: "#6B7280", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {email}
                   </p>
-                  <p style={{ fontSize: "0.68rem", color: "#E00500", marginTop: 2, fontWeight: 600 }}>HR Staff</p>
+                  <p style={{ fontSize: "0.68rem", color: "#4F46E5", marginTop: 2, fontWeight: 600 }}>HR Staff</p>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -172,7 +172,7 @@ export function HrHeader({ onMenuClick }: HrHeaderProps) {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem asChild>
-              <Link href="/hr/settings" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", color: "#2A2A6A", cursor: "pointer" }}>
+              <Link href="/hr/settings" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.84rem", color: "#374151", cursor: "pointer" }}>
                 <Settings className="h-4 w-4" />
                 Account Settings
               </Link>
@@ -182,7 +182,7 @@ export function HrHeader({ onMenuClick }: HrHeaderProps) {
 
             <DropdownMenuItem
               onClick={() => signOut({ callbackUrl: "/login?portal=hr" })}
-              style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", color: "#E00500", cursor: "pointer" }}
+              style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.84rem", color: "#DC2626", cursor: "pointer" }}
             >
               <LogOut className="h-4 w-4" />
               Sign out

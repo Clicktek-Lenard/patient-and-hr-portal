@@ -13,13 +13,13 @@ interface StatCardProps {
   className?: string;
 }
 
-const ACCENT: Record<string, { iconBg: string; iconColor: string }> = {
-  blue:   { iconBg: "var(--color-info-bg)",    iconColor: "var(--color-info)" },
-  cyan:   { iconBg: "var(--color-info-bg)",    iconColor: "var(--color-info)" },
-  purple: { iconBg: "var(--color-info-bg)",    iconColor: "var(--color-info)" },
-  amber:  { iconBg: "var(--color-warning-bg)", iconColor: "var(--color-warning)" },
-  green:  { iconBg: "var(--color-success-bg)", iconColor: "var(--color-success)" },
-  red:    { iconBg: "var(--color-danger-bg)",  iconColor: "var(--color-danger)" },
+const ACCENT: Record<string, { iconBg: string; iconColor: string; bar: string }> = {
+  blue:   { iconBg: "#EEF2FF", iconColor: "#4F46E5", bar: "#4F46E5" },
+  cyan:   { iconBg: "#EFF6FF", iconColor: "#2563EB", bar: "#2563EB" },
+  purple: { iconBg: "#F5F3FF", iconColor: "#7C3AED", bar: "#7C3AED" },
+  amber:  { iconBg: "#FFFBEB", iconColor: "#D97706", bar: "#D97706" },
+  green:  { iconBg: "#F0FDF4", iconColor: "#16A34A", bar: "#16A34A" },
+  red:    { iconBg: "#FEF2F2", iconColor: "#DC2626", bar: "#DC2626" },
 };
 
 export function StatCard({
@@ -33,9 +33,9 @@ export function StatCard({
       <div
         className={cn("rounded-xl p-5", className)}
         style={{
-          background: "hsl(var(--card))",
-          border: "1.5px solid hsl(var(--border))",
-          boxShadow: "var(--shadow-sm)",
+          background: "#ffffff",
+          border: "1px solid #E8EAED",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
         }}
       >
         <div className="flex items-start justify-between gap-3">
@@ -54,21 +54,21 @@ export function StatCard({
     <div
       className={cn("group cursor-default", className)}
       style={{
-        background: "hsl(var(--card))",
-        border: "1.5px solid hsl(var(--border))",
+        background: "#ffffff",
+        border: "1px solid #E8EAED",
         borderRadius: 12,
         padding: "18px 20px",
-        boxShadow: "var(--shadow-sm)",
-        transition: "all 0.25s cubic-bezier(0.4,0,0.2,1)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+        transition: "all 0.2s ease",
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(var(--primary))";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "var(--shadow-lg)";
+        (e.currentTarget as HTMLDivElement).style.borderColor = a.bar + "66";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
         (e.currentTarget as HTMLDivElement).style.transform = "translateY(-1px)";
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(var(--border))";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "var(--shadow-sm)";
+        (e.currentTarget as HTMLDivElement).style.borderColor = "#E8EAED";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 3px rgba(0,0,0,0.06)";
         (e.currentTarget as HTMLDivElement).style.transform = "none";
       }}
     >
@@ -76,20 +76,20 @@ export function StatCard({
         <div style={{ minWidth: 0, flex: 1 }}>
           <p style={{
             fontFamily: "var(--font-sans, 'Inter', system-ui, sans-serif)",
-            fontSize: "1.9rem", lineHeight: 1,
-            color: "hsl(var(--foreground))",
-            marginBottom: 3, fontWeight: 700,
+            fontSize: "1.85rem", lineHeight: 1,
+            color: "#111827",
+            marginBottom: 4, fontWeight: 700,
             letterSpacing: "-0.02em",
           }}>
             {value}
           </p>
-          <p style={{ fontSize: "0.78rem", color: "hsl(var(--muted-foreground))" }}>{title}</p>
+          <p style={{ fontSize: "0.78rem", color: "#374151", fontWeight: 500 }}>{title}</p>
           {description && (
-            <p style={{ fontSize: "0.72rem", color: "hsl(var(--muted-foreground) / 0.6)", marginTop: 4 }}>{description}</p>
+            <p style={{ fontSize: "0.72rem", color: "#9CA3AF", marginTop: 3 }}>{description}</p>
           )}
         </div>
         <div style={{
-          width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+          width: 38, height: 38, borderRadius: 10, flexShrink: 0,
           background: a.iconBg,
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
@@ -98,15 +98,15 @@ export function StatCard({
       </div>
       {trend && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 6 }}>
-          {trend.positive === true  && <TrendingUp  style={{ width: 12, height: 12, color: "var(--color-success)" }} />}
-          {trend.positive === false && <TrendingDown style={{ width: 12, height: 12, color: "var(--color-danger)" }} />}
+          {trend.positive === true  && <TrendingUp  style={{ width: 12, height: 12, color: "#16A34A" }} />}
+          {trend.positive === false && <TrendingDown style={{ width: 12, height: 12, color: "#DC2626" }} />}
           <span style={{
             fontSize: "0.74rem", fontWeight: 600,
-            color: trend.positive === true ? "var(--color-success)" : trend.positive === false ? "var(--color-danger)" : "hsl(var(--muted-foreground))",
+            color: trend.positive === true ? "#16A34A" : trend.positive === false ? "#DC2626" : "#6B7280",
           }}>
             {trend.value > 0 ? "+" : ""}{trend.value}%
           </span>
-          <span style={{ fontSize: "0.72rem", color: "hsl(var(--muted-foreground) / 0.6)" }}>{trend.label}</span>
+          <span style={{ fontSize: "0.72rem", color: "#9CA3AF" }}>{trend.label}</span>
         </div>
       )}
     </div>

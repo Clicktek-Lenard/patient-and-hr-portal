@@ -84,22 +84,25 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         style={{
           width: 240,
           flexShrink: 0,
-          backgroundColor: "#1006A0",
-          borderRight: "2.5px solid #E00500",
+          backgroundColor: "#ffffff",
+          borderRight: "1px solid #E8EAED",
           height: "100vh",
           overflowY: "auto",
+          boxShadow: "2px 0 8px rgba(0,0,0,0.04)",
         }}
       >
         {/* ── Brand section ── */}
         <div style={{
-          padding: "16px 20px",
-          borderBottom: "2.5px solid #E00500",
-          background: "#0B0480",
+          padding: "16px 20px 14px",
+          borderBottom: "1px solid #E8EAED",
         }}>
-          <Link href="/dashboard" style={{ display: "flex", flexDirection: "column", gap: 6, textDecoration: "none" }}>
+          <Link href="/dashboard" style={{ display: "flex", flexDirection: "column", gap: 4, textDecoration: "none" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/nwdi-logo.png" alt="NWDI" style={{ width: "100%", height: 36, objectFit: "contain", objectPosition: "left" }} />
-            <p style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+            <img src="/nwdi-logo-color.png" alt="NWDI"
+              onError={(e) => { (e.target as HTMLImageElement).src = "/nwdi-logo.png"; }}
+              style={{ width: "100%", height: 32, objectFit: "contain", objectPosition: "left" }}
+            />
+            <p style={{ fontSize: "0.6rem", color: "#9CA3AF", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
               Patient Portal
             </p>
           </Link>
@@ -107,7 +110,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             <Button
               variant="ghost" size="icon"
               className="lg:hidden absolute top-3 right-3"
-              style={{ color: "rgba(255,255,255,0.7)" }}
+              style={{ color: "#6B7280" }}
               onClick={onClose}
             >
               <X className="h-4 w-4" />
@@ -116,13 +119,13 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         </div>
 
         {/* ── Navigation ── */}
-        <nav style={{ flex: 1, padding: "12px 0", overflowY: "auto" }}>
+        <nav style={{ flex: 1, padding: "8px 0", overflowY: "auto" }}>
           {navGroups.map((group) => (
             <div key={group.label}>
               <p style={{
-                padding: "12px 20px 6px",
-                fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em",
-                textTransform: "uppercase", color: "rgba(255,255,255,0.3)",
+                padding: "10px 16px 4px",
+                fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em",
+                textTransform: "uppercase", color: "#9CA3AF",
               }}>
                 {group.label}
               </p>
@@ -136,42 +139,40 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     href={item.href}
                     onClick={onClose}
                     style={{
-                      display: "flex", alignItems: "center", gap: 10,
-                      padding: "9px 16px",
-                      margin: isActive ? "2px 0 2px 12px" : "2px 0 2px 0",
-                      borderRadius: isActive ? "10px 0 0 10px" : 0,
-                      borderLeft: isActive ? "4px solid #E00500" : "4px solid transparent",
-                      fontSize: "0.86rem",
-                      color: isActive ? "#ffffff" : "rgba(255,255,255,0.65)",
-                      background: isActive ? "#1006A0" : "transparent",
-                      boxShadow: isActive ? "-4px 4px 16px rgba(0,0,0,0.35)" : "none",
-                      transition: "all 0.2s",
+                      display: "flex", alignItems: "center", gap: 9,
+                      padding: "7px 12px",
+                      margin: "1px 8px",
+                      borderRadius: 8,
+                      fontSize: "0.84rem",
+                      fontWeight: isActive ? 600 : 400,
+                      color: isActive ? "#1006A0" : "#374151",
+                      background: isActive ? "#EEF2FF" : "transparent",
+                      transition: "all 0.15s",
                       textDecoration: "none",
                       userSelect: "none",
-                      position: "relative",
                     }}
-                    className="group hover:bg-white/6 hover:text-white"
+                    className="hover:bg-gray-100"
                   >
-                    <span style={{ width: 20, textAlign: "center", flexShrink: 0 }}>
-                      <Icon style={{ width: 16, height: 16, color: isActive ? "#ffffff" : "rgba(255,255,255,0.6)" }} />
+                    <span style={{ width: 18, textAlign: "center", flexShrink: 0 }}>
+                      <Icon style={{ width: 15, height: 15, color: isActive ? "#1006A0" : "#6B7280" }} />
                     </span>
                     <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {item.label}
                     </span>
                     {item.comingSoon && (
                       <span style={{
-                        fontSize: "0.65rem", fontWeight: 700, color: "#F0B429",
-                        background: "rgba(240,180,41,0.15)", border: "1px solid rgba(240,180,41,0.3)",
-                        borderRadius: 10, padding: "1px 7px", letterSpacing: "0.04em",
+                        fontSize: "0.6rem", fontWeight: 700, color: "#D97706",
+                        background: "#FEF3C7", border: "1px solid #FDE68A",
+                        borderRadius: 6, padding: "1px 6px", letterSpacing: "0.04em",
                       }}>
                         Soon
                       </span>
                     )}
                     {item.showBadge && unreadCount > 0 && (
                       <span style={{
-                        minWidth: 18, height: 18, borderRadius: 10, padding: "0 4px",
+                        minWidth: 18, height: 18, borderRadius: 9, padding: "0 4px",
                         background: "#E00500", color: "white",
-                        fontSize: "0.65rem", fontWeight: 700,
+                        fontSize: "0.6rem", fontWeight: 700,
                         display: "flex", alignItems: "center", justifyContent: "center",
                       }}>
                         {unreadCount > 99 ? "99+" : unreadCount}
@@ -186,13 +187,12 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
         {/* ── Tagline ── */}
         <div style={{
-          padding: "8px 20px",
-          borderTop: "1px solid rgba(255,255,255,0.08)",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          padding: "10px 20px",
+          borderTop: "1px solid #E8EAED",
         }}>
           <p style={{
-            fontSize: "0.65rem", color: "rgba(255,255,255,0.3)",
-            fontStyle: "italic", letterSpacing: "0.04em", textAlign: "center",
+            fontSize: "0.6rem", color: "#9CA3AF",
+            fontStyle: "italic", letterSpacing: "0.03em", textAlign: "center",
           }}>
             &ldquo;Your Health is Our Commitment&rdquo;
           </p>

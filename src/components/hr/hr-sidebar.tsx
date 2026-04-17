@@ -73,22 +73,25 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
         style={{
           width: 240,
           flexShrink: 0,
-          backgroundColor: "#08036A",
-          borderRight: "2.5px solid #E00500",
+          backgroundColor: "#ffffff",
+          borderRight: "1px solid #E8EAED",
           height: "100vh",
           overflowY: "auto",
+          boxShadow: "2px 0 8px rgba(0,0,0,0.04)",
         }}
       >
         {/* ── Brand section ── */}
         <div style={{
-          padding: "16px 20px",
-          borderBottom: "2.5px solid #E00500",
-          background: "#06024f",
+          padding: "16px 20px 14px",
+          borderBottom: "1px solid #E8EAED",
         }}>
-          <Link href="/hr/dashboard" style={{ display: "flex", flexDirection: "column", gap: 6, textDecoration: "none" }}>
+          <Link href="/hr/dashboard" style={{ display: "flex", flexDirection: "column", gap: 4, textDecoration: "none" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/nwdi-logo.png" alt="NWDI" style={{ width: "100%", height: 36, objectFit: "contain", objectPosition: "left" }} />
-            <p style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+            <img src="/nwdi-logo-color.png" alt="NWDI"
+              onError={(e) => { (e.target as HTMLImageElement).src = "/nwdi-logo.png"; }}
+              style={{ width: "100%", height: 32, objectFit: "contain", objectPosition: "left" }}
+            />
+            <p style={{ fontSize: "0.6rem", color: "#9CA3AF", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
               HR Staff Portal
             </p>
           </Link>
@@ -96,7 +99,7 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
             <Button
               variant="ghost" size="icon"
               className="lg:hidden absolute top-3 right-3"
-              style={{ color: "rgba(255,255,255,0.7)" }}
+              style={{ color: "#6B7280" }}
               onClick={onClose}
             >
               <X className="h-4 w-4" />
@@ -105,13 +108,13 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
         </div>
 
         {/* ── Navigation ── */}
-        <nav style={{ flex: 1, padding: "12px 0", overflowY: "auto" }}>
+        <nav style={{ flex: 1, padding: "8px 0", overflowY: "auto" }}>
           {navGroups.map((group) => (
             <div key={group.label}>
               <p style={{
-                padding: "12px 20px 6px",
-                fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em",
-                textTransform: "uppercase", color: "rgba(255,255,255,0.3)",
+                padding: "10px 16px 4px",
+                fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em",
+                textTransform: "uppercase", color: "#9CA3AF",
               }}>
                 {group.label}
               </p>
@@ -125,23 +128,21 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
                     href={item.href}
                     onClick={onClose}
                     style={{
-                      display: "flex", alignItems: "center", gap: 10,
-                      padding: "9px 16px",
-                      margin: isActive ? "2px 0 2px 12px" : "2px 0 2px 0",
-                      borderRadius: isActive ? "10px 0 0 10px" : 0,
-                      borderLeft: isActive ? "4px solid #E00500" : "4px solid transparent",
-                      fontSize: "0.86rem",
-                      color: isActive ? "#ffffff" : "rgba(255,255,255,0.65)",
-                      background: isActive ? "#08036A" : "transparent",
-                      boxShadow: isActive ? "-4px 4px 16px rgba(0,0,0,0.35)" : "none",
-                      transition: "all 0.2s",
+                      display: "flex", alignItems: "center", gap: 9,
+                      padding: "7px 12px",
+                      margin: "1px 8px",
+                      borderRadius: 8,
+                      fontSize: "0.84rem",
+                      fontWeight: isActive ? 600 : 400,
+                      color: isActive ? "#08036A" : "#374151",
+                      background: isActive ? "#EEF2FF" : "transparent",
+                      transition: "all 0.15s",
                       textDecoration: "none",
-                      position: "relative",
                     }}
-                    className="hover:bg-white/6 hover:text-white"
+                    className="hover:bg-gray-100"
                   >
-                    <span style={{ width: 20, textAlign: "center", flexShrink: 0 }}>
-                      <Icon style={{ width: 16, height: 16, color: isActive ? "#ffffff" : "rgba(255,255,255,0.6)" }} />
+                    <span style={{ width: 18, textAlign: "center", flexShrink: 0 }}>
+                      <Icon style={{ width: 15, height: 15, color: isActive ? "#08036A" : "#6B7280" }} />
                     </span>
                     <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {item.label}
@@ -155,13 +156,12 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
 
         {/* ── Tagline ── */}
         <div style={{
-          padding: "8px 20px",
-          borderTop: "1px solid rgba(255,255,255,0.08)",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          padding: "10px 20px",
+          borderTop: "1px solid #E8EAED",
         }}>
           <p style={{
-            fontSize: "0.65rem", color: "rgba(255,255,255,0.25)",
-            fontStyle: "italic", letterSpacing: "0.04em", textAlign: "center",
+            fontSize: "0.6rem", color: "#9CA3AF",
+            fontStyle: "italic", letterSpacing: "0.03em", textAlign: "center",
           }}>
             &ldquo;Your Health is Our Commitment&rdquo;
           </p>

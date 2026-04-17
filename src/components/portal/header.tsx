@@ -55,17 +55,17 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <header style={{
-      background: "hsl(var(--card))",
-      borderBottom: "2.5px solid #E00500",
-      padding: "0 32px",
-      height: 60,
+      background: "#ffffff",
+      borderBottom: "1px solid #E8EAED",
+      padding: "0 24px",
+      height: 56,
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
       position: "sticky",
       top: 0,
       zIndex: 50,
-      boxShadow: "0 2px 8px rgba(16,6,160,0.08)",
+      boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
       flexShrink: 0,
     }}>
       {/* Left: mobile menu + page title */}
@@ -75,7 +75,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           size="icon"
           className="lg:hidden"
           onClick={onMenuClick}
-          style={{ color: "#1006A0" }}
+          style={{ color: "#6B7280" }}
         >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
@@ -83,8 +83,8 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         <h1 style={{
           fontFamily: "var(--font-sans, 'Inter', system-ui, sans-serif)",
-          fontSize: "1.05rem",
-          color: "hsl(var(--foreground))",
+          fontSize: "0.95rem",
+          color: "#111827",
           fontWeight: 600,
           lineHeight: 1,
           letterSpacing: "-0.01em",
@@ -108,13 +108,13 @@ export function Header({ onMenuClick }: HeaderProps) {
               background: "transparent", border: "none", cursor: "pointer",
               transition: "background 0.15s",
             }}
-            className="hover:bg-[#F5F7FA]"
+            className="hover:bg-gray-100"
             >
               <div style={{
-                width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-                background: avatarUrl ? undefined : "#E00500",
+                width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+                background: avatarUrl ? undefined : "#1006A0",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "0.75rem", fontWeight: 700, color: "white",
+                fontSize: "0.72rem", fontWeight: 700, color: "white",
                 overflow: "hidden",
               }}>
                 {avatarUrl
@@ -124,14 +124,14 @@ export function Header({ onMenuClick }: HeaderProps) {
                 }
               </div>
               <span style={{
-                fontSize: "0.85rem", fontWeight: 600, color: "hsl(var(--foreground))",
+                fontSize: "0.84rem", fontWeight: 500, color: "#111827",
                 maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}
               className="hidden sm:block"
               >
                 {firstName} {lastName[0]}.
               </span>
-              <ChevronDown className="hidden sm:block h-3.5 w-3.5" style={{ color: "#7A7AAA" }} />
+              <ChevronDown className="hidden sm:block h-3.5 w-3.5" style={{ color: "#9CA3AF" }} />
             </button>
           </DropdownMenuTrigger>
 
@@ -139,17 +139,17 @@ export function Header({ onMenuClick }: HeaderProps) {
             align="end"
             style={{
               width: 220,
-              background: "hsl(var(--card))",
-              border: "1.5px solid hsl(var(--border))",
-              borderRadius: 12,
-              boxShadow: "0 8px 32px rgba(16,6,160,0.14)",
+              background: "#ffffff",
+              border: "1px solid #E8EAED",
+              borderRadius: 10,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
             }}
           >
             <DropdownMenuLabel style={{ padding: "12px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{
-                  width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-                  background: avatarUrl ? undefined : "#E00500",
+                  width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                  background: avatarUrl ? undefined : "#1006A0",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: "0.75rem", fontWeight: 700, color: "white",
                   overflow: "hidden",
@@ -161,10 +161,10 @@ export function Header({ onMenuClick }: HeaderProps) {
                   }
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: "0.85rem", fontWeight: 600, color: "hsl(var(--foreground))", lineHeight: 1 }}>
+                  <p style={{ fontSize: "0.85rem", fontWeight: 600, color: "#111827", lineHeight: 1 }}>
                     {firstName} {lastName}
                   </p>
-                  <p style={{ fontSize: "0.72rem", color: "hsl(var(--muted-foreground))", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <p style={{ fontSize: "0.72rem", color: "#6B7280", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {email}
                   </p>
                 </div>
@@ -174,7 +174,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem asChild>
-              <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", color: "#2A2A6A", cursor: "pointer" }}>
+              <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.84rem", color: "#374151", cursor: "pointer" }}>
                 <User className="h-4 w-4" />
                 My Profile
               </Link>
@@ -184,7 +184,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
             <DropdownMenuItem
               onClick={() => signOut({ callbackUrl: "/login?portal=patient" })}
-              style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.85rem", color: "#E00500", cursor: "pointer" }}
+              style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.84rem", color: "#DC2626", cursor: "pointer" }}
             >
               <LogOut className="h-4 w-4" />
               Sign out
