@@ -158,14 +158,18 @@ function SharePageInner() {
                 <select
                   value={queueCode}
                   onChange={(e) => setQueueCode(e.target.value)}
-                  style={{ width: "100%", height: 40, borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.82rem", padding: "0 30px 0 12px", appearance: "none" as const, outline: "none", boxSizing: "border-box" as const }}
+                  style={{ width: "100%", height: 40, borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.78rem", padding: "0 30px 0 12px", appearance: "none" as const, outline: "none", boxSizing: "border-box" as const, overflow: "hidden", textOverflow: "ellipsis" }}
                 >
                   <option value="">— Choose a result to share —</option>
-                  {resultOptions.map((r) => (
-                    <option key={r.queueCode} value={r.queueCode}>
-                      {r.description} — {new Date(r.date).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" })}
-                    </option>
-                  ))}
+                  {resultOptions.map((r) => {
+                    const desc = r.description.length > 40 ? r.description.slice(0, 40) + "…" : r.description;
+                    const date = new Date(r.date).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" });
+                    return (
+                      <option key={r.queueCode} value={r.queueCode}>
+                        {desc} — {date}
+                      </option>
+                    );
+                  })}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               </div>
