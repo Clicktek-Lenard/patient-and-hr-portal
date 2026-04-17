@@ -131,7 +131,8 @@ export default function ResultsPage() {
               size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className={cn("rounded-xl h-9 px-4", page === 1 && "opacity-50")}
+              className="rounded-xl h-9 px-4"
+              style={{ opacity: page === 1 ? 0.5 : 1 }}
             >
               Previous
             </Button>
@@ -140,7 +141,8 @@ export default function ResultsPage() {
               size="sm"
               onClick={() => setPage((p) => p + 1)}
               disabled={page >= data.totalPages}
-              className={cn("rounded-xl h-9 px-4", page >= data.totalPages && "opacity-50")}
+              className="rounded-xl h-9 px-4"
+              style={{ opacity: page >= data.totalPages ? 0.5 : 1 }}
             >
               Next
             </Button>
