@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
     const maxResult = await cmsPrisma.$queryRaw<[{ maxId: bigint | null }]>`
       SELECT MAX(id) as "maxId" FROM patient
     `;
-    const nextId = BigInt((maxResult[0]?.maxId ?? 0n)) + 1n;
+    const nextId = BigInt(String(maxResult[0]?.maxId ?? 0)) + BigInt(1);
 
     // Generate a patient code like EMP-YYYYMMDD-XXXXX
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
