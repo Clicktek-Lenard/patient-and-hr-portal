@@ -35,7 +35,7 @@ const nextConfig: NextConfig = {
           "default-src 'self'",
           "script-src 'self' 'unsafe-inline' 'unsafe-eval'",   // unsafe-eval needed by Next.js dev; tighten in prod if possible
           "style-src 'self' 'unsafe-inline'",
-          "img-src 'self' data: https://*.amazonaws.com",
+          "img-src 'self' data: blob: https://*.amazonaws.com",
           "font-src 'self' data:",
           "connect-src 'self' https://*.vercel.app",
           "frame-ancestors 'none'",
