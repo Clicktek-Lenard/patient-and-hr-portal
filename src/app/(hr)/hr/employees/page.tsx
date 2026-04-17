@@ -421,12 +421,24 @@ export default function HrEmployeesPage() {
 }
 
 /* ── Add Employee Modal ── */
+const inputStyle: React.CSSProperties = {
+  width: "100%", height: 38, padding: "0 12px", borderRadius: 8,
+  border: "1.5px solid var(--ui-border)", background: "var(--ui-card)",
+  color: "var(--ui-text-primary)", fontSize: "0.82rem", outline: "none", boxSizing: "border-box",
+};
+const labelStyle: React.CSSProperties = {
+  display: "block", fontSize: "0.7rem", fontWeight: 600, color: "var(--ui-text-muted)",
+  letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 5,
+};
+
 function AddEmployeeModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
   const [firstName, setFirstName]     = useState("");
   const [lastName, setLastName]       = useState("");
   const [dob, setDob]                 = useState("");
   const [department, setDepartment]   = useState("");
   const [gender, setGender]           = useState("");
+  const [mobile, setMobile]           = useState("");
+  const [status, setStatus]           = useState("1");
 
   const age = dob
     ? (() => {
@@ -444,7 +456,7 @@ function AddEmployeeModal({ onClose, onSuccess }: { onClose: () => void; onSucce
       fetch("/api/hr/employees", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, dob, department, gender }),
+        body: JSON.stringify({ firstName, lastName, dob, department, gender, mobile, isActive: Number(status) }),
       }).then(async (r) => {
         const json = await r.json();
         if (!r.ok) throw new Error(json.error ?? "Failed to create employee");
@@ -461,126 +473,101 @@ function AddEmployeeModal({ onClose, onSuccess }: { onClose: () => void; onSucce
 
   return (
     <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--ui-card)", borderRadius: 16, width: "calc(100% - 40px)", maxWidth: 480, maxHeight: "85vh", border: "1px solid var(--ui-border)", boxShadow: "0 20px 60px rgba(0,0,0,0.2)", overflowY: "auto", display: "flex", flexDirection: "column" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--ui-card)", borderRadius: 14, width: "calc(100% - 40px)", maxWidth: 520, maxHeight: "85vh", border: "1px solid var(--ui-border)", boxShadow: "0 20px 60px rgba(0,0,0,0.2)", overflowY: "auto" }}>
         {/* Header */}
-        <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--ui-border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--ui-border)", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "var(--ui-card)", zIndex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--ui-active-bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Plus size={16} style={{ color: "var(--ui-active-text)" }} />
+            <div style={{ width: 30, height: 30, borderRadius: 8, background: "var(--ui-active-bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Plus size={14} style={{ color: "var(--ui-active-text)" }} />
             </div>
-            <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--ui-text-primary)" }}>Add Employee</h2>
+            <h2 style={{ fontSize: "0.92rem", fontWeight: 700, color: "var(--ui-text-primary)" }}>Add Employee</h2>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ui-text-muted)", padding: 4 }}>
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Form */}
-        <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
-          {/* First Name */}
-          <div>
-            <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
-              First Name <span style={{ color: "#E00500" }}>*</span>
-            </label>
-            <input
-              value={firstName} onChange={(e) => setFirstName(e.target.value)}
-              placeholder="e.g. Juan"
-              style={{ width: "100%", height: 40, padding: "0 12px", borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
-            />
-          </div>
-
-          {/* Last Name */}
-          <div>
-            <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
-              Last Name <span style={{ color: "#E00500" }}>*</span>
-            </label>
-            <input
-              value={lastName} onChange={(e) => setLastName(e.target.value)}
-              placeholder="e.g. Dela Cruz"
-              style={{ width: "100%", height: 40, padding: "0 12px", borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
-            />
-          </div>
-
-          {/* Date of Birth + Age */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12 }}>
+        <div style={{ padding: "18px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
+          {/* Row: First Name + Last Name */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
-              <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
-                Date of Birth <span style={{ color: "#E00500" }}>*</span>
-              </label>
-              <input
-                type="date"
-                value={dob} onChange={(e) => setDob(e.target.value)}
-                style={{ width: "100%", height: 40, padding: "0 12px", borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
-              />
+              <label style={labelStyle}>First Name <span style={{ color: "#E00500" }}>*</span></label>
+              <input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Juan" style={inputStyle} />
             </div>
             <div>
-              <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
-                Age
-              </label>
-              <div style={{ height: 40, minWidth: 60, padding: "0 12px", borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-active-bg)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", fontWeight: 700, color: "var(--ui-active-text)" }}>
+              <label style={labelStyle}>Last Name <span style={{ color: "#E00500" }}>*</span></label>
+              <input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Dela Cruz" style={inputStyle} />
+            </div>
+          </div>
+
+          {/* Row: Code (auto) + Department */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div>
+              <label style={labelStyle}>Code</label>
+              <div style={{ ...inputStyle, background: "var(--ui-active-bg)", color: "var(--ui-text-faint)", display: "flex", alignItems: "center", fontSize: "0.78rem", fontStyle: "italic" }}>
+                Auto-generated
+              </div>
+            </div>
+            <div>
+              <label style={labelStyle}>Department</label>
+              <input value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="e.g. Operations" style={inputStyle} />
+            </div>
+          </div>
+
+          {/* Row: Gender + Date of Birth + Age */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 12 }}>
+            <div>
+              <label style={labelStyle}>Gender</label>
+              <select value={gender} onChange={(e) => setGender(e.target.value)} style={inputStyle}>
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Date of Birth <span style={{ color: "#E00500" }}>*</span></label>
+              <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Age</label>
+              <div style={{ ...inputStyle, width: 52, background: "var(--ui-active-bg)", color: "var(--ui-active-text)", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {age !== null ? age : "—"}
               </div>
             </div>
           </div>
 
-          {/* Department */}
-          <div>
-            <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
-              Department
-            </label>
-            <input
-              value={department} onChange={(e) => setDepartment(e.target.value)}
-              placeholder="e.g. Operations"
-              style={{ width: "100%", height: 40, padding: "0 12px", borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
-            />
-          </div>
-
-          {/* Gender */}
-          <div>
-            <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--ui-text-muted)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
-              Gender
-            </label>
-            <div style={{ display: "flex", gap: 8 }}>
-              {["Male", "Female"].map((g) => (
-                <button
-                  key={g}
-                  type="button"
-                  onClick={() => setGender(g)}
-                  style={{
-                    flex: 1, height: 36, borderRadius: 10,
-                    fontSize: "0.78rem", fontWeight: 600, cursor: "pointer",
-                    transition: "all 0.15s",
-                    background: gender === g ? "var(--ui-active-bg)" : "var(--ui-card)",
-                    color: gender === g ? "var(--ui-active-text)" : "var(--ui-text-muted)",
-                    border: `1.5px solid ${gender === g ? "var(--ui-active-text)" : "var(--ui-border)"}`,
-                  }}
-                >
-                  {g}
-                </button>
-              ))}
+          {/* Row: Contact + Status */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div>
+              <label style={labelStyle}>Contact</label>
+              <input value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="e.g. 09171234567" style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Status</label>
+              <select value={status} onChange={(e) => setStatus(e.target.value)} style={inputStyle}>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+              </select>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div style={{ padding: "16px 24px", borderTop: "1px solid var(--ui-border)", display: "flex", justifyContent: "flex-end", gap: 10 }}>
-          <button
-            onClick={onClose}
-            style={{ padding: "8px 18px", borderRadius: 10, border: "1px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-muted)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}
-          >
+        <div style={{ padding: "14px 24px", borderTop: "1px solid var(--ui-border)", display: "flex", justifyContent: "flex-end", gap: 10, position: "sticky", bottom: 0, background: "var(--ui-card)" }}>
+          <button onClick={onClose} style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-muted)", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
             Cancel
           </button>
           <button
             onClick={() => createMutation.mutate()}
             disabled={!canSubmit}
             style={{
-              padding: "8px 22px", borderRadius: 10, border: "none",
+              padding: "8px 22px", borderRadius: 8, border: "none",
               background: canSubmit ? "#7C3AED" : "var(--ui-border)",
               color: canSubmit ? "#fff" : "var(--ui-text-faint)",
               fontSize: "0.82rem", fontWeight: 600,
               cursor: canSubmit ? "pointer" : "not-allowed",
               display: "flex", alignItems: "center", gap: 6,
-              transition: "all 0.15s",
             }}
           >
             {createMutation.isPending

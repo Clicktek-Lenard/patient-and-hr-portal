@@ -118,12 +118,14 @@ export async function POST(req: NextRequest) {
     if (role !== "HR" && role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const body = await req.json();
-    const { firstName, lastName, dob, department, gender } = body as {
+    const { firstName, lastName, dob, department, gender, mobile, isActive } = body as {
       firstName: string;
       lastName: string;
       dob: string;
       department?: string;
       gender?: string;
+      mobile?: string;
+      isActive?: number;
     };
 
     if (!firstName?.trim() || !lastName?.trim() || !dob) {
@@ -150,7 +152,8 @@ export async function POST(req: NextRequest) {
         fullName,
         gender: gender?.trim() || null,
         dob: new Date(dob),
-        isActive: 1,
+        mobile: mobile?.trim() || null,
+        isActive: isActive ?? 1,
         uploaddatetime: new Date(),
       },
     });
