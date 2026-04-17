@@ -84,17 +84,17 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         style={{
           width: 240,
           flexShrink: 0,
-          backgroundColor: "#ffffff",
-          borderRight: "1px solid #E8EAED",
+          backgroundColor: "var(--ui-sidebar)",
+          borderRight: "1px solid var(--ui-border)",
           height: "100vh",
           overflowY: "auto",
-          boxShadow: "2px 0 8px rgba(0,0,0,0.04)",
+          boxShadow: "2px 0 8px var(--ui-shadow)",
         }}
       >
         {/* ── Brand section ── */}
         <div style={{
           padding: "16px 20px 14px",
-          borderBottom: "1px solid #E8EAED",
+          borderBottom: "1px solid var(--ui-border)",
         }}>
           <Link href="/dashboard" style={{ display: "flex", flexDirection: "column", gap: 4, textDecoration: "none" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -102,7 +102,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               onError={(e) => { (e.target as HTMLImageElement).src = "/nwdi-logo.png"; }}
               style={{ width: "100%", height: 32, objectFit: "contain", objectPosition: "left" }}
             />
-            <p style={{ fontSize: "0.6rem", color: "#9CA3AF", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
+            <p style={{ fontSize: "0.6rem", color: "var(--ui-text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
               Patient Portal
             </p>
           </Link>
@@ -110,7 +110,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             <Button
               variant="ghost" size="icon"
               className="lg:hidden absolute top-3 right-3"
-              style={{ color: "#6B7280" }}
+              style={{ color: "var(--ui-text-muted)" }}
               onClick={onClose}
             >
               <X className="h-4 w-4" />
@@ -125,7 +125,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               <p style={{
                 padding: "10px 16px 4px",
                 fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em",
-                textTransform: "uppercase", color: "#9CA3AF",
+                textTransform: "uppercase", color: "var(--ui-section-label)",
               }}>
                 {group.label}
               </p>
@@ -145,16 +145,16 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                       borderRadius: 8,
                       fontSize: "0.84rem",
                       fontWeight: isActive ? 600 : 400,
-                      color: isActive ? "#1006A0" : "#374151",
-                      background: isActive ? "#EEF2FF" : "transparent",
+                      color: isActive ? "var(--ui-active-text)" : "var(--ui-text-secondary)",
+                      background: isActive ? "var(--ui-active-bg)" : "transparent",
                       transition: "all 0.15s",
                       textDecoration: "none",
                       userSelect: "none",
                     }}
-                    className="hover:bg-gray-100"
+                    className="nwd-nav-item"
                   >
                     <span style={{ width: 18, textAlign: "center", flexShrink: 0 }}>
-                      <Icon style={{ width: 15, height: 15, color: isActive ? "#1006A0" : "#6B7280" }} />
+                      <Icon style={{ width: 15, height: 15, color: isActive ? "var(--ui-active-icon)" : "var(--ui-text-muted)" }} />
                     </span>
                     <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {item.label}
@@ -188,10 +188,10 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         {/* ── Tagline ── */}
         <div style={{
           padding: "10px 20px",
-          borderTop: "1px solid #E8EAED",
+          borderTop: "1px solid var(--ui-border)",
         }}>
           <p style={{
-            fontSize: "0.6rem", color: "#9CA3AF",
+            fontSize: "0.6rem", color: "var(--ui-text-faint)",
             fontStyle: "italic", letterSpacing: "0.03em", textAlign: "center",
           }}>
             &ldquo;Your Health is Our Commitment&rdquo;

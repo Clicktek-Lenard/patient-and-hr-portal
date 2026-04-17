@@ -10,7 +10,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "#F3F4F6" }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "var(--ui-bg)" }}>
       <QueueAlertProvider />
 
       <Sidebar

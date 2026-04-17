@@ -33,9 +33,9 @@ export function StatCard({
       <div
         className={cn("rounded-xl p-5", className)}
         style={{
-          background: "#ffffff",
-          border: "1px solid #E8EAED",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+          background: "var(--ui-card)",
+          border: "1px solid var(--ui-border)",
+          boxShadow: "0 1px 3px var(--ui-shadow)",
         }}
       >
         <div className="flex items-start justify-between gap-3">
@@ -54,21 +54,21 @@ export function StatCard({
     <div
       className={cn("group cursor-default", className)}
       style={{
-        background: "#ffffff",
-        border: "1px solid #E8EAED",
+        background: "var(--ui-card)",
+        border: "1px solid var(--ui-border)",
         borderRadius: 12,
         padding: "18px 20px",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+        boxShadow: "0 1px 3px var(--ui-shadow)",
         transition: "all 0.2s ease",
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLDivElement).style.borderColor = a.bar + "66";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 12px var(--ui-shadow-md)";
         (e.currentTarget as HTMLDivElement).style.transform = "translateY(-1px)";
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = "#E8EAED";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 3px rgba(0,0,0,0.06)";
+        (e.currentTarget as HTMLDivElement).style.borderColor = "var(--ui-border)";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 3px var(--ui-shadow)";
         (e.currentTarget as HTMLDivElement).style.transform = "none";
       }}
     >
@@ -77,15 +77,15 @@ export function StatCard({
           <p style={{
             fontFamily: "var(--font-sans, 'Inter', system-ui, sans-serif)",
             fontSize: "1.85rem", lineHeight: 1,
-            color: "#111827",
+            color: "var(--ui-text-primary)",
             marginBottom: 4, fontWeight: 700,
             letterSpacing: "-0.02em",
           }}>
             {value}
           </p>
-          <p style={{ fontSize: "0.78rem", color: "#374151", fontWeight: 500 }}>{title}</p>
+          <p style={{ fontSize: "0.78rem", color: "var(--ui-text-secondary)", fontWeight: 500 }}>{title}</p>
           {description && (
-            <p style={{ fontSize: "0.72rem", color: "#9CA3AF", marginTop: 3 }}>{description}</p>
+            <p style={{ fontSize: "0.72rem", color: "var(--ui-text-faint)", marginTop: 3 }}>{description}</p>
           )}
         </div>
         <div style={{

@@ -55,8 +55,8 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <header style={{
-      background: "#ffffff",
-      borderBottom: "1px solid #E8EAED",
+      background: "var(--ui-header)",
+      borderBottom: "1px solid var(--ui-border)",
       padding: "0 24px",
       height: 56,
       display: "flex",
@@ -65,7 +65,7 @@ export function Header({ onMenuClick }: HeaderProps) {
       position: "sticky",
       top: 0,
       zIndex: 50,
-      boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+      boxShadow: "0 1px 4px var(--ui-shadow)",
       flexShrink: 0,
     }}>
       {/* Left: mobile menu + page title */}
@@ -75,7 +75,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           size="icon"
           className="lg:hidden"
           onClick={onMenuClick}
-          style={{ color: "#6B7280" }}
+          style={{ color: "var(--ui-text-muted)" }}
         >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
@@ -84,7 +84,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         <h1 style={{
           fontFamily: "var(--font-sans, 'Inter', system-ui, sans-serif)",
           fontSize: "0.95rem",
-          color: "#111827",
+          color: "var(--ui-text-primary)",
           fontWeight: 600,
           lineHeight: 1,
           letterSpacing: "-0.01em",
@@ -108,7 +108,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               background: "transparent", border: "none", cursor: "pointer",
               transition: "background 0.15s",
             }}
-            className="hover:bg-gray-100"
+            className="nwd-nav-item"
             >
               <div style={{
                 width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
@@ -124,14 +124,14 @@ export function Header({ onMenuClick }: HeaderProps) {
                 }
               </div>
               <span style={{
-                fontSize: "0.84rem", fontWeight: 500, color: "#111827",
+                fontSize: "0.84rem", fontWeight: 500, color: "var(--ui-text-primary)",
                 maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}
               className="hidden sm:block"
               >
                 {firstName} {lastName[0]}.
               </span>
-              <ChevronDown className="hidden sm:block h-3.5 w-3.5" style={{ color: "#9CA3AF" }} />
+              <ChevronDown className="hidden sm:block h-3.5 w-3.5" style={{ color: "var(--ui-text-faint)" }} />
             </button>
           </DropdownMenuTrigger>
 
@@ -139,10 +139,10 @@ export function Header({ onMenuClick }: HeaderProps) {
             align="end"
             style={{
               width: 220,
-              background: "#ffffff",
-              border: "1px solid #E8EAED",
+              background: "var(--ui-card)",
+              border: "1px solid var(--ui-border)",
               borderRadius: 10,
-              boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
+              boxShadow: "0 8px 24px var(--ui-shadow-md)",
             }}
           >
             <DropdownMenuLabel style={{ padding: "12px 16px" }}>
@@ -161,10 +161,10 @@ export function Header({ onMenuClick }: HeaderProps) {
                   }
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: "0.85rem", fontWeight: 600, color: "#111827", lineHeight: 1 }}>
+                  <p style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--ui-text-primary)", lineHeight: 1 }}>
                     {firstName} {lastName}
                   </p>
-                  <p style={{ fontSize: "0.72rem", color: "#6B7280", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <p style={{ fontSize: "0.72rem", color: "var(--ui-text-muted)", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {email}
                   </p>
                 </div>
@@ -174,7 +174,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem asChild>
-              <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.84rem", color: "#374151", cursor: "pointer" }}>
+              <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.84rem", color: "var(--ui-text-secondary)", cursor: "pointer" }}>
                 <User className="h-4 w-4" />
                 My Profile
               </Link>

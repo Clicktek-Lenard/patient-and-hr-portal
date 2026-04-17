@@ -121,9 +121,9 @@ function RecentResultCard({ result }: { result: LabResult }) {
   }
 
   return (
-    <div style={{ borderRadius: 10, border: "1px solid #E8EAED", background: "#ffffff", overflow: "hidden" }}>
+    <div style={{ borderRadius: 10, border: "1px solid var(--ui-border)", background: "var(--ui-card)", overflow: "hidden" }}>
       {/* Card header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, padding: "10px 16px", borderBottom: "1px solid #E8EAED", background: "#F9FAFB" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, padding: "10px 16px", borderBottom: "1px solid var(--ui-border)", background: "var(--surface-1)" }}>
         <div>
           <p className="font-semibold text-sm text-foreground leading-snug">{result.description}</p>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -180,7 +180,7 @@ function RecentResultCard({ result }: { result: LabResult }) {
       )}
 
       {/* Actions */}
-      <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "8px 12px", borderTop: "1px solid #E8EAED", background: "#F9FAFB" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "8px 12px", borderTop: "1px solid var(--ui-border)", background: "var(--surface-1)" }}>
         <Button
           variant="ghost" size="sm"
           className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-primary rounded-lg px-2.5"
@@ -297,13 +297,13 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Recent Results ── */}
-      <div style={{ borderRadius: 12, border: "1px solid #E8EAED", background: "#ffffff", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px", borderBottom: "1px solid #E8EAED", background: "#F9FAFB" }}>
+      <div style={{ borderRadius: 12, border: "1px solid var(--ui-border)", background: "var(--ui-card)", overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px", borderBottom: "1px solid var(--ui-border)", background: "var(--surface-1)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 28, height: 28, borderRadius: 8, background: "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <FlaskConical style={{ width: 14, height: 14, color: "#4F46E5" }} />
             </div>
-            <h2 style={{ fontSize: "0.875rem", fontWeight: 600, color: "#111827" }}>Recent Results</h2>
+            <h2 style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--ui-text-primary)" }}>Recent Results</h2>
           </div>
           <Button variant="ghost" size="sm" asChild className="text-xs h-7 px-2.5 text-gray-400 hover:text-indigo-600 rounded-lg gap-1">
             <Link href="/results">

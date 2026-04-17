@@ -5,25 +5,25 @@
    ============================================================ */
 @layer base {
   :root {
-    /* Light mode — NWD brand clinical */
-    --background:         220 20% 97%;   /* #F5F7FA */
-    --foreground:         228 60% 12%;
+    /* ── Light mode ── */
+    --background:         220 14% 96%;   /* #F3F4F6 warm light gray */
+    --foreground:         220 25% 12%;   /* near-black warm */
     --card:               0 0% 100%;
-    --card-foreground:    228 60% 12%;
+    --card-foreground:    220 25% 12%;
     --popover:            0 0% 100%;
-    --popover-foreground: 228 60% 12%;
+    --popover-foreground: 220 25% 12%;
     --primary:            228 89% 34%;   /* #1006A0 NWD Blue */
     --primary-foreground: 0 0% 100%;
-    --secondary:          220 20% 93%;
-    --secondary-foreground: 228 40% 25%;
-    --muted:              220 18% 92%;
-    --muted-foreground:   228 15% 48%;   /* ~#7A7AAA */
-    --accent:             228 60% 93%;
-    --accent-foreground:  228 89% 34%;
-    --destructive:        1 95% 44%;     /* #E00500 NWD Red */
+    --secondary:          220 14% 93%;
+    --secondary-foreground: 220 20% 30%;
+    --muted:              220 14% 91%;
+    --muted-foreground:   220 10% 50%;
+    --accent:             238 60% 93%;
+    --accent-foreground:  238 89% 34%;
+    --destructive:        1 95% 44%;
     --destructive-foreground: 0 0% 100%;
-    --border:             228 20% 86%;   /* ~#D0D4EA */
-    --input:              228 18% 94%;
+    --border:             220 13% 88%;   /* #E2E5EA */
+    --input:              220 13% 92%;
     --ring:               228 89% 34%;
     --radius:             0.625rem;
 
@@ -31,118 +31,160 @@
     --nwd-blue:           #1006A0;
     --nwd-blue-dark:      #08036A;
     --nwd-red:            #E00500;
-    --nwd-page-bg:        #F5F7FA;
-    --nwd-muted:          #7A7AAA;
-    --nwd-border:         #D0D4EA;
+    --nwd-page-bg:        #F3F4F6;
+    --nwd-muted:          #6B7280;
+    --nwd-border:         #E2E5EA;
 
-    /* Status tags per spec */
-    --color-success:      #1A7A4A;
-    --color-success-bg:   #E8F5EE;
-    --color-success-border: #a3d9b8;
-    --color-warning:      #B45309;
-    --color-warning-bg:   #FEF3C7;
-    --color-warning-border: #fde68a;
-    --color-danger:       #E00500;
-    --color-danger-bg:    #FFF0F0;
-    --color-danger-border: #fecaca;
-    --color-info:         #1006A0;
-    --color-info-bg:      #eef0ff;
-    --color-info-border:  #c7cdfd;
-    --color-purple:       #6941c6;
-    --color-purple-bg:    #f4f3ff;
-    --color-purple-border:#d9d6fe;
+    /* UI surface tokens — used by JS components */
+    --ui-bg:              #F3F4F6;
+    --ui-sidebar:         #ffffff;
+    --ui-card:            #ffffff;
+    --ui-header:          #ffffff;
+    --ui-border:          #E8EAED;
+    --ui-border-strong:   #D1D5DB;
+    --ui-text-primary:    #111827;
+    --ui-text-secondary:  #374151;
+    --ui-text-muted:      #6B7280;
+    --ui-text-faint:      #9CA3AF;
+    --ui-active-bg:       #EEF2FF;
+    --ui-active-text:     #1006A0;
+    --ui-active-icon:     #1006A0;
+    --ui-hover-bg:        #F3F4F6;
+    --ui-shadow:          rgba(0,0,0,0.06);
+    --ui-shadow-md:       rgba(0,0,0,0.10);
+    --ui-hr-active-text:  #08036A;
+    --ui-hr-active-icon:  #08036A;
+    --ui-section-label:   #9CA3AF;
+
+    /* Status tags */
+    --color-success:      #16A34A;
+    --color-success-bg:   #F0FDF4;
+    --color-success-border: #BBF7D0;
+    --color-warning:      #D97706;
+    --color-warning-bg:   #FFFBEB;
+    --color-warning-border: #FDE68A;
+    --color-danger:       #DC2626;
+    --color-danger-bg:    #FEF2F2;
+    --color-danger-border: #FECACA;
+    --color-info:         #2563EB;
+    --color-info-bg:      #EFF6FF;
+    --color-info-border:  #BFDBFE;
+    --color-purple:       #7C3AED;
+    --color-purple-bg:    #F5F3FF;
+    --color-purple-border:#DDD6FE;
 
     /* Surfaces */
     --surface-0: #ffffff;
-    --surface-1: #F5F7FA;
-    --surface-2: #edf0f7;
-    --surface-3: #e4e8f2;
-    --border-subtle: #D0D4EA;
+    --surface-1: #F9FAFB;
+    --surface-2: #F3F4F6;
+    --surface-3: #E5E7EB;
+    --border-subtle: #E8EAED;
 
     /* Shadows */
-    --shadow-xs:  0 1px 2px rgba(16,6,160,0.04);
-    --shadow-sm:  0 1px 3px rgba(16,6,160,0.07), 0 1px 2px rgba(16,6,160,0.04);
-    --shadow-md:  0 4px 8px rgba(16,6,160,0.06), 0 2px 4px rgba(16,6,160,0.04);
-    --shadow-lg:  0 10px 24px rgba(16,6,160,0.08), 0 4px 8px rgba(16,6,160,0.04);
-    --shadow-xl:  0 20px 40px rgba(16,6,160,0.10), 0 8px 16px rgba(16,6,160,0.06);
-
-    /* Glow */
-    --glow-primary: 0 0 0 1px rgba(16,6,160,0.15), 0 4px 20px rgba(16,6,160,0.18);
-    --glow-success: 0 0 0 1px rgba(26,122,74,0.15), 0 4px 16px rgba(26,122,74,0.14);
-    --glow-warning: 0 0 0 1px rgba(180,83,9,0.15), 0 4px 16px rgba(180,83,9,0.12);
-    --shadow-card:  var(--shadow-md);
+    --shadow-xs:  0 1px 2px rgba(0,0,0,0.04);
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:  0 4px 8px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+    --shadow-lg:  0 10px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.05);
+    --shadow-xl:  0 20px 40px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.06);
+    --glow-primary: 0 0 0 1px rgba(79,70,229,0.15), 0 4px 20px rgba(79,70,229,0.12);
+    --glow-success: 0 0 0 1px rgba(22,163,74,0.15), 0 4px 16px rgba(22,163,74,0.10);
+    --glow-warning: 0 0 0 1px rgba(217,119,6,0.15), 0 4px 16px rgba(217,119,6,0.10);
+    --shadow-card:  var(--shadow-sm);
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, #1006A0 0%, #2518c8 100%);
-    --gradient-hero:    linear-gradient(135deg, #08036A 0%, #0f0580 50%, #06024f 100%);
-    --gradient-card:    linear-gradient(145deg, #fff 0%, #F5F7FA 100%);
-    --gradient-hero-hr: linear-gradient(135deg, #08036A 0%, #1006A0 50%, #E00500 100%);
+    --gradient-hero:    linear-gradient(135deg, #08036A 0%, #1006A0 60%, #1a12cc 100%);
+    --gradient-card:    linear-gradient(145deg, #fff 0%, #F3F4F6 100%);
+    --gradient-hero-hr: linear-gradient(135deg, #08036A 0%, #1006A0 50%, #E00500 140%);
   }
 
+  /* ============================================================
+     DARK MODE — warm, easy on the eyes for long work sessions
+     Inspired by warm amber-tinted dark themes (Obsidian, Bear)
+     Avoids cold blues; uses warm browns, soft ambers, muted tones
+     ============================================================ */
   .dark {
-    /* Dark mode — NWD deep navy */
-    --background:         228 50% 6%;
-    --foreground:         220 60% 96%;
-    --card:               228 45% 9%;
-    --card-foreground:    220 60% 96%;
-    --popover:            228 45% 11%;
-    --popover-foreground: 220 60% 96%;
-    --primary:            228 89% 60%;   /* lighter NWD blue for dark bg */
-    --primary-foreground: 228 50% 6%;
-    --secondary:          228 30% 14%;
-    --secondary-foreground: 220 50% 75%;
-    --muted:              228 25% 12%;
-    --muted-foreground:   228 20% 55%;
-    --accent:             228 89% 13%;
-    --accent-foreground:  228 89% 60%;
-    --destructive:        1 90% 55%;
-    --destructive-foreground: 220 60% 96%;
-    --border:             228 25% 16%;
-    --input:              228 30% 10%;
-    --ring:               228 89% 60%;
+    --background:         30 8% 9%;     /* #1A1816 — warm dark brown base */
+    --foreground:         35 20% 88%;   /* #E4DDD4 — warm off-white text */
+    --card:               30 8% 12%;   /* #211F1C — card surface */
+    --card-foreground:    35 20% 88%;
+    --popover:            30 8% 14%;
+    --popover-foreground: 35 20% 88%;
+    --primary:            228 70% 62%;  /* softer blue, not harsh */
+    --primary-foreground: 30 8% 9%;
+    --secondary:          30 7% 17%;
+    --secondary-foreground: 35 15% 70%;
+    --muted:              30 7% 15%;
+    --muted-foreground:   35 10% 52%;
+    --accent:             30 7% 19%;
+    --accent-foreground:  35 20% 88%;
+    --destructive:        1 75% 58%;
+    --destructive-foreground: 35 20% 88%;
+    --border:             30 7% 20%;   /* #332F2A — warm dark border */
+    --input:              30 7% 15%;
+    --ring:               228 70% 62%;
 
-    /* Extended palette — dark */
-    --color-success:      #34d399;
-    --color-success-bg:   rgba(52,211,153,0.1);
-    --color-success-border: rgba(52,211,153,0.25);
-    --color-warning:      #fbbf24;
-    --color-warning-bg:   rgba(251,191,36,0.1);
-    --color-warning-border: rgba(251,191,36,0.25);
-    --color-danger:       #f87171;
-    --color-danger-bg:    rgba(248,113,113,0.1);
-    --color-danger-border: rgba(248,113,113,0.25);
-    --color-info:         #818cf8;
-    --color-info-bg:      rgba(129,140,248,0.1);
-    --color-info-border:  rgba(129,140,248,0.25);
-    --color-purple:       #a78bfa;
-    --color-purple-bg:    rgba(167,139,250,0.1);
-    --color-purple-border: rgba(167,139,250,0.25);
+    /* UI surface tokens — dark warm */
+    --ui-bg:              #1A1816;
+    --ui-sidebar:         #211F1C;
+    --ui-card:            #211F1C;
+    --ui-header:          #211F1C;
+    --ui-border:          #332F2A;
+    --ui-border-strong:   #443F39;
+    --ui-text-primary:    #E4DDD4;
+    --ui-text-secondary:  #C9C0B5;
+    --ui-text-muted:      #8A8179;
+    --ui-text-faint:      #5E5950;
+    --ui-active-bg:       #2A2720;
+    --ui-active-text:     #9BA8FF;   /* warm-toned indigo */
+    --ui-active-icon:     #9BA8FF;
+    --ui-hover-bg:        #272420;
+    --ui-shadow:          rgba(0,0,0,0.35);
+    --ui-shadow-md:       rgba(0,0,0,0.50);
+    --ui-hr-active-text:  #9BA8FF;
+    --ui-hr-active-icon:  #9BA8FF;
+    --ui-section-label:   #5E5950;
+
+    /* Status — muted warm tones */
+    --color-success:      #4ADE80;
+    --color-success-bg:   rgba(74,222,128,0.10);
+    --color-success-border: rgba(74,222,128,0.20);
+    --color-warning:      #FBB740;
+    --color-warning-bg:   rgba(251,183,64,0.10);
+    --color-warning-border: rgba(251,183,64,0.22);
+    --color-danger:       #F87171;
+    --color-danger-bg:    rgba(248,113,113,0.10);
+    --color-danger-border: rgba(248,113,113,0.22);
+    --color-info:         #93C5FD;
+    --color-info-bg:      rgba(147,197,253,0.10);
+    --color-info-border:  rgba(147,197,253,0.22);
+    --color-purple:       #C4B5FD;
+    --color-purple-bg:    rgba(196,181,253,0.10);
+    --color-purple-border: rgba(196,181,253,0.22);
 
     /* Surfaces */
-    --surface-0: hsl(228 45% 9%);
-    --surface-1: hsl(228 50% 6%);
-    --surface-2: hsl(228 35% 12%);
-    --surface-3: hsl(228 30% 15%);
-    --border-subtle: hsl(228 25% 16%);
+    --surface-0: #211F1C;
+    --surface-1: #1A1816;
+    --surface-2: #252220;
+    --surface-3: #2E2B27;
+    --border-subtle: #332F2A;
 
-    /* Shadows */
+    /* Shadows — warmer tones */
     --shadow-xs:  0 1px 2px rgba(0,0,0,0.4);
     --shadow-sm:  0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3);
-    --shadow-md:  0 4px 8px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
-    --shadow-lg:  0 10px 24px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3);
-    --shadow-xl:  0 20px 40px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.4);
-
-    /* Glow */
-    --glow-primary: 0 0 0 1px rgba(16,6,160,0.3), 0 4px 24px rgba(16,6,160,0.25);
-    --glow-success: 0 0 0 1px rgba(52,211,153,0.2), 0 4px 20px rgba(52,211,153,0.15);
-    --glow-warning: 0 0 0 1px rgba(251,191,36,0.2), 0 4px 20px rgba(251,191,36,0.15);
-    --shadow-card:  0 0 0 1px hsl(228 25% 16%), var(--shadow-md);
+    --shadow-md:  0 4px 8px rgba(0,0,0,0.45), 0 2px 4px rgba(0,0,0,0.3);
+    --shadow-lg:  0 10px 24px rgba(0,0,0,0.55), 0 4px 8px rgba(0,0,0,0.3);
+    --shadow-xl:  0 20px 40px rgba(0,0,0,0.65), 0 8px 16px rgba(0,0,0,0.4);
+    --glow-primary: 0 0 0 1px rgba(155,168,255,0.15), 0 4px 24px rgba(155,168,255,0.12);
+    --glow-success: 0 0 0 1px rgba(74,222,128,0.15), 0 4px 20px rgba(74,222,128,0.10);
+    --glow-warning: 0 0 0 1px rgba(251,183,64,0.15), 0 4px 20px rgba(251,183,64,0.10);
+    --shadow-card:  0 0 0 1px #332F2A, var(--shadow-sm);
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, #1006A0 0%, #2518c8 100%);
-    --gradient-hero:    linear-gradient(135deg, #04021f 0%, #08036A 50%, #06024f 100%);
-    --gradient-card:    linear-gradient(145deg, hsl(228 45% 9%) 0%, hsl(228 40% 11%) 100%);
-    --gradient-hero-hr: linear-gradient(135deg, #04021f 0%, #08036A 60%, #6b0000 100%);
+    --gradient-hero:    linear-gradient(135deg, #08036A 0%, #1006A0 60%, #1a12cc 100%);
+    --gradient-card:    linear-gradient(145deg, #211F1C 0%, #252220 100%);
+    --gradient-hero-hr: linear-gradient(135deg, #08036A 0%, #1006A0 50%, #E00500 140%);
   }
 }
 
@@ -156,8 +198,8 @@
   html.dark { color-scheme: dark; }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: var(--ui-bg, hsl(var(--background)));
+    color: var(--ui-text-primary, hsl(var(--foreground)));
     font-family: var(--font-source-sans, var(--font-inter, ui-sans-serif)), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -511,7 +553,9 @@
 [data-radix-dropdown-menu-content],
 [data-radix-popover-content],
 [data-radix-tooltip-content] {
-  background-color: #ffffff !important;
+  background-color: var(--ui-card, #ffffff) !important;
+  border-color: var(--ui-border, #E8EAED) !important;
+  color: var(--ui-text-primary, #111827) !important;
 }
 .dark [data-radix-popper-content-wrapper] > *,
 .dark [role="listbox"],
@@ -521,7 +565,9 @@
 .dark [data-radix-dropdown-menu-content],
 .dark [data-radix-popover-content],
 .dark [data-radix-tooltip-content] {
-  background-color: hsl(220 28% 11%) !important;
+  background-color: #211F1C !important;
+  border-color: #332F2A !important;
+  color: #E4DDD4 !important;
 }
 
 /* ============================================================
@@ -529,6 +575,31 @@
    ============================================================ */
 .hr-portal {
   --gradient-hero: var(--gradient-hero-hr);
+}
+
+/* ============================================================
+   THEME-AWARE NAV ITEM HOVER
+   ============================================================ */
+.nwd-nav-item:hover {
+  background-color: var(--ui-hover-bg) !important;
+  color: var(--ui-text-primary) !important;
+}
+
+/* ============================================================
+   THEME-AWARE CARD / SURFACE
+   ============================================================ */
+.nwd-card-surface {
+  background-color: var(--ui-card);
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px var(--ui-shadow);
+}
+
+/* ============================================================
+   THEME-AWARE TABLE ROW HOVER
+   ============================================================ */
+.nwd-row-hover:hover {
+  background-color: var(--ui-hover-bg) !important;
 }
 
 /* ============================================================

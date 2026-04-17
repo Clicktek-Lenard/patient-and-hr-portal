@@ -76,9 +76,9 @@ function StatCard({
 }) {
   return (
     <div style={{
-      background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 12,
+      background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12,
       padding: "18px 20px", position: "relative", overflow: "hidden",
-      boxShadow: "0 1px 3px rgba(0,0,0,0.06)", transition: "all 0.2s ease",
+      boxShadow: "0 1px 3px var(--ui-shadow)", transition: "all 0.2s ease",
     }}
     className="group hover:shadow-md"
     >
@@ -90,12 +90,12 @@ function StatCard({
         {live && <span className="live-dot-green" style={{ width: 6, height: 6, marginTop: 2 }} />}
         {!live && <TrendingUp className="h-4 w-4 text-gray-300 group-hover:text-green-500 transition-colors" />}
       </div>
-      <p style={{ fontSize: "1.8rem", fontWeight: 700, color: "#111827", lineHeight: 1, letterSpacing: "-0.02em" }} className="tabular-nums">
+      <p style={{ fontSize: "1.8rem", fontWeight: 700, color: "var(--ui-text-primary)", lineHeight: 1, letterSpacing: "-0.02em" }} className="tabular-nums">
         {typeof value === "number" ? value.toLocaleString() : value}
-        {suffix && <span style={{ fontSize: "0.85rem", fontWeight: 400, color: "#9CA3AF", marginLeft: 4 }}>{suffix}</span>}
+        {suffix && <span style={{ fontSize: "0.85rem", fontWeight: 400, color: "var(--ui-text-faint)", marginLeft: 4 }}>{suffix}</span>}
       </p>
-      <p style={{ fontSize: "0.8rem", color: "#374151", marginTop: 3, fontWeight: 500 }}>{label}</p>
-      {sub && <p style={{ fontSize: "0.72rem", color: "#9CA3AF", marginTop: 2 }}>{sub}</p>}
+      <p style={{ fontSize: "0.8rem", color: "var(--ui-text-secondary)", marginTop: 3, fontWeight: 500 }}>{label}</p>
+      {sub && <p style={{ fontSize: "0.72rem", color: "var(--ui-text-faint)", marginTop: 2 }}>{sub}</p>}
     </div>
   );
 }
@@ -104,11 +104,11 @@ function ServiceCard({ label, value, icon: Icon, color }: {
   label: string; value: number | string; icon: React.ElementType; color: string;
 }) {
   return (
-    <div style={{ background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }} className={color}>
+    <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 10, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10, boxShadow: "0 1px 3px var(--ui-shadow)" }} className={color}>
       <Icon className="h-4 w-4 shrink-0 opacity-60" />
       <div className="min-w-0 flex-1">
-        <p style={{ fontSize: "0.72rem", color: "#6B7280", marginBottom: 1 }} className="truncate">{label}</p>
-        <p style={{ fontSize: "1.25rem", fontWeight: 700, color: "#111827" }} className="tabular-nums">{typeof value === "number" ? value.toLocaleString() : value}</p>
+        <p style={{ fontSize: "0.72rem", color: "var(--ui-text-muted)", marginBottom: 1 }} className="truncate">{label}</p>
+        <p style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--ui-text-primary)" }} className="tabular-nums">{typeof value === "number" ? value.toLocaleString() : value}</p>
       </div>
       <span className="live-dot-green shrink-0" style={{ width: 6, height: 6 }} />
     </div>
@@ -239,7 +239,7 @@ export default function HrDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         {/* Top 5 Workforce Conditions */}
-        <div style={{ background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }} className="">
+        <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }} className="">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4 text-muted-foreground" />
@@ -280,7 +280,7 @@ export default function HrDashboardPage() {
         </div>
 
         {/* PE Compliance by Department */}
-        <div style={{ background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }} className="">
+        <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }} className="">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <div className="flex items-center gap-2">
               <ClipboardList className="h-4 w-4 text-muted-foreground" />
@@ -375,7 +375,7 @@ export default function HrDashboardPage() {
         </div>
 
         {/* Top patients */}
-        <div style={{ background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }} className="">
+        <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }} className="">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-muted-foreground" />
@@ -438,7 +438,7 @@ export default function HrDashboardPage() {
           <Link
             key={item.href}
             href={item.href}
-            style={{ background: "#ffffff", border: "1px solid #E8EAED", borderRadius: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.05)", textDecoration: "none" }}
+            style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 10, boxShadow: "0 1px 3px var(--ui-shadow)", textDecoration: "none" }}
             className={`flex items-center gap-3 p-4 transition-all ${item.color}`}
           >
             <item.icon className="h-4 w-4 text-foreground/70 shrink-0" />
