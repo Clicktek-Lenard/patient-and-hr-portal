@@ -3,9 +3,8 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Share2, Link2, Loader2, Trash2, Copy, Check, Shield, Clock } from "lucide-react";
+import { Share2, Link2, Loader2, Trash2, Copy, Check, Shield, Clock, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 type ShareLink = {
   id: string; queueCode: string; resultLabel: string | null; token: string;
@@ -13,10 +12,19 @@ type ShareLink = {
   createdAt: string; viewCount: number;
 };
 
+type ResultItem = {
+  id: number;
+  queueCode: string;
+  date: string;
+  description: string;
+  status: "released" | "pending";
+};
+
 const EXPIRY_OPTIONS = [
+  { label: "1 min",     hours: 1 / 60 },
   { label: "24 hours",  hours: 24 },
-  { label: "7 days",   hours: 168 },
-  { label: "30 days",  hours: 720 },
+  { label: "7 days",    hours: 168 },
+  { label: "30 days",   hours: 720 },
 ];
 
 function copyToClipboard(text: string) {
@@ -35,9 +43,8 @@ function SharePageInner() {
   const qc = useQueryClient();
   const searchParams = useSearchParams();
   const [queueCode, setQueueCode] = useState(searchParams.get("result") ?? "");
-  const [resultLabel, setResultLabel] = useState("");
   const [recipient, setRecipient] = useState("");
-  const [expiryHours, setExpiryHours] = useState(168);
+  const [expiryHours, setExpiryHours] = useState<number | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Keep queueCode in sync if URL param changes (e.g. navigating from dashboard Share button)
@@ -45,6 +52,20 @@ function SharePageInner() {
     const code = searchParams.get("result");
     if (code) setQueueCode(code);
   }, [searchParams]);
+
+  // Fetch patient's results for the select dropdown
+  const { data: resultsData } = useQuery<{ data: { data: ResultItem[] } }>({
+    queryKey: ["my-results-for-share"],
+    queryFn: () => fetch("/api/results?pageSize=100").then((r) => r.json()),
+    staleTime: 60_000,
+  });
+  const resultOptions = resultsData?.data?.data ?? [];
+
+  // Derive label from selected result
+  const selectedResult = resultOptions.find(r => r.queueCode === queueCode);
+  const resultLabel = selectedResult
+    ? `${selectedResult.description} — ${new Date(selectedResult.date).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" })}`
+    : "";
 
   const { data, isLoading } = useQuery<{ data: ShareLink[] }>({
     queryKey: ["share-links"],
@@ -61,7 +82,7 @@ function SharePageInner() {
       }).then((r) => r.json()),
     onSuccess: () => {
       toast.success("Secure link generated!");
-      setQueueCode(""); setResultLabel(""); setRecipient("");
+      setQueueCode(""); setRecipient(""); setExpiryHours(null);
       qc.invalidateQueries({ queryKey: ["share-links"] });
     },
     onError: () => toast.error("Failed to generate link"),
@@ -118,24 +139,23 @@ function SharePageInner() {
           </div>
           <div className="p-5 space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Visit / Queue Code</label>
-              <input
-                value={queueCode}
-                onChange={(e) => setQueueCode(e.target.value)}
-                placeholder="e.g. Q-2024-001"
-                className="w-full h-10 rounded-xl border border-border bg-background text-sm px-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
-              <p className="text-xs text-muted-foreground">Find the code in your Results or Visits page</p>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Label (optional)</label>
-              <input
-                value={resultLabel}
-                onChange={(e) => setResultLabel(e.target.value)}
-                placeholder="e.g. Annual PE – Jan 2025"
-                className="w-full h-10 rounded-xl border border-border bg-background text-sm px-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Select Result</label>
+              <div className="relative">
+                <select
+                  value={queueCode}
+                  onChange={(e) => setQueueCode(e.target.value)}
+                  className="w-full h-10 rounded-xl border border-border bg-background text-sm px-3 pr-8 text-foreground appearance-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="">— Choose a result to share —</option>
+                  {resultOptions.map((r) => (
+                    <option key={r.queueCode} value={r.queueCode}>
+                      {r.description} — {new Date(r.date).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" })}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              </div>
+              <p className="text-xs text-muted-foreground">Results are loaded from your My Results page</p>
             </div>
 
             <div className="space-y-1.5">
@@ -150,27 +170,33 @@ function SharePageInner() {
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Link Expires After</label>
-              <div className="flex gap-2">
-                {EXPIRY_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.hours}
-                    onClick={() => setExpiryHours(opt.hours)}
-                    className={cn(
-                      "flex-1 h-9 rounded-xl border text-xs font-semibold transition-colors",
-                      expiryHours === opt.hours
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-card text-muted-foreground border-border hover:bg-muted"
-                    )}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+              <div style={{ display: "flex", gap: 8 }}>
+                {EXPIRY_OPTIONS.map((opt) => {
+                  const active = expiryHours === opt.hours;
+                  return (
+                    <button
+                      key={opt.hours}
+                      type="button"
+                      onClick={() => setExpiryHours(opt.hours)}
+                      style={{
+                        flex: 1, height: 36, borderRadius: 10,
+                        fontSize: "0.78rem", fontWeight: 600,
+                        cursor: "pointer", transition: "all 0.15s",
+                        background: active ? "var(--ui-active-bg)" : "var(--ui-card)",
+                        color: active ? "var(--ui-active-text)" : "var(--ui-text-muted)",
+                        border: `1.5px solid ${active ? "var(--ui-active-text)" : "var(--ui-border)"}`,
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             <button
               onClick={() => createMutation.mutate({ queueCode, resultLabel, recipient, expiryHours })}
-              disabled={!queueCode || createMutation.isPending}
+              disabled={!queueCode || !expiryHours || createMutation.isPending}
               className="w-full h-10 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 transition-opacity hover:opacity-90"
               style={{ background: "var(--gradient-primary)" }}
             >

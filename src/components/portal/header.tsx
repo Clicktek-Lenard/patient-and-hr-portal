@@ -24,7 +24,6 @@ const PAGE_LABELS: Record<string, string> = {
   results:        "My Results",
   vitals:         "Vital Signs",
   trends:         "Health Trends",
-  payments:       "Payments",
   notifications:  "Notifications",
   profile:        "My Profile",
   appointments:   "Appointments",

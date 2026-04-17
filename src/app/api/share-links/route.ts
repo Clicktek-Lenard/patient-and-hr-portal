@@ -32,9 +32,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "queueCode is required" }, { status: 400 });
     }
 
-    // Cap expiry: min 1 hour, max 30 days, default 7 days
-    const rawHours = parseInt(expiryHours ?? "168", 10);
-    const hours    = isNaN(rawHours) || rawHours < 1 ? 168 : Math.min(rawHours, 720);
+    // Cap expiry: min 1 minute, max 30 days, default 7 days
+    const rawHours = parseFloat(expiryHours ?? "168");
+    const hours    = isNaN(rawHours) || rawHours <= 0 ? 168 : Math.min(rawHours, 720);
     const expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000);
     const token = randomBytes(24).toString("hex");
 

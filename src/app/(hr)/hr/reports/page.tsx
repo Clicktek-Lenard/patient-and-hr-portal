@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 type SummaryData = {
   totals: {
@@ -34,6 +35,7 @@ const FORMAT_OPTIONS = [
 export default function ReportsPage() {
   const [tab,    setTab]    = useState<"summary" | "demographic">("summary");
   const [format, setFormat] = useState("excel");
+  const { log: auditLog }  = useAuditLog();
   const [from,   setFrom]   = useState("");
   const [to,     setTo]     = useState("");
   const [downloading, setDownloading] = useState(false);
@@ -73,6 +75,7 @@ export default function ReportsPage() {
       a.click();
       URL.revokeObjectURL(a.href);
       toast.success(`${filename} downloaded`);
+      auditLog("EXPORT", `${tab} report exported as ${ext.toUpperCase()} ��� ${filename}`);
     } catch {
       toast.error("Download failed");
     } finally {

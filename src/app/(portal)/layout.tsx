@@ -8,6 +8,7 @@ import { UatFeedbackButton } from "@/components/hr/uat-feedback-button";
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed]     = useState(false);
 
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "var(--ui-bg)" }}>
@@ -16,6 +17,8 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        collapsed={collapsed}
+        onToggleCollapse={() => setCollapsed(c => !c)}
       />
 
       <div style={{ display: "flex", flex: 1, flexDirection: "column", overflow: "hidden" }}>

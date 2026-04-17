@@ -258,6 +258,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/login",
     error:  "/login",
   },
+  events: {
+    async signIn({ user }) {
+      try {
+        const u = user as { id?: string; firstName?: string; lastName?: string; role?: string };
+        if (u.role === "HR" || u.role === "ADMIN") {
+          const name = `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || "HR User";
+          await prisma.portalAuditLog.create({
+            data: {
+              hrUserId:   u.id ?? "unknown",
+              hrUserName: name,
+              action:     "LOGIN",
+              detail:     `Successful login — ${name}`,
+              ipAddress:  null,
+              userAgent:  null,
+            },
+          });
+        }
+      } catch {
+        // audit failures must never block login
+      }
+    },
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

@@ -1,27 +1,71 @@
 "use client";
 
-import { useState } from "react";
-import { ClipboardList, Download, Eye, AlertTriangle, LogIn, Send, FileText, Search } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import {
+  ClipboardList, Download, Eye, AlertTriangle, LogIn, Send,
+  FileText, Search, ChevronLeft, ChevronRight, RefreshCw,
+} from "lucide-react";
 
-const MOCK_LOGS = [
-  { id: 1,  action: "Login",           detail: "Successful login from Chrome/Windows",           ts: "2026-04-13 09:14:22", ip: "123.45.**.***", type: "login" },
-  { id: 2,  action: "Employee Viewed", detail: "Viewed record of Juan dela Cruz (PT-001)",        ts: "2026-04-13 09:16:05", ip: "123.45.**.***", type: "view" },
-  { id: 3,  action: "Report Exported", detail: "PE Compliance Report — April 2026 (PDF)",         ts: "2026-04-13 09:22:48", ip: "123.45.**.***", type: "export" },
-  { id: 4,  action: "Bulk Download",   detail: "Downloaded ZIP — 12 employee results",            ts: "2026-04-13 09:45:10", ip: "123.45.**.***", type: "download" },
-  { id: 5,  action: "Reminder Sent",   detail: "Bulk PE reminder sent to 8 overdue employees",   ts: "2026-04-13 10:02:33", ip: "123.45.**.***", type: "reminder" },
-  { id: 6,  action: "Employee Viewed", detail: "Viewed record of Maria Santos (PT-002)",          ts: "2026-04-13 10:18:00", ip: "123.45.**.***", type: "view" },
-  { id: 7,  action: "Report Exported", detail: "Wellness Trend Report — Q1 2026 (PDF)",           ts: "2026-04-12 14:30:11", ip: "123.45.**.***", type: "export" },
-  { id: 8,  action: "Login",           detail: "Successful login from Firefox/macOS",             ts: "2026-04-12 08:59:44", ip: "123.45.**.***", type: "login" },
-  { id: 9,  action: "Bulk Scheduling", detail: "Uploaded 25-employee PE schedule list",           ts: "2026-04-11 11:20:15", ip: "123.45.**.***", type: "export" },
-  { id: 10, action: "Report Exported", detail: "Demographic Report — All Departments (PDF)",      ts: "2026-04-11 13:44:52", ip: "123.45.**.***", type: "export" },
-];
+/* ─── types ─── */
+type AuditLog = {
+  id:          string;
+  action:      string;
+  detail:      string;
+  targetCode:  string | null;
+  hrUserName:  string;
+  ipAddress:   string | null;
+  createdAt:   string;
+};
 
-const TYPE_META: Record<string, { icon: React.ElementType; colorVar: string; bgClass: string }> = {
-  login:    { icon: LogIn,    colorVar: "var(--color-info)",    bgClass: "var(--color-info-bg)" },
-  view:     { icon: Eye,      colorVar: "var(--color-success)", bgClass: "var(--color-success-bg)" },
-  export:   { icon: FileText, colorVar: "var(--color-warning)", bgClass: "var(--color-warning-bg)" },
-  download: { icon: Download, colorVar: "var(--color-info)",    bgClass: "var(--color-info-bg)" },
-  reminder: { icon: Send,     colorVar: "var(--color-danger)",  bgClass: "var(--color-danger-bg)" },
+type Summary = {
+  total:     number;
+  logins:    number;
+  views:     number;
+  exports:   number;
+  downloads: number;
+  reminders: number;
+};
+
+type ApiResponse = {
+  data:       AuditLog[];
+  summary:    Summary;
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+};
+
+/* ─── action → filter key mapping ─── */
+function actionToType(action: string): string {
+  switch (action) {
+    case "LOGIN":          return "login";
+    case "VIEW_EMPLOYEE":
+    case "VIEW_APE":       return "view";
+    case "EXPORT":         return "export";
+    case "DOWNLOAD":       return "download";
+    case "SEND_REMINDER":  return "reminder";
+    case "BULK_SCHEDULE":  return "export";
+    default:               return "view";
+  }
+}
+
+/* ─── action → human-readable label ─── */
+function actionLabel(action: string): string {
+  switch (action) {
+    case "LOGIN":          return "Login";
+    case "VIEW_EMPLOYEE":  return "Employee Viewed";
+    case "VIEW_APE":       return "APE Record Viewed";
+    case "EXPORT":         return "Report Exported";
+    case "DOWNLOAD":       return "Bulk Download";
+    case "SEND_REMINDER":  return "Reminder Sent";
+    case "BULK_SCHEDULE":  return "Bulk Scheduling";
+    default:               return action;
+  }
+}
+
+const TYPE_META: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
+  login:    { icon: LogIn,    color: "var(--ui-status-info)",    bg: "#DBEAFE" },
+  view:     { icon: Eye,      color: "var(--ui-status-success)", bg: "#D1FAE5" },
+  export:   { icon: FileText, color: "var(--ui-status-warning)", bg: "#FEF3C7" },
+  download: { icon: Download, color: "var(--ui-status-info)",    bg: "#DBEAFE" },
+  reminder: { icon: Send,     color: "var(--ui-status-danger)",  bg: "#FEE2E2" },
 };
 
 const FILTERS = [
@@ -33,86 +77,155 @@ const FILTERS = [
   { val: "reminder", label: "Reminders" },
 ];
 
-const SUMMARY_CARDS = [
-  { label: "Total Actions",   value: () => MOCK_LOGS.length,                                                              colorVar: "var(--color-info)" },
-  { label: "Logins",          value: () => MOCK_LOGS.filter((l) => l.type === "login").length,                            colorVar: "var(--color-info)" },
-  { label: "Records Viewed",  value: () => MOCK_LOGS.filter((l) => l.type === "view").length,                             colorVar: "var(--color-success)" },
-  { label: "Exports",         value: () => MOCK_LOGS.filter((l) => l.type === "export" || l.type === "download").length,  colorVar: "var(--color-warning)" },
-];
+function maskIp(ip: string | null): string {
+  if (!ip) return "—";
+  const parts = ip.split(".");
+  if (parts.length === 4) return `${parts[0]}.${parts[1]}.**.**`;
+  return ip.replace(/:[\da-f]+:[\da-f]+$/i, ":****");
+}
 
 export default function AuditTrailPage() {
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [search, setSearch]     = useState("");
+  const [filter, setFilter]     = useState("all");
+  const [page, setPage]         = useState(1);
+  const [loading, setLoading]   = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [logs, setLogs]         = useState<AuditLog[]>([]);
+  const [summary, setSummary]   = useState<Summary>({ total: 0, logins: 0, views: 0, exports: 0, downloads: 0, reminders: 0 });
+  const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, totalPages: 1 });
 
-  const filtered = MOCK_LOGS.filter((log) => {
-    const matchSearch = log.action.toLowerCase().includes(search.toLowerCase()) ||
-                        log.detail.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === "all" || log.type === filter;
-    return matchSearch && matchFilter;
-  });
+  const fetchData = useCallback(async (showRefresh = false) => {
+    if (showRefresh) setRefreshing(true); else setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("page", String(page));
+      params.set("limit", "50");
+      if (filter !== "all") {
+        // Map filter key back to API action value
+        const actionMap: Record<string, string> = {
+          login: "LOGIN", view: "VIEW_EMPLOYEE", export: "EXPORT",
+          download: "DOWNLOAD", reminder: "SEND_REMINDER",
+        };
+        if (actionMap[filter]) params.set("action", actionMap[filter]);
+      }
+      if (search.trim()) params.set("search", search.trim());
 
-  const grouped: Record<string, typeof MOCK_LOGS> = {};
-  filtered.forEach((log) => {
-    const date = log.ts.split(" ")[0];
+      const res = await fetch(`/api/hr/audit?${params}`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      const json: ApiResponse = await res.json();
+      setLogs(json.data);
+      setSummary(json.summary);
+      setPagination(json.pagination);
+    } catch (err) {
+      console.error("[AUDIT_FETCH]", err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [page, filter, search]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Reset to page 1 when filter/search changes
+  useEffect(() => { setPage(1); }, [filter, search]);
+
+  // Group logs by date
+  const grouped: Record<string, AuditLog[]> = {};
+  logs.forEach((log) => {
+    const date = log.createdAt.split("T")[0];
     if (!grouped[date]) grouped[date] = [];
     grouped[date].push(log);
   });
 
+  const summaryCards = [
+    { label: "Total Actions",  value: summary.total,                        color: "var(--ui-status-info)" },
+    { label: "Logins",         value: summary.logins,                       color: "var(--ui-status-info)" },
+    { label: "Records Viewed", value: summary.views,                        color: "var(--ui-status-success)" },
+    { label: "Exports",        value: summary.exports + summary.downloads,  color: "var(--ui-status-warning)" },
+  ];
+
   return (
     <div className="space-y-6">
 
-      {/* Page header */}
-      <div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
-          <div style={{ width: 4, height: 28, background: "#E00500", borderRadius: 4, flexShrink: 0 }} />
-          <h1 style={{
-            fontSize: 24, fontWeight: 800, letterSpacing: "-0.01em",
-            color: "hsl(var(--foreground))",
-            fontFamily: "var(--font-playfair, Georgia, serif)",
-          }}>
-            Audit Trail
-          </h1>
+      {/* ── Header ── */}
+      <div style={{
+        borderRadius: 14,
+        background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
+        padding: "20px 24px", position: "relative", overflow: "hidden",
+      }}>
+        <div style={{
+          position: "absolute", inset: 0, opacity: 0.06,
+          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+        }} />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <ClipboardList style={{ width: 16, height: 16, color: "rgba(255,255,255,0.8)" }} />
+            <span style={{
+              fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.7)",
+              letterSpacing: "0.1em", textTransform: "uppercase",
+            }}>Reports &amp; Tools</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div>
+              <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.2 }}>
+                Audit Trail
+              </h1>
+              <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)", marginTop: 6 }}>
+                Complete log of all HR portal access, downloads, and actions
+              </p>
+            </div>
+            <button
+              onClick={() => fetchData(true)}
+              disabled={refreshing}
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "7px 14px", borderRadius: 8,
+                background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.15)",
+                color: "#fff", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+            >
+              <RefreshCw size={13} style={{ animation: refreshing ? "spin 1s linear infinite" : "none" }} />
+              Refresh
+            </button>
+          </div>
         </div>
-        <p style={{ fontSize: 13, color: "hsl(var(--muted-foreground))", marginLeft: 16 }}>
-          Complete log of all HR portal access, downloads, and actions.
-        </p>
       </div>
 
-      {/* Summary cards */}
+      {/* ── Summary cards ── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14 }}>
-        {SUMMARY_CARDS.map(({ label, value, colorVar }) => (
+        {summaryCards.map(({ label, value, color }) => (
           <div key={label} style={{
-            background: "hsl(var(--card))", borderRadius: 14, padding: "18px 20px",
-            border: "1px solid hsl(var(--border))",
-            boxShadow: "var(--shadow-sm)",
+            background: "var(--ui-card)", borderRadius: 14, padding: "18px 20px",
+            border: "1px solid var(--ui-border)",
+            boxShadow: "0 1px 3px var(--ui-shadow)",
           }}>
-            <p style={{ fontSize: 28, fontWeight: 900, color: colorVar, lineHeight: 1, fontFamily: "var(--font-playfair, Georgia, serif)" }}>
-              {value()}
+            <p style={{ fontSize: 28, fontWeight: 800, color, lineHeight: 1 }}>
+              {value.toLocaleString()}
             </p>
-            <p style={{ fontSize: 12, color: "hsl(var(--muted-foreground))", marginTop: 6, fontWeight: 500 }}>{label}</p>
+            <p style={{ fontSize: "0.72rem", color: "var(--ui-text-muted)", marginTop: 6, fontWeight: 500 }}>{label}</p>
           </div>
         ))}
       </div>
 
-      {/* Filters */}
+      {/* ── Filters ── */}
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
         {/* Search */}
         <div style={{ position: "relative", flex: "1 1 240px" }}>
-          <Search style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", width: 14, height: 14, color: "hsl(var(--muted-foreground))" }} />
+          <Search style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", width: 14, height: 14, color: "var(--ui-text-muted)" }} />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search actions…"
+            placeholder="Search actions, users, details…"
             style={{
               width: "100%", height: 40, paddingLeft: 36, paddingRight: 14,
-              borderRadius: 10, fontSize: 13, outline: "none", boxSizing: "border-box",
-              border: "1.5px solid hsl(var(--border))",
-              background: "hsl(var(--card))",
-              color: "hsl(var(--foreground))",
+              borderRadius: 10, fontSize: "0.82rem", outline: "none", boxSizing: "border-box",
+              border: "1.5px solid var(--ui-border)",
+              background: "var(--ui-card)",
+              color: "var(--ui-text-primary)",
               transition: "border-color 0.15s",
             }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = "hsl(var(--ring))")}
-            onBlur={(e)  => (e.currentTarget.style.borderColor = "hsl(var(--border))")}
           />
         </div>
         {/* Filter pills */}
@@ -124,11 +237,11 @@ export default function AuditTrailPage() {
                 key={val}
                 onClick={() => setFilter(val)}
                 style={{
-                  padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+                  padding: "6px 14px", borderRadius: 20, fontSize: "0.72rem", fontWeight: 600,
                   border: "1px solid", cursor: "pointer", transition: "all 0.15s",
-                  background: active ? "#1006A0" : "hsl(var(--card))",
-                  color:      active ? "white"   : "hsl(var(--muted-foreground))",
-                  borderColor: active ? "#1006A0" : "hsl(var(--border))",
+                  background: active ? "var(--ui-active-bg)" : "var(--ui-card)",
+                  color: active ? "var(--ui-active-text)" : "var(--ui-text-muted)",
+                  borderColor: active ? "var(--ui-active-text)" : "var(--ui-border)",
                 }}
               >
                 {label}
@@ -138,103 +251,165 @@ export default function AuditTrailPage() {
         </div>
       </div>
 
-      {/* Log entries grouped by date */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        {Object.entries(grouped).map(([date, logs]) => (
-          <div key={date}>
-            <p style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
-              color: "hsl(var(--muted-foreground))", marginBottom: 8,
-            }}>
-              {new Date(date).toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-            </p>
+      {/* ── Log entries grouped by date ── */}
+      {loading ? (
+        <div style={{ padding: 48, textAlign: "center", color: "var(--ui-text-muted)" }}>
+          Loading audit records…
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {Object.entries(grouped).map(([date, dateLogs]) => (
+            <div key={date}>
+              <p style={{
+                fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                color: "var(--ui-text-muted)", marginBottom: 8,
+              }}>
+                {new Date(date + "T00:00:00").toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+              </p>
 
-            <div style={{
-              background: "hsl(var(--card))",
-              borderRadius: 14,
-              border: "1px solid hsl(var(--border))",
-              overflow: "hidden",
-              boxShadow: "var(--shadow-sm)",
-            }}>
-              {logs.map((log, i) => {
-                const meta = TYPE_META[log.type] ?? TYPE_META.view;
-                const Icon = meta.icon;
-                return (
-                  <div
-                    key={log.id}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 14, padding: "14px 20px",
-                      borderBottom: i < logs.length - 1 ? "1px solid hsl(var(--border))" : "none",
-                      transition: "background 0.15s",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(var(--muted))")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                  >
-                    {/* Icon */}
-                    <div style={{
-                      width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                      background: meta.bgClass,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      <Icon style={{ width: 15, height: 15, color: meta.colorVar }} />
-                    </div>
-
-                    {/* Text */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: "hsl(var(--foreground))", lineHeight: 1 }}>
-                        {log.action}
-                      </p>
-                      <p style={{
-                        fontSize: 12, marginTop: 3,
-                        color: "hsl(var(--muted-foreground))",
-                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+              <div style={{
+                background: "var(--ui-card)", borderRadius: 14,
+                border: "1px solid var(--ui-border)", overflow: "hidden",
+                boxShadow: "0 1px 3px var(--ui-shadow)",
+              }}>
+                {dateLogs.map((log, i) => {
+                  const type = actionToType(log.action);
+                  const meta = TYPE_META[type] ?? TYPE_META.view;
+                  const Icon = meta.icon;
+                  const time = new Date(log.createdAt).toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+                  return (
+                    <div
+                      key={log.id}
+                      className="nwd-row-hover"
+                      style={{
+                        display: "flex", alignItems: "center", gap: 14, padding: "14px 20px",
+                        borderBottom: i < dateLogs.length - 1 ? "1px solid var(--ui-border)" : "none",
+                        transition: "background 0.15s",
+                      }}
+                    >
+                      {/* Icon */}
+                      <div style={{
+                        width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+                        background: meta.bg,
+                        display: "flex", alignItems: "center", justifyContent: "center",
                       }}>
-                        {log.detail}
-                      </p>
-                    </div>
+                        <Icon style={{ width: 15, height: 15, color: meta.color }} />
+                      </div>
 
-                    {/* Time + IP */}
-                    <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      <p style={{ fontSize: 11, color: "hsl(var(--muted-foreground))", fontFamily: "var(--font-mono, monospace)" }}>
-                        {log.ts.split(" ")[1]}
-                      </p>
-                      <p style={{ fontSize: 10, color: "hsl(var(--muted-foreground) / 0.5)", marginTop: 2, fontFamily: "var(--font-mono, monospace)" }}>
-                        IP: {log.ip}
-                      </p>
+                      {/* Text */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <p style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--ui-text-primary)", lineHeight: 1 }}>
+                            {actionLabel(log.action)}
+                          </p>
+                          {log.hrUserName && (
+                            <span style={{
+                              fontSize: "0.65rem", fontWeight: 600,
+                              background: "var(--ui-active-bg)", color: "var(--ui-active-text)",
+                              borderRadius: 6, padding: "1px 7px",
+                            }}>
+                              {log.hrUserName}
+                            </span>
+                          )}
+                        </div>
+                        <p style={{
+                          fontSize: "0.75rem", marginTop: 3,
+                          color: "var(--ui-text-muted)",
+                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        }}>
+                          {log.detail}
+                        </p>
+                      </div>
+
+                      {/* Time + IP */}
+                      <div style={{ textAlign: "right", flexShrink: 0 }}>
+                        <p style={{ fontSize: "0.68rem", color: "var(--ui-text-muted)", fontFamily: "var(--font-mono, monospace)" }}>
+                          {time}
+                        </p>
+                        <p style={{ fontSize: "0.62rem", color: "var(--ui-text-faint)", marginTop: 2, fontFamily: "var(--font-mono, monospace)" }}>
+                          IP: {maskIp(log.ipAddress)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        {filtered.length === 0 && (
-          <div style={{
-            background: "hsl(var(--card))", borderRadius: 14,
-            border: "1px solid hsl(var(--border))",
-            padding: "60px 0", textAlign: "center",
-          }}>
-            <ClipboardList style={{ width: 40, height: 40, color: "hsl(var(--border))", margin: "0 auto 12px" }} />
-            <p style={{ fontSize: 15, fontWeight: 600, color: "hsl(var(--muted-foreground))" }}>No audit records found</p>
-            <p style={{ fontSize: 13, color: "hsl(var(--muted-foreground) / 0.6)", marginTop: 6 }}>Try adjusting your search or filter.</p>
-          </div>
-        )}
-      </div>
+          {logs.length === 0 && (
+            <div style={{
+              background: "var(--ui-card)", borderRadius: 14,
+              border: "1px solid var(--ui-border)",
+              padding: "60px 0", textAlign: "center",
+            }}>
+              <ClipboardList style={{ width: 40, height: 40, color: "var(--ui-text-faint)", margin: "0 auto 12px" }} />
+              <p style={{ fontSize: "0.9rem", fontWeight: 600, color: "var(--ui-text-primary)" }}>No audit records found</p>
+              <p style={{ fontSize: "0.78rem", color: "var(--ui-text-muted)", marginTop: 6 }}>
+                {search || filter !== "all" ? "Try adjusting your search or filter." : "Actions will appear here as HR users interact with the portal."}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Compliance note */}
+      {/* ── Pagination ── */}
+      {pagination.totalPages > 1 && (
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+        }}>
+          <button
+            disabled={page <= 1}
+            onClick={() => setPage(p => p - 1)}
+            style={{
+              display: "flex", alignItems: "center", gap: 4,
+              padding: "6px 14px", borderRadius: 8,
+              background: "var(--ui-card)", border: "1px solid var(--ui-border)",
+              color: page <= 1 ? "var(--ui-text-faint)" : "var(--ui-text-secondary)",
+              fontSize: "0.78rem", fontWeight: 600, cursor: page <= 1 ? "not-allowed" : "pointer",
+            }}
+          >
+            <ChevronLeft size={14} /> Previous
+          </button>
+          <span style={{ fontSize: "0.75rem", color: "var(--ui-text-muted)" }}>
+            Page {pagination.page} of {pagination.totalPages}
+          </span>
+          <button
+            disabled={page >= pagination.totalPages}
+            onClick={() => setPage(p => p + 1)}
+            style={{
+              display: "flex", alignItems: "center", gap: 4,
+              padding: "6px 14px", borderRadius: 8,
+              background: "var(--ui-card)", border: "1px solid var(--ui-border)",
+              color: page >= pagination.totalPages ? "var(--ui-text-faint)" : "var(--ui-text-secondary)",
+              fontSize: "0.78rem", fontWeight: 600, cursor: page >= pagination.totalPages ? "not-allowed" : "pointer",
+            }}
+          >
+            Next <ChevronRight size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* ── Compliance note ── */}
       <div style={{
         padding: "14px 18px",
-        background: "hsl(var(--card))", borderRadius: 12,
-        border: "1px solid hsl(var(--border))",
+        background: "var(--ui-card)", borderRadius: 12,
+        border: "1px solid var(--ui-border)",
         display: "flex", alignItems: "flex-start", gap: 10,
       }}>
-        <AlertTriangle style={{ width: 15, height: 15, color: "var(--color-warning)", marginTop: 2, flexShrink: 0 }} />
-        <p style={{ fontSize: 12, color: "hsl(var(--muted-foreground))", lineHeight: 1.6, margin: 0 }}>
+        <AlertTriangle style={{ width: 15, height: 15, color: "var(--ui-status-warning)", marginTop: 2, flexShrink: 0 }} />
+        <p style={{ fontSize: "0.75rem", color: "var(--ui-text-muted)", lineHeight: 1.6, margin: 0 }}>
           This audit trail is read-only and retained per the NWD data retention policy in compliance with
           RA 10173 (Philippine Data Privacy Act). IP addresses are partially masked for privacy.
         </p>
       </div>
+
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

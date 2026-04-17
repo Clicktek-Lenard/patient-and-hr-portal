@@ -6,13 +6,13 @@ import {
   LayoutDashboard, Users, BarChart2, X,
   ShieldAlert, Heart, CalendarClock, Settings, ClipboardList,
   MessageSquarePlus,
+  PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type NavItem  = { href: string; label: string; icon: React.ElementType };
 type NavGroup = { label: string; items: NavItem[] };
 
-/* Spec §4.1 — 8 nav items */
 const navGroups: NavGroup[] = [
   {
     label: "Overview",
@@ -48,10 +48,14 @@ const navGroups: NavGroup[] = [
 interface HrSidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
+export function HrSidebar({ isOpen = true, onClose, collapsed = false, onToggleCollapse }: HrSidebarProps) {
   const pathname = usePathname();
+
+  const sidebarWidth = collapsed ? 64 : 240;
 
   return (
     <>
@@ -67,33 +71,42 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
         className={[
           "fixed inset-y-0 left-0 z-50 flex flex-col",
           "lg:static lg:translate-x-0",
-          "transition-transform duration-300 ease-in-out",
+          "transition-all duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
         style={{
-          width: 240,
+          width: sidebarWidth,
           flexShrink: 0,
           backgroundColor: "var(--ui-sidebar)",
           borderRight: "1px solid var(--ui-border)",
           height: "100vh",
           overflowY: "auto",
+          overflowX: "hidden",
           boxShadow: "2px 0 8px var(--ui-shadow)",
         }}
       >
         {/* ── Brand section ── */}
         <div style={{
-          padding: "16px 20px 14px",
+          padding: collapsed ? "16px 12px 14px" : "16px 20px 14px",
           borderBottom: "1px solid var(--ui-border)",
+          position: "relative",
         }}>
-          <Link href="/hr/dashboard" style={{ display: "flex", flexDirection: "column", gap: 4, textDecoration: "none" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/nwdi-logo-color.png" alt="NWDI"
-              onError={(e) => { (e.target as HTMLImageElement).src = "/nwdi-logo.png"; }}
-              style={{ width: "100%", height: 32, objectFit: "contain", objectPosition: "left" }}
-            />
-            <p style={{ fontSize: "0.6rem", color: "var(--ui-text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
-              HR Staff Portal
-            </p>
+          <Link href="/hr/dashboard" style={{ display: "flex", flexDirection: "column", alignItems: collapsed ? "center" : "flex-start", gap: 4, textDecoration: "none" }}>
+            {collapsed ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src="/ico.png" alt="NWDI" style={{ width: 32, height: 32, objectFit: "contain" }} />
+            ) : (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/nwdi-logo-color.png" alt="NWDI"
+                  onError={(e) => { (e.target as HTMLImageElement).src = "/nwdi-logo.png"; }}
+                  style={{ width: "100%", height: 32, objectFit: "contain", objectPosition: "left" }}
+                />
+                <p style={{ fontSize: "0.6rem", color: "var(--ui-text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
+                  HR Staff Portal
+                </p>
+              </>
+            )}
           </Link>
           {onClose && (
             <Button
@@ -111,13 +124,16 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
         <nav style={{ flex: 1, padding: "8px 0", overflowY: "auto" }}>
           {navGroups.map((group) => (
             <div key={group.label}>
-              <p style={{
-                padding: "10px 16px 4px",
-                fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em",
-                textTransform: "uppercase", color: "var(--ui-section-label)",
-              }}>
-                {group.label}
-              </p>
+              {!collapsed && (
+                <p style={{
+                  padding: "10px 16px 4px",
+                  fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em",
+                  textTransform: "uppercase", color: "var(--ui-section-label)",
+                }}>
+                  {group.label}
+                </p>
+              )}
+              {collapsed && <div style={{ height: 8 }} />}
               {group.items.map((item) => {
                 const isActive = pathname === item.href ||
                   (item.href !== "/hr/dashboard" && pathname.startsWith(item.href));
@@ -127,9 +143,11 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
                     key={item.href}
                     href={item.href}
                     onClick={onClose}
+                    title={collapsed ? item.label : undefined}
                     style={{
-                      display: "flex", alignItems: "center", gap: 9,
-                      padding: "7px 12px",
+                      display: "flex", alignItems: "center",
+                      gap: collapsed ? 0 : 9,
+                      padding: collapsed ? "9px 0" : "7px 12px",
                       margin: "1px 8px",
                       borderRadius: 8,
                       fontSize: "0.84rem",
@@ -138,15 +156,18 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
                       background: isActive ? "var(--ui-active-bg)" : "transparent",
                       transition: "all 0.15s",
                       textDecoration: "none",
+                      justifyContent: collapsed ? "center" : "flex-start",
                     }}
                     className="nwd-nav-item"
                   >
                     <span style={{ width: 18, textAlign: "center", flexShrink: 0 }}>
                       <Icon style={{ width: 15, height: 15, color: isActive ? "var(--ui-hr-active-icon)" : "var(--ui-text-muted)" }} />
                     </span>
-                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {item.label}
-                    </span>
+                    {!collapsed && (
+                      <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {item.label}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -154,18 +175,44 @@ export function HrSidebar({ isOpen = true, onClose }: HrSidebarProps) {
           ))}
         </nav>
 
-        {/* ── Tagline ── */}
-        <div style={{
-          padding: "10px 20px",
-          borderTop: "1px solid var(--ui-border)",
-        }}>
-          <p style={{
-            fontSize: "0.6rem", color: "var(--ui-text-faint)",
-            fontStyle: "italic", letterSpacing: "0.03em", textAlign: "center",
+        {/* ── Collapse toggle (desktop only) ── */}
+        {onToggleCollapse && (
+          <div className="hidden lg:block" style={{
+            padding: collapsed ? "8px 0" : "8px 12px",
+            borderTop: "1px solid var(--ui-border)",
+            display: "flex", justifyContent: collapsed ? "center" : "flex-end",
           }}>
-            &ldquo;Your Health is Our Commitment&rdquo;
-          </p>
-        </div>
+            <button
+              onClick={onToggleCollapse}
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: collapsed ? 40 : 32, height: 32, borderRadius: 8,
+                background: "transparent", border: "none", cursor: "pointer",
+                color: "var(--ui-text-muted)", transition: "all 0.15s",
+                margin: collapsed ? "0 auto" : undefined,
+              }}
+              className="nwd-nav-item"
+            >
+              {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+            </button>
+          </div>
+        )}
+
+        {/* ── Tagline ── */}
+        {!collapsed && (
+          <div style={{
+            padding: "10px 20px",
+            borderTop: onToggleCollapse ? "none" : "1px solid var(--ui-border)",
+          }}>
+            <p style={{
+              fontSize: "0.6rem", color: "var(--ui-text-faint)",
+              fontStyle: "italic", letterSpacing: "0.03em", textAlign: "center",
+            }}>
+              &ldquo;Your Health is Our Commitment&rdquo;
+            </p>
+          </div>
+        )}
 
       </aside>
     </>

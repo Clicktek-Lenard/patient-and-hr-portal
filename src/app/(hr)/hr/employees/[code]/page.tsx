@@ -1,8 +1,9 @@
 "use client";
 
-import React, { use, useState } from "react";
+import React, { use, useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import {
   ArrowLeft,
   User,
@@ -263,6 +264,8 @@ function VisitRow({ visit }: { visit: Visit }) {
 export default function EmployeeDetailPage({ params }: { params: Promise<{ code: string }> }) {
   const { code: rawCode } = use(params);
   const code = decodeURIComponent(rawCode);
+  const { log: auditLog } = useAuditLog();
+  const auditLogged = useRef(false);
 
   const { data, isLoading, isError, error } = useQuery<DetailResponse>({
     queryKey: ["hr-employee", code],
@@ -273,6 +276,14 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ code:
       }),
     retry: false,
   });
+
+  // Log audit event once when employee data loads
+  useEffect(() => {
+    if (data?.patient && !auditLogged.current) {
+      auditLogged.current = true;
+      auditLog("VIEW_EMPLOYEE", `Viewed record of ${data.patient.fullName ?? code}`, code);
+    }
+  }, [data, code, auditLog]);
 
   if (isLoading) {
     return (

@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, FlaskConical, TrendingUp, CalendarPlus,
-  Share2, History, CreditCard, Bell,
+  Share2, History, Bell,
   User, Heart, MapPin, HelpCircle, Star,
   MessageSquarePlus,
-  X,
+  X, PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNotifications } from "@/hooks/use-notifications";
@@ -40,7 +40,6 @@ const navGroups: NavGroup[] = [
     items: [
       { href: "/share",          label: "Share Results",  icon: Share2 },
       { href: "/access-history", label: "Access History", icon: History },
-      { href: "/payments",       label: "Payments",       icon: CreditCard },
       { href: "/notifications",  label: "Notifications",  icon: Bell, showBadge: true },
     ],
   },
@@ -60,11 +59,15 @@ const navGroups: NavGroup[] = [
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
+export function Sidebar({ isOpen = true, onClose, collapsed = false, onToggleCollapse }: SidebarProps) {
   const pathname    = usePathname();
   const { unreadCount } = useNotifications();
+
+  const sidebarWidth = collapsed ? 64 : 240;
 
   return (
     <>
@@ -80,33 +83,42 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         className={[
           "fixed inset-y-0 left-0 z-50 flex flex-col",
           "lg:static lg:translate-x-0",
-          "transition-transform duration-300 ease-in-out",
+          "transition-all duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
         style={{
-          width: 240,
+          width: sidebarWidth,
           flexShrink: 0,
           backgroundColor: "var(--ui-sidebar)",
           borderRight: "1px solid var(--ui-border)",
           height: "100vh",
           overflowY: "auto",
+          overflowX: "hidden",
           boxShadow: "2px 0 8px var(--ui-shadow)",
         }}
       >
         {/* ── Brand section ── */}
         <div style={{
-          padding: "16px 20px 14px",
+          padding: collapsed ? "16px 12px 14px" : "16px 20px 14px",
           borderBottom: "1px solid var(--ui-border)",
+          position: "relative",
         }}>
-          <Link href="/dashboard" style={{ display: "flex", flexDirection: "column", gap: 4, textDecoration: "none" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/nwdi-logo-color.png" alt="NWDI"
-              onError={(e) => { (e.target as HTMLImageElement).src = "/nwdi-logo.png"; }}
-              style={{ width: "100%", height: 32, objectFit: "contain", objectPosition: "left" }}
-            />
-            <p style={{ fontSize: "0.6rem", color: "var(--ui-text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
-              Patient Portal
-            </p>
+          <Link href="/dashboard" style={{ display: "flex", flexDirection: "column", alignItems: collapsed ? "center" : "flex-start", gap: 4, textDecoration: "none" }}>
+            {collapsed ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src="/ico.png" alt="NWDI" style={{ width: 32, height: 32, objectFit: "contain" }} />
+            ) : (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/nwdi-logo-color.png" alt="NWDI"
+                  onError={(e) => { (e.target as HTMLImageElement).src = "/nwdi-logo.png"; }}
+                  style={{ width: "100%", height: 32, objectFit: "contain", objectPosition: "left" }}
+                />
+                <p style={{ fontSize: "0.6rem", color: "var(--ui-text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
+                  Patient Portal
+                </p>
+              </>
+            )}
           </Link>
           {onClose && (
             <Button
@@ -124,13 +136,16 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         <nav style={{ flex: 1, padding: "8px 0", overflowY: "auto" }}>
           {navGroups.map((group) => (
             <div key={group.label}>
-              <p style={{
-                padding: "10px 16px 4px",
-                fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em",
-                textTransform: "uppercase", color: "var(--ui-section-label)",
-              }}>
-                {group.label}
-              </p>
+              {!collapsed && (
+                <p style={{
+                  padding: "10px 16px 4px",
+                  fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em",
+                  textTransform: "uppercase", color: "var(--ui-section-label)",
+                }}>
+                  {group.label}
+                </p>
+              )}
+              {collapsed && <div style={{ height: 8 }} />}
               {group.items.map((item) => {
                 const isActive = pathname === item.href ||
                   (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -140,10 +155,12 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                     key={item.href}
                     href={item.href}
                     onClick={onClose}
+                    title={collapsed ? item.label : undefined}
                     style={{
-                      display: "flex", alignItems: "center", gap: 9,
-                      padding: "7px 12px",
-                      margin: "1px 8px",
+                      display: "flex", alignItems: "center",
+                      gap: collapsed ? 0 : 9,
+                      padding: collapsed ? "9px 0" : "7px 12px",
+                      margin: collapsed ? "1px 8px" : "1px 8px",
                       borderRadius: 8,
                       fontSize: "0.84rem",
                       fontWeight: isActive ? 600 : 400,
@@ -152,16 +169,20 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                       transition: "all 0.15s",
                       textDecoration: "none",
                       userSelect: "none",
+                      justifyContent: collapsed ? "center" : "flex-start",
+                      position: "relative",
                     }}
                     className="nwd-nav-item"
                   >
                     <span style={{ width: 18, textAlign: "center", flexShrink: 0 }}>
                       <Icon style={{ width: 15, height: 15, color: isActive ? "var(--ui-active-icon)" : "var(--ui-text-muted)" }} />
                     </span>
-                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {item.label}
-                    </span>
-                    {item.comingSoon && (
+                    {!collapsed && (
+                      <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {item.label}
+                      </span>
+                    )}
+                    {!collapsed && item.comingSoon && (
                       <span style={{
                         fontSize: "0.6rem", fontWeight: 700, color: "#D97706",
                         background: "#FEF3C7", border: "1px solid #FDE68A",
@@ -176,6 +197,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                         background: "#E00500", color: "white",
                         fontSize: "0.6rem", fontWeight: 700,
                         display: "flex", alignItems: "center", justifyContent: "center",
+                        ...(collapsed ? { position: "absolute", top: 2, right: 4 } : {}),
                       }}>
                         {unreadCount > 99 ? "99+" : unreadCount}
                       </span>
@@ -187,18 +209,44 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           ))}
         </nav>
 
-        {/* ── Tagline ── */}
-        <div style={{
-          padding: "10px 20px",
-          borderTop: "1px solid var(--ui-border)",
-        }}>
-          <p style={{
-            fontSize: "0.6rem", color: "var(--ui-text-faint)",
-            fontStyle: "italic", letterSpacing: "0.03em", textAlign: "center",
+        {/* ── Collapse toggle (desktop only) ── */}
+        {onToggleCollapse && (
+          <div className="hidden lg:block" style={{
+            padding: collapsed ? "8px 0" : "8px 12px",
+            borderTop: "1px solid var(--ui-border)",
+            display: "flex", justifyContent: collapsed ? "center" : "flex-end",
           }}>
-            &ldquo;Your Health is Our Commitment&rdquo;
-          </p>
-        </div>
+            <button
+              onClick={onToggleCollapse}
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: collapsed ? 40 : 32, height: 32, borderRadius: 8,
+                background: "transparent", border: "none", cursor: "pointer",
+                color: "var(--ui-text-muted)", transition: "all 0.15s",
+                margin: collapsed ? "0 auto" : undefined,
+              }}
+              className="nwd-nav-item"
+            >
+              {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+            </button>
+          </div>
+        )}
+
+        {/* ── Tagline ── */}
+        {!collapsed && (
+          <div style={{
+            padding: "10px 20px",
+            borderTop: onToggleCollapse ? "none" : "1px solid var(--ui-border)",
+          }}>
+            <p style={{
+              fontSize: "0.6rem", color: "var(--ui-text-faint)",
+              fontStyle: "italic", letterSpacing: "0.03em", textAlign: "center",
+            }}>
+              &ldquo;Your Health is Our Commitment&rdquo;
+            </p>
+          </div>
+        )}
 
       </aside>
     </>
