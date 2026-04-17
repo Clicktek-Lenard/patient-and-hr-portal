@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { cmsPrisma } from "@/lib/prisma-cms";
+import { prisma } from "@/lib/prisma";
 import { EMPLOYEE_TRANSACTION_WHERE } from "@/lib/hr-employee-filter";
 
 export async function GET(req: NextRequest) {
@@ -92,12 +93,25 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
+  // Fetch portal-side departments for the loaded patients
+  const codes = patients.map((p) => p.code).filter((c): c is string => !!c);
+  const deptMap = new Map<string, string>();
+  if (codes.length > 0) {
+    const depts = await prisma.portalEmployeeDepartment.findMany({
+      where: { patientCode: { in: codes } },
+      select: { patientCode: true, department: true },
+    });
+    for (const d of depts) deptMap.set(d.patientCode, d.department);
+  }
+
   const data = patients.map((p) => {
-    // Pick the first non-null company from recent queues
-    let company: string | null = null;
-    for (const q of p.queues) {
-      const c = q.transactions[0]?.nameCompany ?? null;
-      if (c) { company = c; break; }
+    // Prefer portal-saved department, fall back to first non-null company from queues
+    let company: string | null = p.code ? (deptMap.get(p.code) ?? null) : null;
+    if (!company) {
+      for (const q of p.queues) {
+        const c = q.transactions[0]?.nameCompany ?? null;
+        if (c) { company = c; break; }
+      }
     }
     const { queues: _q, ...rest } = p;
     return { ...rest, id: Number(p.id), company };
@@ -157,6 +171,15 @@ export async function POST(req: NextRequest) {
         uploaddatetime: new Date(),
       },
     });
+
+    // Save department to portal DB (keyed by patient code)
+    if (department?.trim() && patient.code) {
+      await prisma.portalEmployeeDepartment.upsert({
+        where: { patientCode: patient.code },
+        update: { department: department.trim() },
+        create: { patientCode: patient.code, department: department.trim() },
+      });
+    }
 
     return NextResponse.json({
       data: {

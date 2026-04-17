@@ -150,6 +150,17 @@ enum UserRole {
   @@map("user_role")
 }
 
+model PortalEmployeeDepartment {
+  id          String   @id @default(cuid())
+  patientCode String   @unique @map("patient_code") @db.VarChar(50)
+  department  String   @db.VarChar(200)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([department])
+  @@map("portal_employee_department")
+}
+
 model PortalAuditLog {
   id          String   @id @default(cuid())
   hrUserId    String   @map("hr_user_id")
