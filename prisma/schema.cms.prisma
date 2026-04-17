@@ -26,9 +26,10 @@ model CmsPatient {
   mobile      String?   @map("moblie") @db.VarChar(255)
   contactNo   String?   @map("contactno") @db.VarChar(80)
   fullAddress String?   @map("fulladdress") @db.VarChar(500)
-  isActive    Int       @map("isactive")
-  pictureLink String?   @map("picturelink") @db.VarChar(100)
-  lastVisit   DateTime? @map("lastvisit") @db.Date
+  isActive        Int       @map("isactive")
+  pictureLink     String?   @map("picturelink") @db.VarChar(100)
+  lastVisit       DateTime? @map("lastvisit") @db.Date
+  uploaddatetime  DateTime  @db.Timestamp(6)
 
   queues CmsQueue[]
 

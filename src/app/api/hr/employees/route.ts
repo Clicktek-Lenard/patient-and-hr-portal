@@ -151,6 +151,7 @@ export async function POST(req: NextRequest) {
         gender: gender?.trim() || null,
         dob: new Date(dob),
         isActive: 1,
+        uploaddatetime: new Date(),
       },
     });
 
