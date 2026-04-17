@@ -150,6 +150,23 @@ enum UserRole {
   @@map("user_role")
 }
 
+model PortalAuditLog {
+  id          String   @id @default(cuid())
+  hrUserId    String   @map("hr_user_id")
+  hrUserName  String   @map("hr_user_name") @db.VarChar(200)
+  action      String   @db.VarChar(50)
+  detail      String   @db.Text
+  targetCode  String?  @map("target_code") @db.VarChar(50)
+  ipAddress   String?  @map("ip_address") @db.VarChar(45)
+  userAgent   String?  @map("user_agent") @db.VarChar(500)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([action])
+  @@index([hrUserId])
+  @@index([createdAt])
+  @@map("portal_audit_log")
+}
+
 enum UatSeverity {
   Bug
   Suggestion
