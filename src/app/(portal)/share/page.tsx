@@ -145,7 +145,7 @@ function SharePageInner() {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         {/* Generate form */}
         <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px var(--ui-shadow)" }}>
           <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--ui-border)" }}>
@@ -158,7 +158,7 @@ function SharePageInner() {
                 <select
                   value={queueCode}
                   onChange={(e) => setQueueCode(e.target.value)}
-                  className="w-full h-10 rounded-xl border border-border bg-background text-sm px-3 pr-8 text-foreground appearance-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  style={{ width: "100%", height: 40, borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.82rem", padding: "0 30px 0 12px", appearance: "none" as const, outline: "none", boxSizing: "border-box" as const }}
                 >
                   <option value="">— Choose a result to share —</option>
                   {resultOptions.map((r) => (
@@ -178,13 +178,13 @@ function SharePageInner() {
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 placeholder="e.g. Dr. Santos"
-                className="w-full h-10 rounded-xl border border-border bg-background text-sm px-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                style={{ width: "100%", height: 40, borderRadius: 10, border: "1.5px solid var(--ui-border)", background: "var(--ui-card)", color: "var(--ui-text-primary)", fontSize: "0.82rem", padding: "0 12px", outline: "none", boxSizing: "border-box" as const }}
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Link Expires After</label>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(70px, 1fr))", gap: 6 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                 {EXPIRY_OPTIONS.map((opt) => {
                   const active = expiryHours === opt.hours;
                   return (
@@ -212,12 +212,20 @@ function SharePageInner() {
             <button
               onClick={() => createMutation.mutate({ queueCode, resultLabel, recipient, expiryHours })}
               disabled={!queueCode || !expiryHours || createMutation.isPending}
-              className="w-full h-10 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 transition-opacity hover:opacity-90"
-              style={{ background: "var(--gradient-primary)" }}
+              style={{
+                width: "100%", height: 42, borderRadius: 10, border: "none",
+                background: (!queueCode || !expiryHours) ? "var(--ui-border)" : "#4F46E5",
+                color: (!queueCode || !expiryHours) ? "var(--ui-text-faint)" : "#fff",
+                fontSize: "0.85rem", fontWeight: 600,
+                cursor: (!queueCode || !expiryHours || createMutation.isPending) ? "not-allowed" : "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                opacity: createMutation.isPending ? 0.7 : 1,
+                transition: "all 0.15s",
+              }}
             >
               {createMutation.isPending
-                ? <><Loader2 className="h-4 w-4 animate-spin" />Generating…</>
-                : <><Link2 className="h-4 w-4" />Generate Secure Link</>
+                ? <><Loader2 size={15} style={{ animation: "spin 1s linear infinite" }} />Generating…</>
+                : <><Link2 size={15} />Generate Link</>
               }
             </button>
           </div>
