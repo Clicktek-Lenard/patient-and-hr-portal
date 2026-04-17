@@ -1,10 +1,40 @@
+/**
+ * Portal seed — DEV ONLY.
+ *
+ * WARNING: This seed WIPES the portal database. It only runs if
+ *   ALLOW_DESTRUCTIVE_SEED=true
+ * is explicitly set in the environment. Otherwise it aborts safely.
+ *
+ * Do NOT run this against production. Use prisma/seed-staging.sql
+ * (idempotent, ON CONFLICT DO NOTHING) or prisma/seed-patients.ts
+ * (upsert pattern) for production seeding.
+ */
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Starting seed...");
+  // ── Safety guard ─────────────────────────────────────────────────────────
+  if (process.env.ALLOW_DESTRUCTIVE_SEED !== "true") {
+    console.error("\n❌ REFUSING TO RUN: prisma/seed.ts is destructive.\n");
+    console.error("This seed deletes ALL portal users, sessions, notifications,");
+    console.error("appointments, share links, OTPs, and access logs.\n");
+    console.error("If you REALLY want to wipe the portal DB, set:");
+    console.error("    ALLOW_DESTRUCTIVE_SEED=true\n");
+    console.error("For safe seeding use one of:");
+    console.error("  • prisma/seed-staging.sql    (idempotent SQL, recommended)");
+    console.error("  • prisma/seed-patients.ts    (upsert-based, safe to re-run)\n");
+    process.exit(1);
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    console.error("\n❌ REFUSING TO RUN: NODE_ENV=production detected.\n");
+    console.error("This destructive seed must never run against production.\n");
+    process.exit(1);
+  }
+
+  console.log("⚠️  Destructive seed enabled. Wiping portal tables...");
 
   // Clean up existing data (order matters for FK constraints)
   await prisma.portalResultAccessLog.deleteMany();
