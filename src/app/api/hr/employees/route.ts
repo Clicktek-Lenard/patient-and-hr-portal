@@ -105,12 +105,12 @@ export async function GET(req: NextRequest) {
   }
 
   const data = patients.map((p) => {
-    // Prefer portal-saved department, fall back to first non-null company from queues
+    // Prefer portal-saved department, fall back to first non-DEFAULT company from queues
     let company: string | null = p.code ? (deptMap.get(p.code) ?? null) : null;
     if (!company) {
       for (const q of p.queues) {
         const c = q.transactions[0]?.nameCompany ?? null;
-        if (c) { company = c; break; }
+        if (c && !c.toUpperCase().includes("DEFAULT")) { company = c; break; }
       }
     }
     const { queues: _q, ...rest } = p;
