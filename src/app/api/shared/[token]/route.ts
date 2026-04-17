@@ -60,9 +60,7 @@ export async function GET(
 
     const parameters = queue.transactions.map((t) => ({
       name: t.descriptionItemPrice ?? t.codeItemPrice ?? "—",
-      value: t.amountItemPrice != null
-        ? `₱${Number(t.amountItemPrice).toLocaleString("en-PH", { minimumFractionDigits: 2 })}`
-        : "—",
+      value: "—",
       group: t.groupItemMaster ?? t.transactionType ?? undefined,
     }));
 

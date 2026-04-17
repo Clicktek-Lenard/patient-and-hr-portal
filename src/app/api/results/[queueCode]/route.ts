@@ -88,7 +88,7 @@ export async function GET(
     // Map transactions as visit service items
     const parameters = queue.transactions.map((t) => ({
       name:           t.descriptionItemPrice ?? t.codeItemPrice ?? "—",
-      value:          t.amountItemPrice != null ? `₱${Number(t.amountItemPrice).toLocaleString("en-PH", { minimumFractionDigits: 2 })}` : "—",
+      value:          "—",
       unit:           undefined,
       referenceRange: undefined,
       flag:           undefined,
