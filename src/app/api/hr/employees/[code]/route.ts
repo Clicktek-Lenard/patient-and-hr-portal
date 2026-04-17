@@ -52,9 +52,7 @@ export async function GET(
       },
     });
 
-    if (rawVisits.length === 0) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-    }
+    // Employee with no visits yet is still valid (e.g. newly added)
 
     // Fetch transactions for all visits
     const queueBigIds = rawVisits.map((q) => q.id);
