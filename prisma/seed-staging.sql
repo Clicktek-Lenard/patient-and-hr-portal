@@ -137,7 +137,7 @@ VALUES (
   gen_random_uuid()::text,
   'HR-2024-00002',
   'Leonel', 'HR',
-  'leonelHR@hotmail.com',
+  'leonelhr@hotmail.com',
   '09000000002',
   '$2b$10$QX7pbWc1QzZGQ.qPrQRNH.G.RCbpyx9ix/pVFpv7oGil/kXWg.As6',
   '1990-01-01',
