@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   MessageSquarePlus, Download, RefreshCw, ShieldAlert,
-  Bug, Lightbulb, HelpCircle, CheckCircle2, Clock, Eye,
+  Bug, Lightbulb, HelpCircle,
   Image as ImageIcon,
 } from "lucide-react";
 

@@ -20,7 +20,6 @@ export async function GET(req: NextRequest) {
     const page        = isNaN(rawPage)     || rawPage     < 1   ? 1  : rawPage;
     const pageSize    = isNaN(rawPageSize) || rawPageSize < 1   ? 10
                       : rawPageSize > 100                        ? 100 : rawPageSize;
-    const statusFilter = searchParams.get("status") ?? "";
 
     const cmsPatient = await cmsPrisma.cmsPatient.findUnique({
       where: { code: patientCode },

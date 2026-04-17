@@ -6,8 +6,9 @@ import { UatStatus } from "@prisma/client";
 // PATCH /api/uat/feedback/[id] — HR/ADMIN only, update status
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   const session = await auth();
   const role = (session?.user as { role?: string } | undefined)?.role;
   if (!session?.user || !["HR", "ADMIN"].includes(role ?? "")) {
