@@ -125,3 +125,24 @@ model CmsCompany {
 
   @@map("company")
 }
+
+model CorporateEmployee {
+  id          Int      @id @default(autoincrement())
+  eventId     Int?     @map("event_id")
+  companyId   Int?     @map("company_id")
+  employeeId  String?  @map("employee_id") @db.VarChar(50)
+  lastName    String   @map("last_name") @db.VarChar(80)
+  firstName   String   @map("first_name") @db.VarChar(150)
+  middleName  String?  @map("middle_name") @db.VarChar(80)
+  gender      String?  @db.VarChar(10)
+  dob         DateTime? @db.Date
+  position    String?  @db.VarChar(100)
+  department  String?  @db.VarChar(100)
+  packageType String?  @map("package_type") @db.VarChar(50)
+  patientId   BigInt?  @map("patient_id")
+  queueId     BigInt?  @map("queue_id")
+  status      String   @default("REGISTERED") @db.VarChar(20)
+
+  @@index([patientId])
+  @@map("corporate_employees")
+}

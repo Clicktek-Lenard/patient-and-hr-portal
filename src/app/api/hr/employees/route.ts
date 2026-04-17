@@ -93,20 +93,37 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
-  // Fetch portal-side departments for the loaded patients
+  // Fetch portal-side departments for the loaded patients (manual overrides)
   const codes = patients.map((p) => p.code).filter((c): c is string => !!c);
-  const deptMap = new Map<string, string>();
+  const portalDeptMap = new Map<string, string>();
   if (codes.length > 0) {
     const depts = await prisma.portalEmployeeDepartment.findMany({
       where: { patientCode: { in: codes } },
       select: { patientCode: true, department: true },
     });
-    for (const d of depts) deptMap.set(d.patientCode, d.department);
+    for (const d of depts) portalDeptMap.set(d.patientCode, d.department);
+  }
+
+  // Fetch CMS corporate_employees.department for loaded patients
+  const patientIds = patients.map((p) => p.id);
+  const cmsDeptMap = new Map<string, string>();
+  if (patientIds.length > 0) {
+    const corpEmps = await cmsPrisma.corporateEmployee.findMany({
+      where: { patientId: { in: patientIds }, department: { not: null } },
+      select: { patientId: true, department: true },
+      orderBy: { id: "desc" },
+    });
+    for (const ce of corpEmps) {
+      if (ce.patientId && ce.department && !cmsDeptMap.has(ce.patientId.toString())) {
+        cmsDeptMap.set(ce.patientId.toString(), ce.department);
+      }
+    }
   }
 
   const data = patients.map((p) => {
-    // Prefer portal-saved department, fall back to first non-DEFAULT company from queues
-    let company: string | null = p.code ? (deptMap.get(p.code) ?? null) : null;
+    // Priority: portal-saved override → CMS corporate_employees.department → first non-DEFAULT company from queues
+    let company: string | null = p.code ? (portalDeptMap.get(p.code) ?? null) : null;
+    if (!company) company = cmsDeptMap.get(p.id.toString()) ?? null;
     if (!company) {
       for (const q of p.queues) {
         const c = q.transactions[0]?.nameCompany ?? null;
