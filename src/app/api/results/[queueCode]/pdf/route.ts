@@ -7,15 +7,17 @@ import { prisma } from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 
-// ── Colours ──────────────────────────────────────────────────────
-const BLUE    = "#1a3a6b";
-const LBLUE   = "#e8eef8";
-const DBORDER = "#b8c9e8";
+// ── Colours (matching screenshot: purple/indigo theme) ───────────
+const PURPLE  = "#3730a3"; // indigo-800 — header bg
+const PURPLE2 = "#4338ca"; // indigo-700 — section header
+const LTPURP  = "#ede9fe"; // header right panel bg
 const GRAY    = "#6b7280";
-const LGRAY   = "#f3f4f6";
+const DGRAY   = "#374151";
+const LGRAY   = "#f9fafb";
+const BGRAY   = "#f3f4f6";
 const WHITE   = "#ffffff";
-const WARN_BG = "#fef9c3";
-const WARN_TXT = "#854d0e";
+const BORDER  = "#e5e7eb";
+const BLACK   = "#111827";
 
 function formatDate(d: Date | null | undefined): string {
   if (!d) return "—";
@@ -25,9 +27,6 @@ function formatDateTime(d: Date | null | undefined): string {
   if (!d) return "—";
   return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) +
     "  " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-}
-function formatCurrency(n: number): string {
-  return n.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 async function generateResultPdf(queue: {
@@ -68,146 +67,139 @@ async function generateResultPdf(queue: {
     const doc = new PDFDocument({ size: "A4", margin: 0 });
     const chunks: Buffer[] = [];
     doc.on("data", (c: Buffer) => chunks.push(c));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("end",  () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    const W   = doc.page.width;   // 595
-    const PAD = 40;
+    const W   = doc.page.width;   // 595.28
+    const H   = doc.page.height;  // 841.89
+    const PAD = 36;
     const PW  = W - PAD * 2;
 
-    const doctor  = queue.transactions.find((t) => t.nameDoctor)?.nameDoctor ?? null;
-    const company = queue.transactions.find((t) => t.nameCompany)?.nameCompany ?? null;
-    const total   = queue.transactions.reduce((s, t) => s + Number(t.amountItemPrice ?? 0), 0);
-    const statusLabel = queue.status >= 400 ? "RELEASED / COMPLETE" : queue.status >= 300 ? "FOR RELEASE" : "IN PROGRESS";
-    const statusColor = queue.status >= 400 ? "#166534" : queue.status >= 300 ? "#1e40af" : "#854d0e";
-    const statusBg    = queue.status >= 400 ? "#dcfce7"  : queue.status >= 300 ? "#dbeafe"  : WARN_BG;
-    const printDate   = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    const doctor  = queue.transactions.find((t) => t.nameDoctor)?.nameDoctor  ?? null;
+    const ageSex  = [queue.agePatient ? `${queue.agePatient}` : null, queue.qGender].filter(Boolean).join(" / ") || "—";
+    const printDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
-    // ── Header ────────────────────────────────────────────────────
-    doc.rect(0, 0, W, 68).fill(BLUE);
-    doc.fill(WHITE).font("Helvetica-Bold").fontSize(19).text("NEW WORLD DIAGNOSTICS, INC.", PAD, 16);
-    doc.fill(WHITE).font("Helvetica").fontSize(8.5)
-       .text("NWDI Medical Center  |  Tel: (02) 8-123-4567  |  www.nwdi.com.ph", PAD, 42);
-    doc.fill(WHITE).font("Helvetica").fontSize(8)
-       .text("Laboratory / APE Result Report", PAD, 56);
+    // ── Header split: left = clinic name, right = report title ───
+    const HDR_H = 72;
+    doc.rect(0, 0, W * 0.55, HDR_H).fill(WHITE);
+    doc.rect(W * 0.55, 0, W * 0.45, HDR_H).fill(LTPURP);
 
-    // ── Report title bar ─────────────────────────────────────────
-    doc.rect(0, 68, W, 24).fill("#dce8f8");
-    doc.fill(BLUE).font("Helvetica-Bold").fontSize(10.5)
-       .text("ANNUAL PHYSICAL EXAMINATION  —  RESULT REPORT", PAD, 78);
+    // Left — clinic name
+    doc.fill(PURPLE).font("Helvetica-Bold").fontSize(15)
+       .text("Baesa", PAD, 14, { width: W * 0.5 });
+    doc.fill(DGRAY).font("Helvetica").fontSize(7.5)
+       .text("Units 4 & 5 Olympia Commercial Plaza, 131 Quirino Highway Baesa, Quezon City", PAD, 32, { width: W * 0.5 });
+    doc.fill(DGRAY).font("Helvetica").fontSize(7.5)
+       .text("TIN: 007-896-694-00001", PAD, 42, { width: W * 0.5 });
 
-    // ── Patient info box ─────────────────────────────────────────
-    const py = 102;
-    doc.roundedRect(PAD, py, PW, 82, 5).fill(LBLUE).stroke(DBORDER);
+    // Right — report type + accession
+    const rx = W * 0.55 + 14;
+    doc.fill(PURPLE).font("Helvetica-Bold").fontSize(14)
+       .text("LABORATORY RESULT", rx, 10, { width: W * 0.42 });
+    doc.fill(DGRAY).font("Helvetica").fontSize(8)
+       .text(`Accession No: ${queue.accessionNo ?? queue.code ?? "—"}`, rx, 34);
+    doc.fill(DGRAY).font("Helvetica").fontSize(8)
+       .text(`Date: ${formatDateTime(queue.dateTime)}`, rx, 46);
 
-    const gender = queue.qGender === "M" ? "Male" : queue.qGender === "F" ? "Female" : (queue.qGender ?? "—");
+    // ── Divider ───────────────────────────────────────────────────
+    doc.moveTo(0, HDR_H).lineTo(W, HDR_H).lineWidth(1.5).stroke(PURPLE);
 
-    doc.fill(BLUE).font("Helvetica-Bold").fontSize(7).text("PATIENT NAME", PAD+10, py+10);
-    doc.fill("#111827").font("Helvetica-Bold").fontSize(13).text(queue.qFullName ?? "—", PAD+10, py+20, { width: 250 });
+    // ── Patient info grid ─────────────────────────────────────────
+    let y = HDR_H + 10;
+    const CELL_H = 36;
 
-    const col2 = PAD + 310;
-    doc.fill(BLUE).font("Helvetica-Bold").fontSize(7).text("PATIENT CODE", col2, py+10);
-    doc.fill("#111827").font("Helvetica").fontSize(10).text(queue.patient.code, col2, py+22);
+    // Row 1: Patient Name | DOB | Age/Sex
+    const c1w = PW * 0.45;
+    const c2w = PW * 0.30;
+    const c3w = PW * 0.25;
+    const c1x = PAD, c2x = PAD + c1w + 6, c3x = PAD + c1w + c2w + 12;
 
-    doc.fill(BLUE).font("Helvetica-Bold").fontSize(7).text("DATE OF BIRTH", PAD+10, py+48);
-    doc.fill("#374151").font("Helvetica").fontSize(9).text(formatDate(queue.qDob), PAD+10, py+58);
+    const drawInfoCell = (label: string, value: string, x: number, cy: number, w: number) => {
+      doc.roundedRect(x, cy, w, CELL_H, 3).fill(BGRAY).stroke(BORDER);
+      doc.fill(GRAY).font("Helvetica").fontSize(6.5).text(label, x+7, cy+5, { width: w-14 });
+      doc.fill(BLACK).font("Helvetica-Bold").fontSize(9.5).text(value, x+7, cy+15, { width: w-14, ellipsis: true });
+    };
 
-    doc.fill(BLUE).font("Helvetica-Bold").fontSize(7).text("AGE", PAD+130, py+48);
-    doc.fill("#374151").font("Helvetica").fontSize(9).text(queue.agePatient ? `${queue.agePatient} yrs` : "—", PAD+130, py+58);
+    drawInfoCell("PATIENT NAME", queue.qFullName ?? "—", c1x, y, c1w);
+    drawInfoCell("DATE OF BIRTH", formatDate(queue.qDob), c2x, y, c2w);
+    drawInfoCell("AGE / SEX", ageSex, c3x, y, c3w);
 
-    doc.fill(BLUE).font("Helvetica-Bold").fontSize(7).text("GENDER", PAD+200, py+48);
-    doc.fill("#374151").font("Helvetica").fontSize(9).text(gender, PAD+200, py+58);
+    y += CELL_H + 6;
 
-    doc.fill(BLUE).font("Helvetica-Bold").fontSize(7).text("PATIENT TYPE", col2, py+48);
-    doc.fill("#374151").font("Helvetica").fontSize(9).text(queue.patientType ?? "—", col2, py+58);
+    // Row 2: Referring Physician | Patient Type | Queue No
+    drawInfoCell("REFERRING PHYSICIAN", doctor ?? "—", c1x, y, c1w);
+    drawInfoCell("PATIENT TYPE", queue.patientType ?? "OUT-PATIENT", c2x, y, c2w);
+    drawInfoCell("QUEUE NO.", queue.code ?? "—", c3x, y, c3w);
 
-    // ── Visit meta row ────────────────────────────────────────────
-    const vy = py + 82 + 6;
-    doc.rect(PAD, vy, PW, 22).fill(LGRAY);
-    const meta = [
-      { label: "VISIT CODE",   value: queue.code ?? "—",              x: PAD+10  },
-      { label: "DATE",         value: formatDateTime(queue.dateTime),  x: PAD+175 },
-      { label: "ENCODED BY",   value: queue.inputBy ?? "—",           x: PAD+370 },
-    ];
-    meta.forEach(({ label, value, x }) => {
-      doc.fill(GRAY).font("Helvetica-Bold").fontSize(6.5).text(label, x, vy+3);
-      doc.fill("#111827").font("Helvetica").fontSize(8.5).text(value, x, vy+11);
-    });
-    if (queue.notes) {
-      doc.fill(GRAY).font("Helvetica-Bold").fontSize(6.5).text("NOTES", PAD+10, vy+3 + 0);
-    }
+    y += CELL_H + 14;
 
-    // ── Services table ────────────────────────────────────────────
-    const sy = vy + 22 + 12;
-    doc.rect(PAD, sy, PW, 20).fill(BLUE);
-    doc.fill(WHITE).font("Helvetica-Bold").fontSize(9).text("SERVICES / PROCEDURES ORDERED", PAD+10, sy+6);
+    // ── APE section header ────────────────────────────────────────
+    doc.rect(PAD, y, PW, 20).fill(PURPLE2);
+    doc.fill(WHITE).font("Helvetica-Bold").fontSize(9)
+       .text("APE", PAD+10, y+6);
+    y += 20;
 
-    const thy = sy + 20;
-    doc.rect(PAD, thy, PW, 16).fill("#d1ddf0");
-    const cols = { code: PAD+10, desc: PAD+80, type: PAD+355, amount: PAD+445 };
-    doc.fill(BLUE).font("Helvetica-Bold").fontSize(7.5);
-    doc.text("CODE",         cols.code,   thy+5);
-    doc.text("DESCRIPTION",  cols.desc,   thy+5);
-    doc.text("TYPE",         cols.type,   thy+5);
-    doc.text("AMOUNT (PHP)", cols.amount, thy+5);
+    // ── Table header ──────────────────────────────────────────────
+    const TH_H = 18;
+    doc.rect(PAD, y, PW, TH_H).fill(BGRAY).stroke(BORDER);
+    const tc = {
+      test:   PAD + 6,
+      result: PAD + PW * 0.52,
+      unit:   PAD + PW * 0.65,
+      range:  PAD + PW * 0.78,
+      flag:   PAD + PW * 0.93,
+    };
+    doc.fill(DGRAY).font("Helvetica-Bold").fontSize(8);
+    doc.text("Test / Analyte", tc.test,   y+5, { width: PW * 0.50 });
+    doc.text("Result",         tc.result, y+5, { width: PW * 0.12, align: "center" });
+    doc.text("Unit",           tc.unit,   y+5, { width: PW * 0.12, align: "center" });
+    doc.text("Normal Range",   tc.range,  y+5, { width: PW * 0.14, align: "center" });
+    doc.text("Flag",           tc.flag,   y+5, { width: PW * 0.06, align: "center" });
+    y += TH_H;
 
-    let ry = thy + 16;
+    // ── Table rows (one per transaction) ─────────────────────────
     queue.transactions.forEach((t, i) => {
-      const rowH = 18;
-      doc.rect(PAD, ry, PW, rowH).fill(i % 2 === 0 ? WHITE : "#f5f8ff");
-      doc.fill("#111827").font("Helvetica").fontSize(8.5);
-      doc.text(t.codeItemPrice ?? "—",          cols.code,   ry+5, { width: 65, ellipsis: true });
-      doc.text(t.descriptionItemPrice ?? "—",   cols.desc,   ry+5, { width: 265, ellipsis: true });
-      doc.text(t.transactionType ?? "—",        cols.type,   ry+5, { width: 80 });
-      doc.fill(BLUE).font("Helvetica-Bold")
-         .text(formatCurrency(Number(t.amountItemPrice ?? 0)), cols.amount, ry+5, { width: 70, align: "right" });
-      ry += rowH;
+      const ROW_H = 18;
+      doc.rect(PAD, y, PW, ROW_H).fill(i % 2 === 0 ? WHITE : LGRAY).stroke(BORDER);
+      doc.fill(BLACK).font("Helvetica").fontSize(8.5)
+         .text(t.descriptionItemPrice ?? t.codeItemPrice ?? "—", tc.test, y+5, { width: PW * 0.50, ellipsis: true });
+      // Result and range shown as "—" since actual values come from LIS
+      doc.fill(DGRAY).font("Helvetica").fontSize(8.5)
+         .text("—", tc.result, y+5, { width: PW * 0.12, align: "center" })
+         .text("—", tc.unit,   y+5, { width: PW * 0.12, align: "center" })
+         .text("—", tc.range,  y+5, { width: PW * 0.14, align: "center" })
+         .text("",  tc.flag,   y+5, { width: PW * 0.06, align: "center" });
+      y += ROW_H;
     });
 
-    // Total row
-    doc.rect(PAD, ry, PW, 22).fill(BLUE);
-    doc.fill(WHITE).font("Helvetica-Bold").fontSize(9);
-    doc.text("TOTAL AMOUNT", PAD+10, ry+7);
-    doc.text(`PHP ${formatCurrency(total)}`, cols.amount, ry+7, { width: 70, align: "right" });
-    ry += 22;
-
-    // ── Physician ─────────────────────────────────────────────────
-    ry += 14;
-    doc.moveTo(PAD, ry).lineTo(PAD+PW, ry).lineWidth(0.5).stroke("#d1d5db");
-    ry += 10;
-    doc.fill(GRAY).font("Helvetica-Bold").fontSize(7).text("ORDERING PHYSICIAN", PAD, ry);
-    ry += 11;
-    doc.fill("#111827").font("Helvetica-Bold").fontSize(11)
-       .text(doctor ? `Dr. ${doctor}` : "—", PAD, ry);
-    ry += 15;
-    if (company) {
-      doc.fill(GRAY).font("Helvetica").fontSize(8.5).text(`Company: ${company}`, PAD, ry);
-      ry += 14;
-    }
-
-    // ── Status badge ──────────────────────────────────────────────
-    ry += 6;
-    doc.roundedRect(PAD, ry, 160, 20, 4).fill(statusBg);
-    doc.fill(statusColor).font("Helvetica-Bold").fontSize(8.5)
-       .text(`● STATUS: ${statusLabel}`, PAD+8, ry+6, { width: 144 });
-    ry += 32;
-
-    // ── Notice ───────────────────────────────────────────────────
-    doc.roundedRect(PAD, ry, PW, 40, 4).fill(WARN_BG).stroke("#f59e0b");
-    doc.fill(WARN_TXT).font("Helvetica-Bold").fontSize(8).text("IMPORTANT NOTICE", PAD+10, ry+7);
-    doc.fill(WARN_TXT).font("Helvetica").fontSize(7.5).text(
-      "Actual laboratory result values are encoded by the laboratory staff and are available in the official printed report\nissued upon release of results. This document serves as a reference record of services ordered for this visit.",
-      PAD+10, ry+18, { width: PW - 20 }
+    // ── Legend row ────────────────────────────────────────────────
+    y += 8;
+    doc.fill(PURPLE).font("Helvetica").fontSize(7).text(
+      "H = Above Normal  ·  L = Below Normal  ·  C = Critical Value — Please contact physician immediately",
+      PAD, y, { width: PW, align: "center" }
     );
+    y += 16;
+
+    // ── Signature block ───────────────────────────────────────────
+    const sigY = Math.max(y + 30, H - 110);
+    const sigW = PW * 0.45;
+
+    doc.moveTo(PAD, sigY + 20).lineTo(PAD + sigW, sigY + 20).lineWidth(0.5).stroke("#9ca3af");
+    doc.fill(GRAY).font("Helvetica").fontSize(8)
+       .text("Medical Technologist", PAD, sigY + 24, { width: sigW, align: "center" });
+
+    const sig2x = PAD + PW - sigW;
+    doc.moveTo(sig2x, sigY + 20).lineTo(sig2x + sigW, sigY + 20).lineWidth(0.5).stroke("#9ca3af");
+    doc.fill(GRAY).font("Helvetica").fontSize(8)
+       .text("Pathologist / Laboratory Director", sig2x, sigY + 24, { width: sigW, align: "center" });
 
     // ── Footer ───────────────────────────────────────────────────
-    const FH = doc.page.height;
-    doc.moveTo(0, FH - 50).lineTo(W, FH - 50).lineWidth(0.5).stroke("#d1d5db");
-    doc.rect(0, FH - 49, W, 49).fill("#f9fafb");
-    doc.fill(GRAY).font("Helvetica").fontSize(7)
-       .text(`This document is computer-generated. Date Printed: ${printDate}`, PAD, FH-43)
-       .text(`Queue: ${queue.code}  |  Patient Ref: ${queue.patient.code}  |  CONFIDENTIAL — For authorized recipient only.`, PAD, FH-33)
-       .text("Results are valid only upon issuance of the official signed laboratory report by the attending physician.", PAD, FH-23);
+    doc.moveTo(0, H - 28).lineTo(W, H - 28).lineWidth(0.5).stroke(BORDER);
+    doc.fill(GRAY).font("Helvetica").fontSize(6.5)
+       .text(
+         `Computer-generated document  ·  Date Printed: ${printDate}  ·  Queue: ${queue.code}  ·  CONFIDENTIAL`,
+         PAD, H - 20, { width: PW, align: "center" }
+       );
 
     doc.end();
   });

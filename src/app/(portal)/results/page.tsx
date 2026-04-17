@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { FlaskConical, ScanLine, Microscope, FileText, X } from "lucide-react";
+import { FlaskConical, ScanLine, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResultCard } from "@/components/portal/result-card";
@@ -19,10 +19,9 @@ async function fetchResults(page: number, type: string): Promise<PaginatedRespon
 }
 
 const TYPE_FILTERS = [
-  { value: "all",       label: "All Results", icon: FileText,   style: "text-foreground" },
-  { value: "lab",       label: "Laboratory",  icon: FlaskConical, style: "text-primary" },
-  { value: "imaging",   label: "Imaging",     icon: ScanLine,   style: "text-(--color-purple)" },
-  { value: "pathology", label: "Pathology",   icon: Microscope, style: "text-(--color-warning)" },
+  { value: "all",     label: "All Results", icon: FileText,    style: "text-foreground" },
+  { value: "lab",     label: "Laboratory",  icon: FlaskConical, style: "text-primary" },
+  { value: "imaging", label: "Imaging",     icon: ScanLine,    style: "text-(--color-purple)" },
 ];
 
 export default function ResultsPage() {

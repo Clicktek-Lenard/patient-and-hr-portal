@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Share2, Link2, Loader2, Trash2, Copy, Check, Shield, Clock } from "lucide-react";
 import { toast } from "sonner";
@@ -30,13 +31,20 @@ function isExpired(expiresAt: string) {
   return new Date(expiresAt) < new Date();
 }
 
-export default function SharePage() {
+function SharePageInner() {
   const qc = useQueryClient();
-  const [queueCode, setQueueCode] = useState("");
+  const searchParams = useSearchParams();
+  const [queueCode, setQueueCode] = useState(searchParams.get("result") ?? "");
   const [resultLabel, setResultLabel] = useState("");
   const [recipient, setRecipient] = useState("");
   const [expiryHours, setExpiryHours] = useState(168);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Keep queueCode in sync if URL param changes (e.g. navigating from dashboard Share button)
+  useEffect(() => {
+    const code = searchParams.get("result");
+    if (code) setQueueCode(code);
+  }, [searchParams]);
 
   const { data, isLoading } = useQuery<{ data: ShareLink[] }>({
     queryKey: ["share-links"],
@@ -263,5 +271,13 @@ export default function SharePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SharePage() {
+  return (
+    <Suspense>
+      <SharePageInner />
+    </Suspense>
   );
 }
