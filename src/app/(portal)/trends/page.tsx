@@ -160,8 +160,11 @@ function TrendChart({ series }: { series: Series }) {
             />
           )}
 
-          {/* Fill under line */}
-          <path d={fillD} fill="url(#lineGrad)" fillOpacity={0.15} />
+          {/* Fill under line — fades in after line draws */}
+          <path
+            d={fillD} fill="url(#lineGrad)" fillOpacity={0.15}
+            style={{ opacity: 0, animation: "nwd-fill-fade 0.8s ease-out 1.2s forwards" }}
+          />
 
           {/* Gradient def */}
           <defs>
@@ -171,11 +174,17 @@ function TrendChart({ series }: { series: Series }) {
             </linearGradient>
           </defs>
 
-          {/* Line */}
-          <path d={pathD} fill="none" stroke="#1e3a8a" strokeWidth={2}
-            strokeLinecap="round" strokeLinejoin="round" />
+          {/* Line — draws left to right */}
+          <path
+            d={pathD} fill="none" stroke="#1e3a8a" strokeWidth={2}
+            strokeLinecap="round" strokeLinejoin="round"
+            pathLength={1}
+            strokeDasharray={1}
+            strokeDashoffset={1}
+            style={{ animation: "nwd-line-draw 1.5s cubic-bezier(0.65, 0, 0.35, 1) 100ms forwards" }}
+          />
 
-          {/* Data points */}
+          {/* Data points — pop in sequentially after line */}
           {pts.map((p, i) => (
             <circle
               key={i}
@@ -183,6 +192,11 @@ function TrendChart({ series }: { series: Series }) {
               fill={p.flag === "H" ? "#ef4444" : p.flag === "L" ? "#ef4444" : "#ffffff"}
               stroke={p.flag === "H" || p.flag === "L" ? "#ef4444" : "#1e3a8a"}
               strokeWidth={2}
+              opacity={0}
+              style={{
+                transformOrigin: `${xPos(i)}px ${yPos(p.value)}px`,
+                animation: `nwd-dot-pop 0.3s ease-out ${800 + i * 40}ms forwards`,
+              }}
             />
           ))}
 
