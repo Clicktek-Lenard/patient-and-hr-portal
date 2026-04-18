@@ -265,29 +265,63 @@
   100% { stroke-dashoffset: 0; }
 }
 
-/* Page route transition — staggered cascade from left */
+/* Page route transition — staggered cascade from left.
+   Sections cascade first, then cards inside each grid cascade too.
+   Uses a JS-driven index via CSS custom property so delays are additive. */
 @keyframes nwd-page-fade {
-  from { opacity: 0; transform: translateX(-24px); }
+  from { opacity: 0; transform: translateX(-18px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 
-/* Each direct child of the page wrapper fades + slides in sequentially.
-   Start hidden to avoid a flash before the delay kicks in. */
+/* Top-level section stagger (direct children of page wrapper) */
 .nwd-page-fade > * {
   opacity: 0;
   animation: nwd-page-fade 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: opacity, transform;
 }
 .nwd-page-fade > *:nth-child(1)  { animation-delay: 0ms; }
-.nwd-page-fade > *:nth-child(2)  { animation-delay: 90ms; }
-.nwd-page-fade > *:nth-child(3)  { animation-delay: 180ms; }
-.nwd-page-fade > *:nth-child(4)  { animation-delay: 270ms; }
-.nwd-page-fade > *:nth-child(5)  { animation-delay: 360ms; }
-.nwd-page-fade > *:nth-child(6)  { animation-delay: 450ms; }
-.nwd-page-fade > *:nth-child(7)  { animation-delay: 520ms; }
-.nwd-page-fade > *:nth-child(8)  { animation-delay: 590ms; }
-.nwd-page-fade > *:nth-child(9)  { animation-delay: 660ms; }
-.nwd-page-fade > *:nth-child(n+10) { animation-delay: 730ms; }
+.nwd-page-fade > *:nth-child(2)  { animation-delay: 200ms; }
+.nwd-page-fade > *:nth-child(3)  { animation-delay: 400ms; }
+.nwd-page-fade > *:nth-child(4)  { animation-delay: 600ms; }
+.nwd-page-fade > *:nth-child(5)  { animation-delay: 800ms; }
+.nwd-page-fade > *:nth-child(6)  { animation-delay: 950ms; }
+.nwd-page-fade > *:nth-child(7)  { animation-delay: 1100ms; }
+.nwd-page-fade > *:nth-child(8)  { animation-delay: 1250ms; }
+.nwd-page-fade > *:nth-child(n+9) { animation-delay: 1400ms; }
+
+/* Inside a section's direct grid, cards also cascade one by one.
+   These delays are relative — they kick in after the parent section
+   has already started fading in. */
+.nwd-page-fade > * > [class*="grid-cols"] > * {
+  opacity: 0;
+  animation: nwd-page-fade 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(1) { animation-delay: 100ms; }
+.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(2) { animation-delay: 180ms; }
+.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(3) { animation-delay: 260ms; }
+.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(4) { animation-delay: 340ms; }
+.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(5) { animation-delay: 420ms; }
+.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(n+6) { animation-delay: 500ms; }
+
+.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(1) { animation-delay: 300ms; }
+.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(2) { animation-delay: 380ms; }
+.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(3) { animation-delay: 460ms; }
+.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(4) { animation-delay: 540ms; }
+.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(5) { animation-delay: 620ms; }
+.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(n+6) { animation-delay: 700ms; }
+
+.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(1) { animation-delay: 500ms; }
+.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(2) { animation-delay: 580ms; }
+.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(3) { animation-delay: 660ms; }
+.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(4) { animation-delay: 740ms; }
+.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(5) { animation-delay: 820ms; }
+.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(n+6) { animation-delay: 900ms; }
+
+.nwd-page-fade > *:nth-child(4) > [class*="grid-cols"] > *:nth-child(1) { animation-delay: 700ms; }
+.nwd-page-fade > *:nth-child(4) > [class*="grid-cols"] > *:nth-child(2) { animation-delay: 780ms; }
+.nwd-page-fade > *:nth-child(4) > [class*="grid-cols"] > *:nth-child(3) { animation-delay: 860ms; }
+.nwd-page-fade > *:nth-child(4) > [class*="grid-cols"] > *:nth-child(4) { animation-delay: 940ms; }
+.nwd-page-fade > *:nth-child(4) > [class*="grid-cols"] > *:nth-child(n+5) { animation-delay: 1020ms; }
 
 /* Progress bar — grow from left on mount */
 @keyframes nwd-bar-grow {
