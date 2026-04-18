@@ -265,13 +265,13 @@
   100% { stroke-dashoffset: 0; }
 }
 
-/* Page route transition — fade + slight slide up */
+/* Page route transition — fade + slide from left to right */
 @keyframes nwd-page-fade {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 .nwd-page-fade {
-  animation: nwd-page-fade 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: nwd-page-fade 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   will-change: opacity, transform;
 }
 
