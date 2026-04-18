@@ -1,11 +1,33 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   MessageSquarePlus, Download, RefreshCw, ShieldAlert,
   Bug, Lightbulb, HelpCircle,
   Image as ImageIcon,
 } from "lucide-react";
+
+/* Smooth count-up animation */
+function CountUp({ to }: { to: number }) {
+  const [n, setN] = useState(0);
+  const prevRef = useRef(0);
+  useEffect(() => {
+    const from = prevRef.current;
+    const duration = 800;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setN(Math.round(from + (to - from) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else prevRef.current = to;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [to]);
+  return <>{n.toLocaleString()}</>;
+}
 
 type UatSeverity = "Bug" | "Suggestion" | "Question" | "Blocker";
 type UatStatus   = "Open" | "Acknowledged" | "Resolved";
@@ -140,8 +162,8 @@ export default function UatFeedbackPage() {
               padding:      "14px 16px",
               textAlign:    "center",
             }}>
-              <p style={{ fontSize: "1.6rem", fontWeight: 800, color: s.color, lineHeight: 1 }}>
-                {s.value}
+              <p style={{ fontSize: "1.6rem", fontWeight: 800, color: s.color, lineHeight: 1 }} className="tabular-nums">
+                <CountUp to={s.value} />
               </p>
               <p style={{ fontSize: "0.72rem", color: "hsl(var(--muted-foreground))", marginTop: 4, fontWeight: 600 }}>
                 {s.label}
