@@ -265,6 +265,16 @@
   100% { stroke-dashoffset: 0; }
 }
 
+/* Page route transition — fade + slight slide up */
+@keyframes nwd-page-fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.nwd-page-fade {
+  animation: nwd-page-fade 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
+}
+
 /* Progress bar — grow from left on mount */
 @keyframes nwd-bar-grow {
   from { transform: scaleX(0); }
