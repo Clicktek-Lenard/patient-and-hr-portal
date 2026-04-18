@@ -265,63 +265,105 @@
   100% { stroke-dashoffset: 0; }
 }
 
-/* Page route transition — staggered cascade from left.
-   Sections cascade first, then cards inside each grid cascade too.
-   Uses a JS-driven index via CSS custom property so delays are additive. */
+/* ============================================================
+   Page route transition — staggered cascade from left.
+   Every element gets a sequential delay for a smooth wave effect.
+   Works universally across any layout: grids, flex, stacks, tables.
+   ============================================================ */
 @keyframes nwd-page-fade {
-  from { opacity: 0; transform: translateX(-18px); }
+  from { opacity: 0; transform: translateX(-16px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 
-/* Top-level section stagger (direct children of page wrapper) */
+/* --- Level 1: top-level page sections (header, cards grid, charts, etc.) --- */
 .nwd-page-fade > * {
   opacity: 0;
   animation: nwd-page-fade 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: opacity, transform;
 }
 .nwd-page-fade > *:nth-child(1)  { animation-delay: 0ms; }
-.nwd-page-fade > *:nth-child(2)  { animation-delay: 200ms; }
-.nwd-page-fade > *:nth-child(3)  { animation-delay: 400ms; }
-.nwd-page-fade > *:nth-child(4)  { animation-delay: 600ms; }
-.nwd-page-fade > *:nth-child(5)  { animation-delay: 800ms; }
-.nwd-page-fade > *:nth-child(6)  { animation-delay: 950ms; }
-.nwd-page-fade > *:nth-child(7)  { animation-delay: 1100ms; }
-.nwd-page-fade > *:nth-child(8)  { animation-delay: 1250ms; }
-.nwd-page-fade > *:nth-child(n+9) { animation-delay: 1400ms; }
+.nwd-page-fade > *:nth-child(2)  { animation-delay: 180ms; }
+.nwd-page-fade > *:nth-child(3)  { animation-delay: 360ms; }
+.nwd-page-fade > *:nth-child(4)  { animation-delay: 540ms; }
+.nwd-page-fade > *:nth-child(5)  { animation-delay: 720ms; }
+.nwd-page-fade > *:nth-child(6)  { animation-delay: 880ms; }
+.nwd-page-fade > *:nth-child(7)  { animation-delay: 1040ms; }
+.nwd-page-fade > *:nth-child(8)  { animation-delay: 1200ms; }
+.nwd-page-fade > *:nth-child(n+9) { animation-delay: 1350ms; }
 
-/* Inside a section's direct grid, cards also cascade one by one.
-   These delays are relative — they kick in after the parent section
-   has already started fading in. */
-.nwd-page-fade > * > [class*="grid-cols"] > * {
+/* --- Level 2: any container with multiple children inside a section ---
+   Matches grids, flex rows, space-y stacks. Each child gets a small
+   additive delay (80ms apart). Because inheritance doesn't stack
+   animation-delay, we add a small per-child shift that feels like a
+   secondary wave. */
+.nwd-page-fade > * > .grid > *,
+.nwd-page-fade > * > [class*="grid-cols"] > *,
+.nwd-page-fade > * > .flex > *,
+.nwd-page-fade > * > .space-y-2 > *,
+.nwd-page-fade > * > .space-y-3 > *,
+.nwd-page-fade > * > .space-y-4 > *,
+.nwd-page-fade > * > .space-y-5 > *,
+.nwd-page-fade > * > .space-y-6 > *,
+.nwd-page-fade > * > .divide-y > *,
+.nwd-page-fade > * > table tbody > tr {
   opacity: 0;
   animation: nwd-page-fade 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(1) { animation-delay: 100ms; }
-.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(2) { animation-delay: 180ms; }
-.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(3) { animation-delay: 260ms; }
-.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(4) { animation-delay: 340ms; }
-.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(5) { animation-delay: 420ms; }
-.nwd-page-fade > *:nth-child(1) > [class*="grid-cols"] > *:nth-child(n+6) { animation-delay: 500ms; }
 
-.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(1) { animation-delay: 300ms; }
-.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(2) { animation-delay: 380ms; }
-.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(3) { animation-delay: 460ms; }
-.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(4) { animation-delay: 540ms; }
-.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(5) { animation-delay: 620ms; }
-.nwd-page-fade > *:nth-child(2) > [class*="grid-cols"] > *:nth-child(n+6) { animation-delay: 700ms; }
+/* Child stagger: each +1 position = +60ms */
+.nwd-page-fade > *:nth-child(1) > *:nth-child(1),
+.nwd-page-fade > *:nth-child(1) [class*="grid"] > *:nth-child(1),
+.nwd-page-fade > *:nth-child(1) tbody > tr:nth-child(1) { animation-delay: 80ms; }
 
-.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(1) { animation-delay: 500ms; }
-.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(2) { animation-delay: 580ms; }
-.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(3) { animation-delay: 660ms; }
-.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(4) { animation-delay: 740ms; }
-.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(5) { animation-delay: 820ms; }
-.nwd-page-fade > *:nth-child(3) > [class*="grid-cols"] > *:nth-child(n+6) { animation-delay: 900ms; }
+.nwd-page-fade > *:nth-child(1) [class*="grid"] > *:nth-child(2),
+.nwd-page-fade > *:nth-child(1) tbody > tr:nth-child(2) { animation-delay: 140ms; }
 
-.nwd-page-fade > *:nth-child(4) > [class*="grid-cols"] > *:nth-child(1) { animation-delay: 700ms; }
-.nwd-page-fade > *:nth-child(4) > [class*="grid-cols"] > *:nth-child(2) { animation-delay: 780ms; }
-.nwd-page-fade > *:nth-child(4) > [class*="grid-cols"] > *:nth-child(3) { animation-delay: 860ms; }
-.nwd-page-fade > *:nth-child(4) > [class*="grid-cols"] > *:nth-child(4) { animation-delay: 940ms; }
-.nwd-page-fade > *:nth-child(4) > [class*="grid-cols"] > *:nth-child(n+5) { animation-delay: 1020ms; }
+.nwd-page-fade > *:nth-child(1) [class*="grid"] > *:nth-child(3),
+.nwd-page-fade > *:nth-child(1) tbody > tr:nth-child(3) { animation-delay: 200ms; }
+
+.nwd-page-fade > *:nth-child(1) [class*="grid"] > *:nth-child(4),
+.nwd-page-fade > *:nth-child(1) tbody > tr:nth-child(4) { animation-delay: 260ms; }
+
+.nwd-page-fade > *:nth-child(1) [class*="grid"] > *:nth-child(5),
+.nwd-page-fade > *:nth-child(1) tbody > tr:nth-child(5) { animation-delay: 320ms; }
+
+.nwd-page-fade > *:nth-child(1) [class*="grid"] > *:nth-child(n+6),
+.nwd-page-fade > *:nth-child(1) tbody > tr:nth-child(n+6) { animation-delay: 380ms; }
+
+.nwd-page-fade > *:nth-child(2) [class*="grid"] > *:nth-child(1),
+.nwd-page-fade > *:nth-child(2) tbody > tr:nth-child(1) { animation-delay: 260ms; }
+.nwd-page-fade > *:nth-child(2) [class*="grid"] > *:nth-child(2),
+.nwd-page-fade > *:nth-child(2) tbody > tr:nth-child(2) { animation-delay: 320ms; }
+.nwd-page-fade > *:nth-child(2) [class*="grid"] > *:nth-child(3),
+.nwd-page-fade > *:nth-child(2) tbody > tr:nth-child(3) { animation-delay: 380ms; }
+.nwd-page-fade > *:nth-child(2) [class*="grid"] > *:nth-child(4),
+.nwd-page-fade > *:nth-child(2) tbody > tr:nth-child(4) { animation-delay: 440ms; }
+.nwd-page-fade > *:nth-child(2) [class*="grid"] > *:nth-child(5),
+.nwd-page-fade > *:nth-child(2) tbody > tr:nth-child(5) { animation-delay: 500ms; }
+.nwd-page-fade > *:nth-child(2) [class*="grid"] > *:nth-child(n+6),
+.nwd-page-fade > *:nth-child(2) tbody > tr:nth-child(n+6) { animation-delay: 560ms; }
+
+.nwd-page-fade > *:nth-child(3) [class*="grid"] > *:nth-child(1),
+.nwd-page-fade > *:nth-child(3) tbody > tr:nth-child(1) { animation-delay: 440ms; }
+.nwd-page-fade > *:nth-child(3) [class*="grid"] > *:nth-child(2),
+.nwd-page-fade > *:nth-child(3) tbody > tr:nth-child(2) { animation-delay: 500ms; }
+.nwd-page-fade > *:nth-child(3) [class*="grid"] > *:nth-child(3),
+.nwd-page-fade > *:nth-child(3) tbody > tr:nth-child(3) { animation-delay: 560ms; }
+.nwd-page-fade > *:nth-child(3) [class*="grid"] > *:nth-child(4),
+.nwd-page-fade > *:nth-child(3) tbody > tr:nth-child(4) { animation-delay: 620ms; }
+.nwd-page-fade > *:nth-child(3) [class*="grid"] > *:nth-child(5),
+.nwd-page-fade > *:nth-child(3) tbody > tr:nth-child(5) { animation-delay: 680ms; }
+.nwd-page-fade > *:nth-child(3) [class*="grid"] > *:nth-child(n+6),
+.nwd-page-fade > *:nth-child(3) tbody > tr:nth-child(n+6) { animation-delay: 740ms; }
+
+.nwd-page-fade > *:nth-child(4) [class*="grid"] > *:nth-child(1),
+.nwd-page-fade > *:nth-child(4) tbody > tr:nth-child(1) { animation-delay: 620ms; }
+.nwd-page-fade > *:nth-child(4) [class*="grid"] > *:nth-child(2),
+.nwd-page-fade > *:nth-child(4) tbody > tr:nth-child(2) { animation-delay: 680ms; }
+.nwd-page-fade > *:nth-child(4) [class*="grid"] > *:nth-child(3),
+.nwd-page-fade > *:nth-child(4) tbody > tr:nth-child(3) { animation-delay: 740ms; }
+.nwd-page-fade > *:nth-child(4) [class*="grid"] > *:nth-child(n+4),
+.nwd-page-fade > *:nth-child(4) tbody > tr:nth-child(n+4) { animation-delay: 800ms; }
 
 /* Progress bar — grow from left on mount */
 @keyframes nwd-bar-grow {
