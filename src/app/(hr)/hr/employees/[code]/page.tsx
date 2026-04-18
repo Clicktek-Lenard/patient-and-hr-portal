@@ -213,7 +213,7 @@ function VisitRow({ visit }: { visit: Visit }) {
                 {visit.vitalSign.bmi && (
                   <div>
                     <p className="text-muted-foreground">BMI</p>
-                    <p className="font-semibold text-foreground">{visit.vitalSign.bmi?.toFixed(1)}</p>
+                    <p className="font-semibold text-foreground">{Number(visit.vitalSign.bmi).toFixed(1)}</p>
                   </div>
                 )}
               </div>
@@ -541,7 +541,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ code:
                       <Activity className="h-3 w-3 text-purple-500" />
                       <span className="text-[10px] text-muted-foreground uppercase tracking-wide">BMI</span>
                     </div>
-                    <p className="text-sm font-bold text-foreground">{latestVitals.bmi?.toFixed(1)}</p>
+                    <p className="text-sm font-bold text-foreground">{Number(latestVitals.bmi).toFixed(1)}</p>
                   </div>
                 )}
               </div>
