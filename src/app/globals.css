@@ -280,6 +280,18 @@
   from { transform: scaleX(0); }
   to   { transform: scaleX(1); }
 }
+
+/* SVG line chart — draw stroke left to right */
+@keyframes nwd-line-draw {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* SVG dot — pop in */
+@keyframes nwd-dot-pop {
+  from { opacity: 0; transform: scale(0); }
+  to   { opacity: 1; transform: scale(1); }
+}
 /* Progress bar — subtle shimmer */
 @keyframes nwd-bar-shimmer {
   0%   { background-position: 200% 0; }

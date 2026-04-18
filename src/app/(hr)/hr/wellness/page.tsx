@@ -1,7 +1,30 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, TrendingUp, Users, Activity } from "lucide-react";
+
+/* Smooth count-up animation */
+function CountUp({ to }: { to: number }) {
+  const [n, setN] = useState(0);
+  const prevRef = useRef(0);
+  useEffect(() => {
+    const from = prevRef.current;
+    const duration = 800;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setN(Math.round(from + (to - from) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else prevRef.current = to;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [to]);
+  return <>{n.toLocaleString()}</>;
+}
 
 type WellnessData = {
   months: string[];
@@ -72,9 +95,18 @@ function LineChart({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                pathLength={1}
+                strokeDasharray={1}
+                strokeDashoffset={1}
+                style={{ animation: `nwd-line-draw 1.5s cubic-bezier(0.65, 0, 0.35, 1) ${si * 250}ms forwards` }}
               />
               {s.data.map((v, i) => (
-                <circle key={i} cx={xPos(i)} cy={yPos(v)} r="2.5" fill={s.color} stroke="white" strokeWidth="1.5" />
+                <circle
+                  key={i} cx={xPos(i)} cy={yPos(v)} r="2.5"
+                  fill={s.color} stroke="white" strokeWidth="1.5"
+                  opacity={0}
+                  style={{ animation: `nwd-dot-pop 0.3s ease-out ${si * 250 + i * 60 + 600}ms forwards` }}
+                />
               ))}
             </g>
           ))}
@@ -149,9 +181,9 @@ export default function WellnessPage() {
               <TrendingUp className="h-4 w-4 text-violet-500" />
               <span className="text-xs text-muted-foreground">PE Compliance</span>
             </div>
-            <p className="text-2xl font-bold text-foreground">{latestPE}%</p>
+            <p className="text-2xl font-bold text-foreground tabular-nums"><CountUp to={latestPE} />%</p>
             <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
-              <div className="h-full rounded-full bg-violet-500" style={{ width: `${latestPE}%` }} />
+              <div className="nwd-bar-grow h-full rounded-full bg-violet-500" style={{ width: `${latestPE}%`, animation: "nwd-bar-grow 0.9s cubic-bezier(0.22,1,0.36,1) both", transformOrigin: "left" }} />
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">Target: 95%</p>
           </div>
@@ -160,9 +192,9 @@ export default function WellnessPage() {
               <Heart className="h-4 w-4 text-red-500" />
               <span className="text-xs text-muted-foreground">Hypertension Rate</span>
             </div>
-            <p className="text-2xl font-bold text-foreground">{latestHyper}%</p>
+            <p className="text-2xl font-bold text-foreground tabular-nums"><CountUp to={latestHyper} />%</p>
             <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
-              <div className="h-full rounded-full bg-red-500" style={{ width: `${latestHyper}%` }} />
+              <div className="nwd-bar-grow h-full rounded-full bg-red-500" style={{ width: `${latestHyper}%`, animation: "nwd-bar-grow 0.9s cubic-bezier(0.22,1,0.36,1) both", transformOrigin: "left" }} />
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">BP ≥140/90 mmHg</p>
           </div>
@@ -171,7 +203,7 @@ export default function WellnessPage() {
               <Users className="h-4 w-4 text-blue-500" />
               <span className="text-xs text-muted-foreground">Active Employees</span>
             </div>
-            <p className="text-2xl font-bold text-foreground">{(d.totalPatients ?? 0).toLocaleString()}</p>
+            <p className="text-2xl font-bold text-foreground tabular-nums"><CountUp to={d.totalPatients ?? 0} /></p>
             <p className="text-[10px] text-muted-foreground mt-1">Registered in system</p>
           </div>
         </div>

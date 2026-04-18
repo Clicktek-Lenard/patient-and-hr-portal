@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ShieldCheck, AlertTriangle, CheckCircle2, Search, ChevronLeft, ChevronRight, X, Mail } from "lucide-react";
 import { toast } from "sonner";
@@ -22,6 +22,28 @@ const STATUS_OPTS = [
   { value: "overdue",   label: "Overdue" },
   { value: "never",     label: "No PE on file" },
 ];
+
+/* Smooth count-up animation */
+function CountUp({ to }: { to: number }) {
+  const [n, setN] = useState(0);
+  const prevRef = useRef(0);
+  useEffect(() => {
+    const from = prevRef.current;
+    const duration = 800;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setN(Math.round(from + (to - from) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else prevRef.current = to;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [to]);
+  return <>{n.toLocaleString()}</>;
+}
 
 export default function CompliancePage() {
   const [page, setPage]     = useState(1);
@@ -85,27 +107,30 @@ export default function CompliancePage() {
       ) : summary && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
-            <p className="text-2xl font-bold text-foreground">{summary.total.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-foreground tabular-nums"><CountUp to={summary.total} /></p>
             <p className="text-xs text-muted-foreground mt-1">Total Employees</p>
           </div>
           <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
-            <p className="text-2xl font-bold text-green-600">{summary.compliant.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-green-600 tabular-nums"><CountUp to={summary.compliant} /></p>
             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
               <CheckCircle2 className="h-3 w-3 text-green-500" /> PE Compliant
             </p>
           </div>
           <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
-            <p className="text-2xl font-bold text-orange-600">{summary.overdue.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-orange-600 tabular-nums"><CountUp to={summary.overdue} /></p>
             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
               <AlertTriangle className="h-3 w-3 text-orange-500" /> Overdue
             </p>
           </div>
           <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <div className="flex items-end gap-1">
-              <p className="text-2xl font-bold text-foreground">{summary.complianceRate}%</p>
+              <p className="text-2xl font-bold text-foreground tabular-nums"><CountUp to={summary.complianceRate} />%</p>
             </div>
             <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
-              <div className="h-full rounded-full bg-violet-500" style={{ width: `${summary.complianceRate}%` }} />
+              <div
+                className="nwd-bar-grow h-full rounded-full bg-violet-500"
+                style={{ width: `${summary.complianceRate}%`, animation: "nwd-bar-grow 0.9s cubic-bezier(0.22,1,0.36,1) both", transformOrigin: "left" }}
+              />
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
               <ShieldCheck className="h-3 w-3 text-violet-500" /> Compliance Rate
