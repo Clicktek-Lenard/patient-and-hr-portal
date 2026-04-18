@@ -37,49 +37,79 @@ export async function GET(req: NextRequest) {
       transactions: { some: deptTxWhere },
     };
 
-    // ── DEPARTMENTS LIST (for "json" requests) ───────────────────
+    // ── DEPARTMENTS LIST ─────────────────────────────────────────
+    // Match the employee list's department resolution priority:
+    // 1. portal_employee_department (manual override)
+    // 2. cms.corporate_employees.department
+    // 3. queue transaction nameCompany (excluding DEFAULT)
     if (type === "departments") {
-      // Source 1: nameCompany from CMS transactions (excluding DEFAULT)
-      const txs = await cmsPrisma.cmsTransaction.findMany({
-        where: EMPLOYEE_TRANSACTION_WHERE,
-        select: { nameCompany: true },
-        distinct: ["nameCompany"],
+      // Load all active patients with visits (same filter as employee list)
+      const patients = await cmsPrisma.cmsPatient.findMany({
+        where: { isActive: 1, queues: { some: {} } },
+        select: {
+          id: true,
+          code: true,
+          queues: {
+            select: {
+              transactions: {
+                where: { status: { not: 2 } },
+                select: { nameCompany: true },
+                take: 1,
+              },
+            },
+            take: 3,
+            orderBy: { date: "desc" },
+          },
+        },
       });
 
-      // Source 2: portal_employee_department (manual entries)
-      const portalDepts = await prisma.portalEmployeeDepartment.findMany({
-        select: { department: true },
-        distinct: ["department"],
-      });
+      // Portal-side department overrides (keyed by patient code)
+      const codes = patients.map((p) => p.code).filter((c): c is string => !!c);
+      const portalDeptMap = new Map<string, string>();
+      if (codes.length > 0) {
+        const rows = await prisma.portalEmployeeDepartment.findMany({
+          where: { patientCode: { in: codes } },
+          select: { patientCode: true, department: true },
+        });
+        for (const r of rows) portalDeptMap.set(r.patientCode, r.department);
+      }
 
-      // Source 3: CMS corporate_employees.department (if the model is available)
-      let cmsEmpDepts: { department: string | null }[] = [];
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const corpEmpModel = (cmsPrisma as any).corporateEmployee;
-        if (corpEmpModel?.findMany) {
-          cmsEmpDepts = await corpEmpModel.findMany({
-            where: { department: { not: null } },
-            select: { department: true },
-            distinct: ["department"],
-          });
+      // CMS corporate_employees.department (keyed by patient_id)
+      const patientIds = patients.map((p) => p.id);
+      const cmsDeptMap = new Map<string, string>();
+      if (patientIds.length > 0) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const corpEmpModel = (cmsPrisma as any).corporateEmployee;
+          if (corpEmpModel?.findMany) {
+            const rows = await corpEmpModel.findMany({
+              where: { patientId: { in: patientIds }, department: { not: null } },
+              select: { patientId: true, department: true },
+              orderBy: { id: "desc" },
+            });
+            for (const r of rows as { patientId: bigint | null; department: string | null }[]) {
+              if (r.patientId && r.department && !cmsDeptMap.has(r.patientId.toString())) {
+                cmsDeptMap.set(r.patientId.toString(), r.department);
+              }
+            }
+          }
+        } catch {
+          // skip if model not regenerated yet
         }
-      } catch {
-        // skip silently if model not regenerated yet
       }
 
+      // Resolve department per patient using same priority as employee list
       const set = new Set<string>();
-      for (const t of txs) {
-        const n = t.nameCompany?.trim();
-        if (n && !n.toUpperCase().includes("DEFAULT")) set.add(n);
-      }
-      for (const p of portalDepts) {
-        const n = p.department?.trim();
-        if (n) set.add(n);
-      }
-      for (const c of cmsEmpDepts) {
-        const n = c.department?.trim();
-        if (n) set.add(n);
+      for (const p of patients) {
+        let dept: string | null = p.code ? portalDeptMap.get(p.code) ?? null : null;
+        if (!dept) dept = cmsDeptMap.get(p.id.toString()) ?? null;
+        if (!dept) {
+          for (const q of p.queues) {
+            const c = q.transactions[0]?.nameCompany?.trim() ?? null;
+            if (c && !c.toUpperCase().includes("DEFAULT")) { dept = c; break; }
+          }
+        }
+        if (dept) set.add(dept);
       }
 
       const departments = Array.from(set).sort((a, b) => a.localeCompare(b));
