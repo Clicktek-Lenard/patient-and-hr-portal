@@ -98,8 +98,9 @@ export function HrSidebar({ isOpen = true, onClose, collapsed = false, onToggleC
             ) : (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/nwdi-logo-color.png" alt="NWDI"
-                  onError={(e) => { (e.target as HTMLImageElement).src = "/nwdi-logo.png"; }}
+                <img
+                  src="/nwdi-logo.png"
+                  alt="NWDI"
                   style={{ width: "100%", height: 32, objectFit: "contain", objectPosition: "left" }}
                 />
                 <p style={{ fontSize: "0.6rem", color: "var(--ui-text-faint)", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
