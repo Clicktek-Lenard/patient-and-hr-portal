@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -68,6 +69,28 @@ function getGreeting() {
   return "Good evening";
 }
 
+/* Smooth count-up animation for numeric values */
+function CountUp({ to }: { to: number }) {
+  const [n, setN] = useState(0);
+  const prevRef = useRef(0);
+  useEffect(() => {
+    const from = prevRef.current;
+    const duration = 800;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+      setN(Math.round(from + (to - from) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else prevRef.current = to;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [to]);
+  return <>{n.toLocaleString()}</>;
+}
+
 function StatCard({
   label, value, icon: Icon, accent, sub, live, suffix,
 }: {
@@ -91,7 +114,7 @@ function StatCard({
         {!live && <TrendingUp className="h-4 w-4 text-gray-300 group-hover:text-green-500 transition-colors" />}
       </div>
       <p style={{ fontSize: "1.8rem", fontWeight: 700, color: "var(--ui-text-primary)", lineHeight: 1, letterSpacing: "-0.02em" }} className="tabular-nums">
-        {typeof value === "number" ? value.toLocaleString() : value}
+        {typeof value === "number" ? <CountUp to={value} /> : value}
         {suffix && <span style={{ fontSize: "0.85rem", fontWeight: 400, color: "var(--ui-text-faint)", marginLeft: 4 }}>{suffix}</span>}
       </p>
       <p style={{ fontSize: "0.8rem", color: "var(--ui-text-secondary)", marginTop: 3, fontWeight: 500 }}>{label}</p>
@@ -108,7 +131,7 @@ function ServiceCard({ label, value, icon: Icon, color }: {
       <Icon className="h-4 w-4 shrink-0 opacity-60" />
       <div className="min-w-0 flex-1">
         <p style={{ fontSize: "0.72rem", color: "var(--ui-text-muted)", marginBottom: 1 }} className="truncate">{label}</p>
-        <p style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--ui-text-primary)" }} className="tabular-nums">{typeof value === "number" ? value.toLocaleString() : value}</p>
+        <p style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--ui-text-primary)" }} className="tabular-nums">{typeof value === "number" ? <CountUp to={value} /> : value}</p>
       </div>
       <span className="live-dot-green shrink-0" style={{ width: 6, height: 6 }} />
     </div>
@@ -258,23 +281,34 @@ export default function HrDashboardPage() {
             ) : top5.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-6">No data available</p>
             ) : (
-              top5.map((c, i) => (
-                <div key={c.name} className="flex items-center gap-3">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-500/10 border border-violet-400/20 text-[10px] font-bold text-violet-600">
-                    {i + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-foreground truncate">{c.name}</p>
-                    <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-violet-500/70"
-                        style={{ width: `${Math.round((c.count / maxConditionCount) * 100)}%` }}
-                      />
+              top5.map((c, i) => {
+                const pct = Math.round((c.count / maxConditionCount) * 100);
+                return (
+                  <div key={c.name} className="flex items-center gap-3">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-500/10 border border-violet-400/20 text-[10px] font-bold text-violet-600">
+                      {i + 1}
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-foreground truncate">{c.name}</p>
+                      <div style={{ marginTop: 4, height: 6, borderRadius: 3, background: "var(--ui-border)", overflow: "hidden", position: "relative" }}>
+                        <div
+                          className="nwd-bar-grow"
+                          style={{
+                            height: "100%",
+                            borderRadius: 3,
+                            background: "linear-gradient(90deg, #7C3AED 0%, #A78BFA 50%, #7C3AED 100%)",
+                            backgroundSize: "200% 100%",
+                            width: `${pct}%`,
+                            animation: `nwd-bar-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) ${i * 90}ms both, nwd-bar-shimmer 3s linear infinite`,
+                            transformOrigin: "left",
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-muted-foreground tabular-nums shrink-0">{c.count}</span>
                   </div>
-                  <span className="text-xs font-semibold text-muted-foreground tabular-nums shrink-0">{c.count}</span>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

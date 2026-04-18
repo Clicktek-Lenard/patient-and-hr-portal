@@ -264,6 +264,18 @@
   0%   { stroke-dashoffset: 1200; }
   100% { stroke-dashoffset: 0; }
 }
+
+/* Progress bar — grow from left on mount */
+@keyframes nwd-bar-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+/* Progress bar — subtle shimmer */
+@keyframes nwd-bar-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.nwd-bar-grow { will-change: transform, background-position; }
 /* ECG line fade loop — disappears then redraws */
 @keyframes ecg-loop {
   0%          { stroke-dashoffset: 1200; opacity: 0; }
