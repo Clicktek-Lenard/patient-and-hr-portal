@@ -169,7 +169,7 @@ export default function WellnessPage() {
           <div style={{ background: "var(--ui-card)", border: "1px solid var(--ui-border)", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px var(--ui-shadow)" }}>
             <div className="flex items-center gap-2 mb-3">
               <Users className="h-4 w-4 text-blue-500" />
-              <span className="text-xs text-muted-foreground">Active Patients</span>
+              <span className="text-xs text-muted-foreground">Active Employees</span>
             </div>
             <p className="text-2xl font-bold text-foreground">{(d.totalPatients ?? 0).toLocaleString()}</p>
             <p className="text-[10px] text-muted-foreground mt-1">Registered in system</p>
