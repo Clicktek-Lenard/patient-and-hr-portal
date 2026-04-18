@@ -1,6 +1,31 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+/* Smooth count-up animation */
+function CountUp({ to }: { to: number }) {
+  const [n, setN] = useState(0);
+  const prevRef = useRef(0);
+  useEffect(() => {
+    const from = prevRef.current;
+    const duration = 800;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setN(Math.round(from + (to - from) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else prevRef.current = to;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [to]);
+  return <>{n.toLocaleString()}</>;
+}
 
 interface StatCardProps {
   title: string;
@@ -74,14 +99,17 @@ export function StatCard({
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <p style={{
-            fontFamily: "var(--font-sans, 'Inter', system-ui, sans-serif)",
-            fontSize: "1.85rem", lineHeight: 1,
-            color: "var(--ui-text-primary)",
-            marginBottom: 4, fontWeight: 700,
-            letterSpacing: "-0.02em",
-          }}>
-            {value}
+          <p
+            className="tabular-nums"
+            style={{
+              fontFamily: "var(--font-sans, 'Inter', system-ui, sans-serif)",
+              fontSize: "1.85rem", lineHeight: 1,
+              color: "var(--ui-text-primary)",
+              marginBottom: 4, fontWeight: 700,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {typeof value === "number" ? <CountUp to={value} /> : value}
           </p>
           <p style={{ fontSize: "0.78rem", color: "var(--ui-text-secondary)", fontWeight: 500 }}>{title}</p>
           {description && (
