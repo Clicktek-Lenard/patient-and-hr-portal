@@ -1,10 +1,32 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   ClipboardList, Download, Eye, AlertTriangle, LogIn, Send,
   FileText, Search, ChevronLeft, ChevronRight, RefreshCw,
 } from "lucide-react";
+
+/* Smooth count-up animation */
+function CountUp({ to }: { to: number }) {
+  const [n, setN] = useState(0);
+  const prevRef = useRef(0);
+  useEffect(() => {
+    const from = prevRef.current;
+    const duration = 800;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setN(Math.round(from + (to - from) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else prevRef.current = to;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [to]);
+  return <>{n.toLocaleString()}</>;
+}
 
 /* ─── types ─── */
 type AuditLog = {
@@ -201,8 +223,8 @@ export default function AuditTrailPage() {
             border: "1px solid var(--ui-border)",
             boxShadow: "0 1px 3px var(--ui-shadow)",
           }}>
-            <p style={{ fontSize: 28, fontWeight: 800, color, lineHeight: 1 }}>
-              {value.toLocaleString()}
+            <p style={{ fontSize: 28, fontWeight: 800, color, lineHeight: 1 }} className="tabular-nums">
+              <CountUp to={value} />
             </p>
             <p style={{ fontSize: "0.72rem", color: "var(--ui-text-muted)", marginTop: 6, fontWeight: 500 }}>{label}</p>
           </div>
