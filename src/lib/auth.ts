@@ -261,7 +261,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   events: {
     async signIn({ user }) {
       try {
-        const u = user as { id?: string; firstName?: string; lastName?: string; role?: string };
+        const u = user as { id?: string; firstName?: string; lastName?: string; role?: string; patientCode?: string };
         if (u.role === "HR" || u.role === "ADMIN") {
           const name = `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || "HR User";
           await prisma.portalAuditLog.create({
@@ -275,8 +275,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             },
           });
         }
+        // Patient: check for new lab results and create notifications
+        if (u.role === "PATIENT" && u.id && u.patientCode) {
+          const { notifyNewResultsForPatient } = await import("@/lib/patient-notifications");
+          await notifyNewResultsForPatient(u.id, u.patientCode);
+        }
       } catch {
-        // audit failures must never block login
+        // notification/audit failures must never block login
       }
     },
   },

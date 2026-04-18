@@ -36,7 +36,8 @@ export async function GET() {
       id: n.id,
       userId: n.userId,
       title: n.title,
-      message: n.message,
+      // Hide the dedupe marker (e.g. "[QUEUE:XXX]") from the UI
+      message: n.message.replace(/\s*\[QUEUE:[^\]]+\]\s*/g, "").trim(),
       type: n.type,
       isRead: n.isRead,
       readAt: n.readAt?.toISOString(),
