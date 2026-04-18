@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { cmsPrisma } from "@/lib/prisma-cms";
+import { prisma } from "@/lib/prisma";
 import { EMPLOYEE_PATIENT_WHERE, EMPLOYEE_QUEUE_WHERE, EMPLOYEE_TRANSACTION_WHERE } from "@/lib/hr-employee-filter";
 import * as XLSX from "xlsx";
 
@@ -38,15 +39,50 @@ export async function GET(req: NextRequest) {
 
     // ── DEPARTMENTS LIST (for "json" requests) ───────────────────
     if (type === "departments") {
+      // Source 1: nameCompany from CMS transactions (excluding DEFAULT)
       const txs = await cmsPrisma.cmsTransaction.findMany({
         where: EMPLOYEE_TRANSACTION_WHERE,
         select: { nameCompany: true },
         distinct: ["nameCompany"],
       });
-      const departments = txs
-        .map((t) => t.nameCompany)
-        .filter((n): n is string => !!n)
-        .sort();
+
+      // Source 2: portal_employee_department (manual entries)
+      const portalDepts = await prisma.portalEmployeeDepartment.findMany({
+        select: { department: true },
+        distinct: ["department"],
+      });
+
+      // Source 3: CMS corporate_employees.department (if the model is available)
+      let cmsEmpDepts: { department: string | null }[] = [];
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const corpEmpModel = (cmsPrisma as any).corporateEmployee;
+        if (corpEmpModel?.findMany) {
+          cmsEmpDepts = await corpEmpModel.findMany({
+            where: { department: { not: null } },
+            select: { department: true },
+            distinct: ["department"],
+          });
+        }
+      } catch {
+        // skip silently if model not regenerated yet
+      }
+
+      const set = new Set<string>();
+      for (const t of txs) {
+        const n = t.nameCompany?.trim();
+        if (n && !n.toUpperCase().includes("DEFAULT")) set.add(n);
+      }
+      for (const p of portalDepts) {
+        const n = p.department?.trim();
+        if (n) set.add(n);
+      }
+      for (const c of cmsEmpDepts) {
+        const n = c.department?.trim();
+        if (n) set.add(n);
+      }
+
+      const departments = Array.from(set).sort((a, b) => a.localeCompare(b));
       return NextResponse.json({ data: departments });
     }
 
