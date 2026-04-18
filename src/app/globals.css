@@ -265,15 +265,29 @@
   100% { stroke-dashoffset: 0; }
 }
 
-/* Page route transition — fade + slide from left to right */
+/* Page route transition — staggered cascade from left */
 @keyframes nwd-page-fade {
-  from { opacity: 0; transform: translateX(-32px); }
+  from { opacity: 0; transform: translateX(-24px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-.nwd-page-fade {
-  animation: nwd-page-fade 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+/* Each direct child of the page wrapper fades + slides in sequentially.
+   Start hidden to avoid a flash before the delay kicks in. */
+.nwd-page-fade > * {
+  opacity: 0;
+  animation: nwd-page-fade 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: opacity, transform;
 }
+.nwd-page-fade > *:nth-child(1)  { animation-delay: 0ms; }
+.nwd-page-fade > *:nth-child(2)  { animation-delay: 90ms; }
+.nwd-page-fade > *:nth-child(3)  { animation-delay: 180ms; }
+.nwd-page-fade > *:nth-child(4)  { animation-delay: 270ms; }
+.nwd-page-fade > *:nth-child(5)  { animation-delay: 360ms; }
+.nwd-page-fade > *:nth-child(6)  { animation-delay: 450ms; }
+.nwd-page-fade > *:nth-child(7)  { animation-delay: 520ms; }
+.nwd-page-fade > *:nth-child(8)  { animation-delay: 590ms; }
+.nwd-page-fade > *:nth-child(9)  { animation-delay: 660ms; }
+.nwd-page-fade > *:nth-child(n+10) { animation-delay: 730ms; }
 
 /* Progress bar — grow from left on mount */
 @keyframes nwd-bar-grow {
