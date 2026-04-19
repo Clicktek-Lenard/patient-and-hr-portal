@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { cmsPrisma } from "@/lib/prisma-cms";
+import { prisma } from "@/lib/prisma";
 import { EMPLOYEE_PATIENT_WHERE, EMPLOYEE_QUEUE_WHERE, EMPLOYEE_TRANSACTION_WHERE } from "@/lib/hr-employee-filter";
 
 const ONGOING_STATUSES  = [100, 201, 202, 203, 210, 212, 230, 250, 260, 280, 300];
@@ -69,6 +70,7 @@ export async function GET() {
     where: EMPLOYEE_PATIENT_WHERE,
     select: {
       id: true,
+      code: true,
       queues: {
         where: { transactions: { some: EMPLOYEE_TRANSACTION_WHERE } },
         orderBy: { date: "desc" },
@@ -86,6 +88,64 @@ export async function GET() {
     },
   });
 
+  // ── Department resolution (same logic as employee list) ──────────
+  const empCodes = allEmployees.map((e) => e.code).filter((c): c is string => !!c);
+  const empIds   = allEmployees.map((e) => e.id);
+
+  const portalDeptMap = new Map<string, string>();
+  if (empCodes.length > 0) {
+    const rows = await prisma.portalEmployeeDepartment.findMany({
+      where: { patientCode: { in: empCodes } },
+      select: { patientCode: true, department: true },
+    });
+    for (const r of rows) portalDeptMap.set(r.patientCode, r.department);
+  }
+
+  const cmsDeptMap = new Map<string, string>();
+  if (empIds.length > 0) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const corpEmpModel = (cmsPrisma as any).corporateEmployee;
+      if (corpEmpModel?.findMany) {
+        const rows = await corpEmpModel.findMany({
+          where: { patientId: { in: empIds }, department: { not: null } },
+          select: { patientId: true, department: true },
+          orderBy: { id: "desc" },
+        });
+        for (const r of rows as { patientId: bigint | null; department: string | null }[]) {
+          if (r.patientId && r.department && !cmsDeptMap.has(r.patientId.toString())) {
+            cmsDeptMap.set(r.patientId.toString(), r.department);
+          }
+        }
+      }
+    } catch {
+      // skip if model not regenerated yet
+    }
+  }
+
+  function resolveDepartment(
+    patientCode: string | null,
+    patientId: bigint,
+    queues: typeof allEmployees[number]["queues"],
+  ): string {
+    // 1. Portal override
+    if (patientCode) {
+      const d = portalDeptMap.get(patientCode);
+      if (d && d.trim()) return d.trim();
+    }
+    // 2. CMS corporate_employees
+    const cmsD = cmsDeptMap.get(patientId.toString());
+    if (cmsD && cmsD.trim()) return cmsD.trim();
+    // 3. First non-DEFAULT company from transactions
+    for (const q of queues) {
+      for (const tx of q.transactions) {
+        const c = tx.nameCompany?.trim();
+        if (c && !c.toUpperCase().includes("DEFAULT")) return c;
+      }
+    }
+    return "Unassigned";
+  }
+
   let overdueCount   = 0;
   let compliantCount = 0;
   let neverCount     = 0;
@@ -94,18 +154,13 @@ export async function GET() {
 
   for (const emp of allEmployees) {
     let lastPeDate: Date | null = null;
-    let empCompany = "Unknown";
+    const empDept = resolveDepartment(emp.code, emp.id, emp.queues);
 
     for (const q of emp.queues) {
       for (const tx of q.transactions) {
         const desc = tx.descriptionItemPrice ?? "";
         const key  = desc.trim();
         if (key) conditionMap[key] = (conditionMap[key] ?? 0) + 1;
-
-        // Track company for dept compliance
-        if (tx.nameCompany && (!empCompany || empCompany === "Unknown")) {
-          empCompany = tx.nameCompany ?? "Unknown";
-        }
 
         if (isPeTransaction(desc)) {
           const d = tx.date ? new Date(tx.date) : q.date ? new Date(q.date) : null;
@@ -114,8 +169,8 @@ export async function GET() {
       }
     }
 
-    if (!companyMap[empCompany]) companyMap[empCompany] = { total: 0, compliant: 0 };
-    companyMap[empCompany].total++;
+    if (!companyMap[empDept]) companyMap[empDept] = { total: 0, compliant: 0 };
+    companyMap[empDept].total++;
 
     if (!lastPeDate) {
       neverCount++;
@@ -124,7 +179,7 @@ export async function GET() {
       if (daysAgo > 365) overdueCount++;
       else {
         compliantCount++;
-        companyMap[empCompany].compliant++;
+        companyMap[empDept].compliant++;
       }
     }
   }
@@ -138,7 +193,10 @@ export async function GET() {
     .slice(0, 5)
     .map(([name, count]) => ({ name, count }));
 
-  // ── PE Compliance by Company ──────────────────────────────────────
+  // ── PE Compliance by Department ───────────────────────────────────
+  // Priority order: portal override > CMS corporate_employees > queue
+  // nameCompany (excluding DEFAULT). "Unassigned" groups patients with
+  // no department anywhere.
   const peByDept = Object.entries(companyMap)
     .filter(([, v]) => v.total >= 1)
     .map(([dept, v]) => ({
@@ -147,7 +205,12 @@ export async function GET() {
       compliant: v.compliant,
       rate: Math.round((v.compliant / v.total) * 100),
     }))
-    .sort((a, b) => b.total - a.total)
+    // Unassigned goes last regardless of size
+    .sort((a, b) => {
+      if (a.dept === "Unassigned" && b.dept !== "Unassigned") return 1;
+      if (b.dept === "Unassigned" && a.dept !== "Unassigned") return -1;
+      return b.total - a.total;
+    })
     .slice(0, 6);
 
   // ── Wellness score ────────────────────────────────────────────────
